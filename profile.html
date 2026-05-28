@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile – Shizuku Coffee</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script src="products.js"></script>
+<script src="quickview.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Search coffee..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html"><img src="cart.png" alt=""></a>
+    <a href="wishlist.html"><img src="love.png" alt=""></a>
+    <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+  </div>
+
+<div class="profile-card reveal-hidden">
+<div id="profileRankBadge" class="mb-2"></div>
+<div id="sakuraVipBadge" class="mb-2" style="display: none;"></div>
+<div class="avatar-upload-container">
+    <img id="profileAvatar" src="profile-icon.png" class="profile-avatar">
+</div>
+
+    <div class="profile-name" id="profileName"></div>
+<div class="profile-info" id="profileEmail" style="margin-bottom: 12px;"></div>
+<div id="tierProgressContainer" class="px-4 mb-3"></div>
+
+<div class="d-flex justify-content-center gap-2 mb-4 mt-3 px-2">
+    <div class="stat-item text-center">
+        <div id="statOrders" class="fw-bold stat-number">0</div>
+        <div class="small opacity-75" id="labelOrders">Orders</div>
+    </div>
+    <div class="stat-item text-center">
+        <div id="statWishlist" class="fw-bold stat-number">0</div>
+        <div class="small opacity-75" id="labelWishlist">Wishlist</div>
+    </div>
+    <div class="stat-item text-center" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#pointsCollapse">
+        <div id="statPoints" class="fw-bold stat-number">0</div>
+        <div class="small opacity-75" id="labelPoints">Points</div>
+    </div>
+</div>
+
+<div class="profile-info" id="profileSince" style="font-size: 13px; opacity: 0.8;"><span class="label-since">Member since</span> <span id="memberSinceYear"></span></div>
+
+    <section id="pointsHistoryContainer" class="profile-section-card text-start">
+        <div class="d-flex justify-content-between align-items-center collapsed" data-bs-toggle="collapse" data-bs-target="#pointsCollapse" style="cursor: pointer;">
+            <h6 id="pointsHistoryTitle" style="font-size: 11px; font-weight: 700; color: var(--sakura-pink-main); text-transform: uppercase; margin-bottom: 0; letter-spacing: 0.5px;">Points History</h6>
+            <span class="points-arrow" style="font-size: 10px; color: var(--sakura-pink-main); transition: transform 0.3s ease;">▼</span>
+        </div>
+        <div id="pointsCollapse" class="collapse">
+            <ul id="pointsHistoryList" class="list-unstyled mb-0 mt-3"></ul>
+        </div>
+    </section>
+
+    <section id="myVouchersSection" class="profile-section-card text-start">
+        <h6 id="vouchersTitle" style="font-size: 11px; font-weight: 700; color: var(--sakura-pink-main); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px;">My Vouchers</h6>
+        <div id="vouchersList" class="d-flex flex-column gap-2"></div>
+    </section>
+
+    <section id="rewardsSection" class="profile-section-card text-start">
+        <h6 id="rewardsTitle" style="font-size: 11px; font-weight: 700; color: var(--sakura-pink-main); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px;">Redeem Rewards</h6>
+        <div id="rewardsGrid" class="d-flex flex-column gap-2"></div>
+    </section>
+
+    <button class="sakura-btn btn-edit w-100 mb-2" onclick="location.href='editprofile.html'">Edit Profile</button>
+    <button class="sakura-btn secondary btn-signout" onclick="signOut()">Sign Out</button>
+    <div class="mt-4">
+        <button class="btn btn-link btn-sm text-muted text-decoration-none delete-btn" onclick="deleteAccount()" style="font-size: 12px;">Delete Account</button>
+    </div>
+</div>
+<div id="orderHistory" class="order-history reveal-hidden" style="display:none; margin-top: 30px;">
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header border-0">
+        <h5 class="modal-title w-100" id="confirmModalTitle">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody">
+        Are you sure?
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="sakura-btn secondary" data-bs-dismiss="modal" style="width: auto; padding: 10px 20px;">Cancel</button>
+        <button type="button" class="sakura-btn delete-btn" id="confirmActionBtn" style="width: auto; padding: 10px 20px;">Delete Forever</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content invoice-modal" style="background: white !important; color: #4a373b !important; padding: 40px; border-radius: 20px !important;">
+      <div class="modal-header border-0 p-0 mb-4 d-flex justify-content-between align-items-start">
+        <div class="d-flex align-items-center gap-3">
+            <img src="logo.png" alt="Shizuku Logo" style="height: 50px; width: auto;">
+            <div>
+                <h2 class="fw-bold mb-0" style="color: var(--sakura-pink-main);">SHIZUKU</h2>
+                <p class="small text-muted mb-0">Kyoto, Japan</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-html2canvas-ignore="true"></button>
+      </div>
+      <div id="invoiceContent">
+
+      </div>
+      <div class="modal-footer border-0 p-0 mt-4 justify-content-between">
+          <p class="small text-muted italic mb-0" id="invoiceDisclaimer">*This is a simulated invoice for portfolio purposes.</p>
+          <div class="d-flex gap-2">
+              <button type="button" class="sakura-btn secondary" onclick="downloadInvoicePDF()" id="downloadBtn" data-html2canvas-ignore="true">Download PDF</button>
+              <button type="button" class="sakura-btn" onclick="window.print()" id="printBtn" data-html2canvas-ignore="true">Print</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const translations = {
+    en: {
+        since: "Member since",
+        edit: "Edit Profile",
+        signout: "Sign Out",
+        delete: "Delete Account",
+        history: "Order History",
+        noOrders: "You haven't placed any orders yet",
+        date: "Order Date:",
+        status: "Status:",
+        total: "Total:",
+        ship: "Shipping:",
+        disc: "Discount:",
+        reorder: "Reorder",
+        qty: "Qty:",
+        searchPlh: "Search coffee...",
+        confirmTitle: "Confirm Action",
+        confirmMsg: "Are you sure you want to delete your account? This action cannot be undone!",
+        confirmBtn: "Delete Forever",
+        cancel: "Cancel",
+        deleteSuccess: "Your account has been deleted.",
+        noAccount: "No account is currently logged in.",
+        statusPaid: "Paid & Preparing",
+        statusPreparing: "Preparing",
+        statusShipped: "Shipped",
+        statusDelivered: "Delivered",
+        statOrders: "Orders",
+        statWishlist: "Wishlist",
+        labelPoints: "Points",
+        pointsHistoryTitle: "Points History",
+        noPoints: "You haven't earned any points yet.",
+        vouchersTitle: "My Vouchers",
+        rewardsTitle: "Rewards Shop",
+        redeemBtn: "Redeem",
+        tier1: "Sakura Sprout",
+        tier2: "Cherry Blossom",
+        tier3: "Shizuku Elite",
+        tier4: "Roast Master",
+        invoiceDisclaimer: "*This is a simulated invoice for portfolio purposes.",
+        downloadInvoice: "Download PDF",
+        printInvoice: "Print",
+        trackOrder: "Track Order"
+    },
+    jp: {
+        since: "入会日：",
+        edit: "プロフィール編集",
+        signout: "サインアウト",
+        delete: "アカウント削除",
+        history: "注文履歴",
+        noOrders: "まだ注文履歴がありません",
+        date: "注文日:",
+        status: "状況:",
+        total: "合計:",
+        ship: "送料:",
+        disc: "割引:",
+        reorder: "再注文",
+        qty: "数量:",
+        searchPlh: "コーヒーを検索...",
+        confirmTitle: "確認",
+        confirmMsg: "アカウントを削除してもよろしいですか？この操作は取り消せません！",
+        confirmBtn: "完全に削除",
+        cancel: "キャンセル",
+        deleteSuccess: "アカウントが削除されました。",
+        noAccount: "現在ログインしているアカウントはありません。",
+        statusPaid: "支払い済み・準備中",
+        statusPreparing: "準備中",
+        statusShipped: "発送済み",
+        statusDelivered: "配達完了",
+        statOrders: "注文数",
+        statWishlist: "お気に入り",
+        labelPoints: "ポイント",
+        pointsHistoryTitle: "ポイント履歴",
+        noPoints: "まだポイント履歴がありません。",
+        vouchersTitle: "獲得済みクーポン",
+        rewardsTitle: "特典ショップ",
+        redeemBtn: "交換する",
+        tier1: "サクラスプラウト",
+        tier2: "チェリーブロッサム",
+        tier3: "雫エリート",
+        tier4: "ローストマスター",
+        invoiceDisclaimer: "※この請求書はポートフォリオ用のシミュレーションです。",
+        downloadInvoice: "PDFをダウンロード",
+        printInvoice: "印刷",
+        trackOrder: "配送状況を確認"
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+function saveOrder(order) {
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    orders.push(order);
+    localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+function loadOrders() {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const orderHistory = document.getElementById("orderHistory");
+    const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const t = translations[currentLang];
+
+    if (!orderHistory || !loggedInUser) return;
+
+    const userOrders = allOrders.filter(o => o.userEmail === loggedInUser.email);
+
+    if (userOrders.length === 0) {
+        orderHistory.innerHTML = `
+            <h2 class="order-title">${t.history}</h2>
+            <p class="no-orders">${t.noOrders}</p>
+        `;
+    } else {
+        orderHistory.innerHTML = `<h2 class="order-title">${t.history}</h2>`;
+
+    const fragment = document.createDocumentFragment();
+
+    const sortedOrders = userOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    sortedOrders.forEach((order) => {
+        const card = document.createElement("div");
+        card.className = "order-history-card";
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.reorder-btn') || e.target.closest('.track-btn')) return;
+            showInvoice(order.orderId);
+        });
+
+        const currentStatus = getSimulatedStatus(order.timestamp);
+        const isActive = currentStatus !== "Delivered";
+
+        let statusText = currentStatus;
+        if (currentStatus === "Paid & Preparing") statusText = t.statusPaid;
+        else if (currentStatus === "Preparing") statusText = t.statusPreparing;
+        else if (currentStatus === "Shipped") statusText = t.statusShipped;
+        else if (currentStatus === "Delivered") statusText = t.statusDelivered;
+
+        let itemsHtml = order.items.map(item => {
+            const product = SHIZUKU_PRODUCTS.find(p => p.title === item.name);
+            const displayName = (currentLang === 'jp' && product && product.title_jp) ? product.title_jp : item.name;
+            return `
+                <div class="order-item">
+                    <img src="${item.image}" class="order-thumb">
+                    <div class="order-details">
+                        <div class="order-name">${displayName}</div>
+                        <div class="order-meta">${t.qty} ${item.qty}</div>
+                    </div>
+                    <div class="order-price">${formatPrice(item.qty * parseFloat(item.price))}</div>
+                </div>
+            `;
+        }).join('');
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--sakura-brown-light); margin-bottom: 12px;">
+                <span>${t.date} ${order.date}</span>
+                <span class="fw-bold" style="color: var(--sakura-pink-main);">${statusText}</span>
+            </div>
+            ${itemsHtml}
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 182, 193, 0.2); padding-top: 12px; margin-top: 5px;">
+                <div>
+                    <span class="small opacity-75">${t.total}</span>
+                    <span class="fw-bold ms-1" style="font-size: 1.1rem; color: var(--sakura-brown-dark);">${formatPrice(order.total)}</span>
+                </div>
+                <div class="d-flex gap-2">
+                    ${isActive ? `<button class="sakura-btn secondary track-btn" data-id="${order.orderId}" style="padding: 6px 16px; font-size: 12px; margin: 0;">${t.trackOrder}</button>` : ''}
+                    <button class="sakura-btn reorder-btn" data-id="${order.orderId}" style="padding: 6px 16px; font-size: 12px; margin: 0;">${t.reorder}</button>
+                </div>
+            </div>
+        `;
+        fragment.appendChild(card);
+    });
+
+        orderHistory.appendChild(fragment);
+    }
+    
+    orderHistory.style.display = "block";
+
+    document.querySelectorAll(".reorder-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const orderId = btn.dataset.id;
+            const orderToReorder = userOrders.find(o => o.orderId === orderId);
+            if (!orderToReorder) return;
+
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            orderToReorder.items.forEach(item => {
+                const existing = cart.find(c => c.title === item.name);
+                if (existing) existing.qty += item.qty;
+                else {
+                    const originalProduct = SHIZUKU_PRODUCTS.find(p => p.title === item.name);
+                    cart.push({ ...originalProduct, qty: item.qty });
+                }
+            });
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.location.href = "basket.html";
+        });
+    });
+    
+    document.querySelectorAll(".track-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const orderId = btn.dataset.id;
+            window.location.href = `tracking.html?id=${orderId}`;
+        });
+    });
+    
+    loadPointsHistory(loggedInUser, t);
+}
+
+function showInvoice(orderId) {
+    const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const order = allOrders.find(o => o.orderId === orderId);
+    if (!order) return;
+
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    const t = translations[currentLang];
+    const container = document.getElementById('invoiceContent');
+
+    const shipping = order.shippingDetails || {
+        name: user.username,
+        address: "Details unavailable for older orders.",
+        zip: ""
+    };
+
+    const itemsHtml = order.items.map(item => `
+        <tr>
+            <td class="text-start">${item.name}</td>
+            <td class="text-center">${item.qty}</td>
+            <td class="text-end">${formatPrice(item.price)}</td>
+            <td class="text-end">${formatPrice(item.qty * item.price)}</td>
+        </tr>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="invoice-header d-flex justify-content-between align-items-start mb-4">
+            <div class="text-start">
+                <h6 class="text-uppercase fw-bold mb-3" style="font-size: 11px; opacity: 0.5; letter-spacing: 1px;">Customer</h6>
+                <p class="mb-0 small"><strong>${user.username}</strong></p>
+                <p class="mb-0 small text-muted">${user.email}</p>
+            </div>
+            <div class="text-start border-start ps-4" style="max-width: 200px;">
+                <h6 class="text-uppercase fw-bold mb-3" style="font-size: 11px; opacity: 0.5; letter-spacing: 1px;">Ship To</h6>
+                <p class="mb-0 small"><strong>${shipping.name}</strong></p>
+                <p class="mb-0 small text-muted">${shipping.address}</p>
+                <p class="mb-0 small text-muted">${shipping.zip || ''}</p>
+                ${shipping.phone ? `<p class="mb-0 small text-muted">${shipping.phone}</p>` : ''}
+            </div>
+            <div class="text-end">
+                <h6 class="text-uppercase fw-bold mb-3" style="font-size: 11px; opacity: 0.5; letter-spacing: 1px;">Order Info</h6>
+                <p class="mb-0 small"><strong>Order #${order.orderId}</strong></p>
+                <p class="mb-0 small text-muted">${order.date}</p>
+            </div>
+        </div>
+        
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th class="text-start">Item</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsHtml}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end mt-4">
+            <div style="width: 240px;">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small opacity-75">Subtotal:</span>
+                    <span>${formatPrice(order.subtotal)}</span>
+                </div>
+                ${order.discount > 0 ? `
+                <div class="d-flex justify-content-between mb-2" style="color: var(--sakura-pink-main);">
+                    <span class="small">Discount:</span>
+                    <span>-${formatPrice(order.discount)}</span>
+                </div>` : ''}
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small opacity-75">Shipping:</span>
+                    <span>${formatPrice(order.shippingCost)}</span>
+                </div>
+                <div class="d-flex justify-content-between pt-3 border-top mt-2">
+                    <span class="fw-bold">Total Amount:</span>
+                    <span class="fw-bold fs-5" style="color: var(--sakura-pink-dark);">${formatPrice(order.total)}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-5 pt-4 border-top text-center">
+            <p class="small text-muted mb-0">Thank you for choosing Shizuku Coffee.</p>
+            <p class="small text-muted">Visit us again at e0zzza.github.io/Shizuku-Coffee </p>
+        </div>
+    `;
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('invoiceModal')).show();
+}
+
+function downloadInvoicePDF() {
+    if (typeof html2pdf === 'undefined') {
+        window.showSakuraToast("PDF library is still loading, please try again in a moment.", "⚠️");
+        return;
+    }
+
+    const originalModal = document.querySelector('.invoice-modal');
+    if (!originalModal) return;
+    
+    const element = originalModal.cloneNode(true);
+    
+    element.querySelectorAll('[data-html2canvas-ignore="true"], .btn-close').forEach(el => el.remove());
+    
+    const orderText = originalModal.querySelector('.text-end p strong')?.innerText || '';
+    const orderId = orderText.replace('#', '').trim() || 'Invoice';
+
+    const lang = localStorage.getItem("language") || "en";
+    const generatingMsg = lang === 'jp' ? "PDFを作成中..." : "Generating your PDF...";
+    window.showSakuraToast(generatingMsg, '📄');
+
+    element.style.width = "100%";
+    element.style.height = "auto";
+    element.style.minHeight = "0"; 
+    element.style.backgroundColor = "white";
+    element.style.color = "black";
+    element.style.backdropFilter = "none";
+    element.style.webkitBackdropFilter = "none";
+    element.style.boxSizing = "border-box";
+    element.style.padding = "20mm"; 
+    element.style.margin = "0";
+    element.style.borderRadius = "0"; 
+    element.style.boxShadow = "none"; 
+    element.style.transform = "none"; 
+    element.style.position = "relative";
+
+   
+    const watermark = document.createElement('div');
+    watermark.style.position = "absolute";
+    watermark.style.top = "50%";
+    watermark.style.left = "50%";
+    watermark.style.transform = "translate(-50%, -50%)";
+    watermark.style.width = "150mm";
+    watermark.style.height = "150mm";
+    watermark.style.opacity = "0.1"; 
+    watermark.style.backgroundImage = "url('logo.png')";
+    watermark.style.backgroundRepeat = "no-repeat";
+    watermark.style.backgroundPosition = "center";
+    watermark.style.backgroundSize = "contain";
+    watermark.style.zIndex = "0"; 
+    element.prepend(watermark);
+    
+    const opt = {
+        margin:       [0, 0, -1, 0],
+        filename:     `Shizuku_Invoice_${orderId}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true,
+            scrollX: -window.scrollX,
+            windowWidth: 800, 
+            x: 0,
+            y: 0,
+            letterRendering: true,
+            scrollY: 0 
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    
+    html2pdf().set(opt).from(element).save().catch(err => {
+        console.error("PDF Generation Error:", err);
+        window.showSakuraToast("Could not generate PDF. Please try the Print option.", "❌");
+    });
+}
+
+function loadPointsHistory(user, t) {
+    const pointsList = document.getElementById("pointsHistoryList");
+    const pointsTitle = document.getElementById("pointsHistoryTitle");
+    const statPoints = document.getElementById("statPoints");
+    const rewardsTitle = document.getElementById("rewardsTitle");
+    const vouchersTitle = document.getElementById("vouchersTitle");
+
+    if (vouchersTitle) vouchersTitle.innerText = t.vouchersTitle;
+    if (rewardsTitle) rewardsTitle.innerText = t.rewardsTitle;    
+
+    if (!pointsList || !pointsTitle || !user) return;
+    
+    if (typeof QuickView !== 'undefined' && QuickView.initProfileRank) QuickView.initProfileRank();
+    
+    pointsTitle.innerText = t.pointsHistoryTitle;
+    const currentPoints = user.points || 0;
+    if (statPoints) statPoints.innerText = currentPoints;
+
+    let history = Array.isArray(user.pointsHistory) ? user.pointsHistory : [];
+    
+    if (history.length === 0 && currentPoints > 0) {
+        let fallbackReason = currentPoints === 10 ? "Welcome Bonus" : "Points Balance";
+        let fallbackReasonJp = currentPoints === 10 ? "新規登録ボーナス" : "保有ポイント";
+        
+        history = [{ date: user.signupDate || new Date().toISOString(), amount: currentPoints, reason: fallbackReason, reason_jp: fallbackReasonJp }];
+        
+        user.pointsHistory = history;
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+        users = users.map(u => u.email === user.email ? user : u);
+        localStorage.setItem("users", JSON.stringify(users));
+    }
+    
+    if (history.length === 0) {
+        pointsList.innerHTML = `<li class="no-orders" style="font-size: 12px; padding: 0;">${t.noPoints}</li>`;
+    } else {
+        let html = "";
+        [...history].reverse().forEach(tx => {
+            const date = new Date(tx.date).toLocaleDateString(currentLang === 'jp' ? 'ja-JP' : 'en-US', { month: 'short', day: 'numeric' });
+            const reason = (currentLang === 'jp' ? tx.reason_jp : tx.reason) || (currentLang === 'jp' ? "ボーナス" : "Bonus");
+            
+            const rEng = (tx.reason || "").toLowerCase();
+            const rJp = (tx.reason_jp || "").toLowerCase();
+            
+            const isMiko = rEng.includes('miko') || rJp.includes('miko') || rEng.includes('chat') || rJp.includes('チャット') || rEng.includes('assistant');
+            
+            let icon = '✨'; 
+            if (rEng.includes('purchase') || rJp.includes('購入')) icon = '🛍️';
+            else if (rEng.includes('welcome') || rJp.includes('登録')) icon = '🎁';
+            else if (rEng.includes('redeem') || rJp.includes('交換')) icon = '🎫';
+            else if (isMiko) icon = '💬';
+
+            const amountDisplay = tx.amount > 0 ? `+${tx.amount}` : tx.amount;
+            const amountColor = tx.amount > 0 ? 'var(--sakura-pink-main)' : '#8b6f63';
+
+            html += `
+                <li class="d-flex justify-content-between align-items-center py-2 border-bottom border-light" style="border-color: rgba(255,182,193,0.2) !important;">
+                    <span style="font-size: 11px; text-align: left; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">${icon}</span>
+                        <span><strong>${reason}</strong><br><span class="opacity-75">${date}</span></span>
+                    </span>
+                    <span class="fw-bold" style="color: ${amountColor}; font-size: 13px;">${amountDisplay}</span>
+                </li>`;
+        });
+        pointsList.innerHTML = html;
+    }
+    loadRewardsShop(user, t);
+    renderMyVouchers(user, t);
+}
+
+function renderMyVouchers(user, t) {
+    const section = document.getElementById("myVouchersSection");
+    const list = document.getElementById("vouchersList");
+    if (!section || !list) return;
+
+    const vouchers = user.vouchers || [];
+    section.style.display = 'block';
+
+    if (vouchers.length === 0) {
+        list.innerHTML = `<p class="small opacity-50 mb-0 text-center">${currentLang === 'jp' ? '獲得済みのクーポンはありません' : 'No vouchers redeemed yet.'}</p>`;
+        return;
+    }
+    list.innerHTML = vouchers.map(v => {
+        const isUsed = !!v.used;
+        return `
+            <div class="voucher-item-card d-flex justify-content-between align-items-center p-2 rounded-3" 
+                 style="background: ${isUsed ? 'rgba(0,0,0,0.03)' : 'white'}; border: 1px solid var(--glass-border); ${isUsed ? 'opacity: 0.6;' : ''}">
+                <div class="text-start">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--sakura-brown-dark); ${isUsed ? 'text-decoration: line-through;' : ''}">
+                        ${currentLang === 'jp' ? v.nameJp : v.name}
+                    </div>
+                    <div style="font-size: 10px; opacity: 0.6;">
+                        ${isUsed ? 
+                            (currentLang === 'jp' ? '使用済み' : 'Used') : 
+                            (currentLang === 'jp' ? '獲得日：' : 'Redeemed on ') + new Date(v.date).toLocaleDateString()}
+                    </div>
+                </div>
+                ${isUsed ? 
+                    `<span class="badge bg-secondary" style="font-size: 10px; opacity: 0.8; padding: 4px 8px; font-weight: 500;">${currentLang === 'jp' ? '使用済み' : 'Used'}</span>` : 
+                    `<span class="promo-code-badge" style="font-size: 11px; padding: 4px 10px;">${v.code}</span>`
+                }
+            </div>`;
+    }).join('');
+}
+
+function loadRewardsShop(user, t) {
+    const grid = document.getElementById("rewardsGrid");
+    if (!grid) return;
+    
+    const availableRewards = [
+        { id: 'disc10', pts: 200, en: "10% Discount Voucher", jp: "10% 割引クーポン" },
+        { id: 'shipFree', pts: 500, en: "Free Express Shipping Voucher", jp: "速達配送料無料クーポン" },
+        { id: 'cash5', pts: 800, en: "€5 Gift Card", jp: "¥800 ギフトカード" }
+    ];
+
+    grid.innerHTML = availableRewards.map(r => {
+        const canAfford = user.points >= r.pts;
+        const name = currentLang === 'jp' ? r.jp : r.en;
+        return `
+            <div class="reward-item-row d-flex justify-content-between align-items-center p-2 rounded-3 mb-1" style="background: rgba(255,255,255,0.4); border: 1px solid rgba(255,182,193,0.2);">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="font-size: 20px;">${r.pts >= 500 ? '🎫' : '🎟️'}</span>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600;">${name}</div>
+                        <div style="font-size: 11px; opacity: 0.7;">${r.pts} pts</div>
+                    </div>
+                </div>
+                <button class="sakura-btn ${canAfford ? '' : 'disabled'}" style="padding: 4px 12px; font-size: 11px; margin: 0;" 
+                        onclick="${canAfford ? `redeemReward(${r.pts}, '${r.en}', '${r.jp}')` : ''}">
+                    ${t.redeemBtn}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function redeemReward(cost, name, nameJp) {
+    let user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user || user.points < cost) return;
+
+    user.points -= cost;
+
+    const code = "SHIZUKU-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+    const newVoucher = {
+        code: code,
+        name: name,
+        nameJp: nameJp,
+        date: new Date().toISOString(),
+        used: false
+    };
+
+    const transaction = {
+        date: new Date().toISOString(),
+        amount: -cost,
+        reason: `Redeemed: ${name}`,
+        reason_jp: `交換：${nameJp}`
+    };
+    
+    user.vouchers = [...(user.vouchers || []), newVoucher];
+    user.pointsHistory = [...(user.pointsHistory || []), transaction];
+    
+    localStorage.setItem("loggedInUser", JSON.stringify(user));
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    users = users.map(u => u.email === user.email ? user : u);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    window.showSakuraToast(currentLang === 'jp' ? "特典を交換しました！「獲得済みクーポン」をご確認ください。" : "Reward redeemed! Your code is now available in 'My Vouchers'.", "🎫");
+    loadPointsHistory(user, translations[currentLang]);
+}
+
+function updateLanguage() {
+    const t = translations[currentLang];
+
+    if (currentLang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    document.querySelector(".label-since").innerText = t.since;
+    document.querySelector(".btn-edit").innerText = t.edit;
+    document.querySelector(".btn-signout").innerText = t.signout;
+    document.querySelector(".delete-btn").innerText = t.delete;
+    document.getElementById("confirmModalTitle").innerText = t.confirmTitle;
+    document.getElementById("confirmActionBtn").innerText = t.confirmBtn;
+    document.querySelector("#confirmModal .secondary").innerText = t.cancel;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+
+    if (document.getElementById("invoiceDisclaimer")) {
+        document.getElementById("invoiceDisclaimer").innerText = t.invoiceDisclaimer;
+    }
+    document.getElementById("downloadBtn").innerText = t.downloadInvoice;
+    document.getElementById("printBtn").innerText = t.printInvoice;
+
+    document.getElementById("labelOrders").innerText = t.statOrders;
+    document.getElementById("labelWishlist").innerText = t.statWishlist;
+    document.getElementById("labelPoints").innerText = t.labelPoints;
+    loadOrders();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const nameEl = document.getElementById("profileName");
+    const emailEl = document.getElementById("profileEmail");
+    const sinceEl = document.getElementById("memberSinceYear");
+    const avatarEl = document.getElementById("profileAvatar");
+    
+    if (nameEl) {
+        const flag = user.flag || localStorage.getItem("userCountryFlag") || "🌸";
+        nameEl.innerHTML = `${user.username || 'Shizuku Guest'} <span style="font-size: 0.8em;">${flag}</span>`;
+    }
+    if (emailEl) emailEl.textContent = user.email || "";
+    if (avatarEl && user.profilePic) avatarEl.src = user.profilePic;
+    
+    if (sinceEl) {
+        const dateSource = user.signupDate || new Date().toISOString();
+        const dateObj = new Date(dateSource);
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        sinceEl.textContent = (!isNaN(dateObj.getTime())) 
+            ? dateObj.toLocaleDateString(currentLang === 'jp' ? 'ja-JP' : 'en-US', options) 
+            : "Jan 2026";
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const searchIcon = document.querySelector(".search-icon");
+
+    function triggerSearch() {
+        window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value);
+    }
+    if (searchInput) searchInput.addEventListener("keypress", (e) => { if (e.key === "Enter") triggerSearch(); });
+    if (searchIcon) searchIcon.addEventListener("click", triggerSearch);
+
+    if (localStorage.getItem("justSignedUp") === "true") {
+        const welcomeMsg = currentLang === 'jp' ? 
+            `Shizuku Coffeeへようこそ、${user.username}さん！ 🌸` : 
+            `Welcome to Shizuku Coffee, ${user.username}! 🌸`;
+        window.showSakuraToast(welcomeMsg, '✨');
+        localStorage.removeItem("justSignedUp");
+    }
+
+    if (localStorage.getItem("profileUpdatePendingMsg") === "true") {
+        const msg = currentLang === 'jp' ? "プロフィールを更新しました！ ✨" : "Profile updated successfully!";
+        window.showSakuraToast(msg, "🌸");
+        localStorage.removeItem("profileUpdatePendingMsg");
+    }
+
+    window.addEventListener('shizuku_points_updated', (e) => {
+        loadPointsHistory(e.detail, translations[currentLang]);
+        const ptsEl = document.getElementById("statPoints");
+        if (ptsEl) {
+            ptsEl.innerText = e.detail.points || 0;
+            ptsEl.style.transform = 'scale(1.4)';
+            ptsEl.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            setTimeout(() => ptsEl.style.transform = 'scale(1)', 300);
+        }
+    });
+
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]").filter(o => o.userEmail === user.email);
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    document.getElementById("statOrders").innerText = orders.length;
+    document.getElementById("statWishlist").innerText = wishlist.length;
+
+    updateLanguage();
+});
+
+document.getElementById("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "jp" : "en";
+    localStorage.setItem("language", currentLang);
+    updateLanguage();
+});
+
+function signOut() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+}
+
+
+const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+const confirmActionBtn = document.getElementById('confirmActionBtn');
+
+function deleteAccount() {
+    document.getElementById('confirmModalBody').innerText = translations[currentLang].confirmMsg;
+    confirmModal.show();
+
+    confirmActionBtn.onclick = () => {
+        executeDelete();
+    };
+}
+function executeDelete() {
+    const t = translations[currentLang];
+    const loggedIn = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!loggedIn) {
+        alert(t.noAccount);
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    users = users.filter(u => u.email !== loggedIn.email);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("orders");
+    localStorage.removeItem("wishlist");
+
+    alert(t.deleteSuccess);
+    window.location.href = "signup.html";
+}
+</script>

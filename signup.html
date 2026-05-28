@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up - Shizuku Coffee</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+</head>
+<body>
+
+    <img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Search coffee..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html"><img src="cart.png" alt=""></a>
+    <a href="wishlist.html"><img src="love.png" alt=""></a>
+    <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+  </div>
+<br>
+<br>
+<br>
+<br>
+    <div class="auth-container">
+    <h2 id="signupTitle">Sign Up</h2>
+
+    <form id="signupForm">
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="password-toggle-wrapper">
+                <input type="password" class="form-control" id="password" minlength="8" required>
+                <span class="password-toggle-icon">👁️</span>
+            </div>
+            <div class="strength-meter-container">
+                <div class="strength-bar"></div>
+            </div>
+            <small class="strength-text"></small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <div class="password-toggle-wrapper">
+                <input type="password" class="form-control" id="confirmPassword" minlength="8" required>
+                <span class="password-toggle-icon">👁️</span>
+            </div>
+        </div>
+
+        <button type="submit" class="sakura-btn">Sign up</button>
+    </form>
+
+    <a class="auth-link" id="loginLink" href="login.html">Already a member? Log in</a>
+</div>
+
+    <p id="message" class="mt-3"></p>
+</div>
+
+<script>
+const searchInput = document.getElementById("searchInput");
+
+const translations = {
+    en: {
+        title: "Sign Up",
+        username: "Username",
+        email: "Email address",
+        password: "Password",
+        confirm: "Confirm Password",
+        btn: "Sign up",
+        link: "Already a member? Log in",
+        searchPlh: "Search coffee...",
+        msgExists: "Email already registered.",
+        msgMatch: "Passwords do not match.",
+        msgSuccess: "Account created successfully. Welcome! ♡ "
+    },
+    jp: {
+        title: "新規登録",
+        username: "ユーザー名",
+        email: "メールアドレス",
+        password: "パスワード",
+        confirm: "パスワード（確認）",
+        btn: "登録する",
+        link: "すでにアカウントをお持ちですか？ ログイン",
+        searchPlh: "コーヒーを検索...",
+        msgExists: "このメールアドレスは既に登録されています。",
+        msgMatch: "パスワードが一致しません。",
+        msgSuccess: "アカウントが作成されました。ようこそ！ ♡ "
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+function triggerSearch() {
+    window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value);
+}
+
+document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+    icon.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        if (input.type === "password") {
+            input.type = "text";
+            this.innerText = "🙈"; 
+        } else {
+            input.type = "password";
+            this.innerText = "👁️";
+        }
+    });
+});
+
+const pwInput = document.getElementById('password');
+const meter = document.querySelector('.strength-meter-container');
+const bar = document.querySelector('.strength-bar');
+const text = document.querySelector('.strength-text');
+
+if (pwInput && meter) {
+    pwInput.addEventListener('input', () => {
+        const val = pwInput.value;
+        if (!val) {
+            meter.style.display = 'none';
+            text.innerText = '';
+            return;
+        }
+        meter.style.display = 'block';
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        let lvl = { width: '33%', color: '#ff4d4d', text: 'Weak' };
+        if (score >= 4) lvl = { width: '100%', color: '#2ecc71', text: 'Strong' };
+        else if (score >= 2) lvl = { width: '66%', color: '#ffa500', text: 'Medium' };
+
+        bar.style.width = lvl.width;
+        bar.style.backgroundColor = lvl.color;
+        text.innerText = lvl.text;
+        text.style.color = lvl.color;
+    });
+}
+
+function updateLanguage() {
+    const t = translations[currentLang];
+
+    if (currentLang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    document.getElementById("signupTitle").innerText = t.title;
+    document.querySelectorAll(".form-label")[0].innerText = t.username;
+    document.querySelectorAll(".form-label")[1].innerText = t.email;
+    document.querySelectorAll(".form-label")[2].innerText = t.password;
+    document.querySelectorAll(".form-label")[3].innerText = t.confirm;
+    document.querySelector("button[type='submit']").innerText = t.btn;
+    document.getElementById("loginLink").innerText = t.link;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+}
+
+const searchIcon = document.querySelector(".search-icon");
+
+searchInput.addEventListener("keypress", (e) => { if (e.key === "Enter") triggerSearch(); });
+searchIcon.addEventListener("click", triggerSearch);
+
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+    const t = translations[currentLang];
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (users.some(user => user.email === email)) {
+        document.getElementById("message").innerHTML =
+            `<span class='text-danger'>${t.msgExists}</span>`;
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        document.getElementById("message").innerHTML =
+            `<span class='text-danger'>${t.msgMatch}</span>`;
+        return;
+    }
+
+    const newUser = {
+        username,
+        email,
+        password,
+        signupDate: new Date().toISOString(),
+        profilePic: null,
+        points: 10,
+        pointsHistory: [{ date: new Date().toISOString(), amount: 10, reason: "Welcome Bonus", reason_jp: "新規登録ボーナス" }]
+    };
+
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("loggedInUser", JSON.stringify(newUser));
+    localStorage.setItem("justSignedUp", "true");
+
+    document.getElementById("message").innerHTML =
+        `<span class='text-success'>${t.msgSuccess}</span>`;
+
+    setTimeout(() => {
+        window.location.href = "profile.html";
+    }, 1000);
+});
+
+document.getElementById("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "jp" : "en";
+    localStorage.setItem("language", currentLang);
+    updateLanguage();
+});
+
+document.addEventListener("DOMContentLoaded", updateLanguage);
+</script>
+</body>
+</html>
