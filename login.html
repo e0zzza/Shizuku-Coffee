@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in - Shizuku Coffee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Search coffee..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html"><img src="cart.png" alt=""></a>
+    <a href="wishlist.html"><img src="love.png" alt=""></a>
+    <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+  </div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="auth-container">
+    <h2 id="loginTitle">Log In</h2>
+
+    <form id="loginForm">
+        <div class="mb-3">
+            <label class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="password-toggle-wrapper">
+                <input type="password" class="form-control" id="password" required>
+                <span class="password-toggle-icon">👁️</span>
+            </div>
+        </div>
+
+        <button type="submit" class="sakura-btn">Log in</button>
+    </form>
+
+    <p id="message" class="mt-3"></p>
+
+    <a class="auth-link" href="signup.html">Not a member? Sign up</a>
+</div>
+
+
+<script>
+const searchInput = document.getElementById("searchInput");
+
+const translations = {
+    en: {
+        title: "Log In",
+        email: "Email address",
+        password: "Password",
+        btn: "Log in",
+        link: "Not a member? Sign up",
+        searchPlh: "Search coffee...",
+        msgNotFound: "This email is not registered yet. <a href='signup.html' style='color: inherit; text-decoration: underline;'>Create an account?</a>",
+        msgIncorrect: "Incorrect password.",
+        msgSuccess: "Welcome back! ♡",
+        msgNotFoundTitle: "Email not found"
+    },
+    jp: {
+        title: "ログイン",
+        email: "メールアドレス",
+        password: "パスワード",
+        btn: "ログインする",
+        link: "アカウントをお持ちでないですか？ 新規登録",
+        searchPlh: "コーヒーを検索...",
+        msgNotFound: "このメールアドレスは登録されていません。<a href='signup.html' style='color: inherit; text-decoration: underline;'>新規登録しますか？</a>",
+        msgIncorrect: "パスワードが正しくありません。",
+        msgSuccess: "おかえりなさい！ ♡",
+        msgNotFoundTitle: "メールが見つかりません"
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+function triggerSearch() {
+    window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value);
+}
+
+document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+    icon.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        if (input.type === "password") {
+            input.type = "text";
+            this.innerText = "🙈"; 
+        } else {
+            input.type = "password";
+            this.innerText = "👁️";
+        }
+    });
+});
+
+function updateLanguage() {
+    const t = translations[currentLang];
+
+    if (currentLang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    document.getElementById("loginTitle").innerText = t.title;
+    document.querySelectorAll(".form-label")[0].innerText = t.email;
+    document.querySelectorAll(".form-label")[1].innerText = t.password;
+    document.querySelector("button[type='submit']").innerText = t.btn;
+    document.querySelector(".auth-link").innerText = t.link;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+}
+
+document.getElementById("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "jp" : "en";
+    localStorage.setItem("language", currentLang);
+    updateLanguage();
+});
+
+const searchIcon = document.querySelector(".search-icon");
+
+searchInput.addEventListener("keypress", (e) => { if (e.key === "Enter") triggerSearch(); });
+searchIcon.addEventListener("click", triggerSearch);
+
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    const t = translations[currentLang];
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const user = users.find(u => u.email === email);
+
+    if (!user) {
+        document.getElementById("message").innerHTML =
+            `<span class='text-danger'>${t.msgNotFound}</span>`;
+        return;
+    }
+
+    if (user.password !== password) {
+        document.getElementById("message").innerHTML =
+            `<span class='text-danger'>${t.msgIncorrect}</span>`;
+        return;
+    }
+
+    localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+    document.getElementById("message").innerHTML =
+        `<span class='text-success'>${t.msgSuccess}</span>`;
+
+    setTimeout(() => {
+        window.location.href = "profile.html";
+    }, 1000);
+});
+
+document.getElementById("email").addEventListener("blur", function() {
+    const email = this.value.trim();
+    if (!email) return;
+    
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const exists = users.some(u => u.email === email);
+    
+    if (!exists) {
+        document.getElementById("message").innerHTML = 
+            `<span class='text-warning' style='font-size: 13px;'>${translations[currentLang].msgNotFound}</span>`;
+    } else {
+        document.getElementById("message").innerHTML = "";
+    }
+});
+
+document.addEventListener("DOMContentLoaded", updateLanguage);
+</script>
+
+</body>
+</html>

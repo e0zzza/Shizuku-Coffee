@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shizuku Coffee</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+
+</head>
+
+<body>
+<img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search coffee…">
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html">
+        <img src="cart.png" alt="">
+        <span id="cartBadge" class="cart-badge">0</span>
+    </a>
+    <a href="wishlist.html" class="nav-hide-mobile"><img src="love.png" alt=""></a>
+    <a href="profile.html" class="nav-hide-mobile"><img src="profile-icon.png" alt=""></a>
+    <button id="menuToggle" class="hamburger-btn">☰</button>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+  </div>
+
+<div id="mobileMenu" class="mobile-menu-overlay">
+    <button class="menu-close">×</button>
+    <div class="menu-links">
+        <a href="index.html" id="menuHome">🏠 Home</a>
+        <a href="profile.html" id="menuProfile">👤 Profile</a>
+        <a href="wishlist.html" id="menuWishlist">♥ Wishlist</a>
+        <a href="basket.html" id="menuCart">🛒 Cart</a>
+        <hr style="border-top: 1px solid rgba(255, 182, 193, 0.3);">
+        <span data-bs-toggle="modal" data-bs-target="#aboutModal" id="menuAbout"> About Us</span>
+        <span data-bs-toggle="modal" data-bs-target="#contactModal" id="menuContact">☕ Contact Support</span>
+    </div>
+</div>
+
+<div class="shop-container">
+    <h1 class="shop-title">Shizuku Coffee</h1>
+    <p class="shop-subtitle">Discover our curated sakura‑inspired blends and roasts from Japan.</p>
+
+    <div id="promoBanner" class="promo-banner" style="display: none;">
+        <span id="promoTextStart">Special Offer: Use code</span>
+        <span class="promo-code-badge">SAKURA20<span class="copy-icon"></span></span>
+        <span id="promoTextEnd">for 20% off your first order! 🌸</span>
+    </div>
+
+    <div class="filters-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="light">Light Roast</button>
+        <button class="filter-btn" data-filter="medium">Medium Roast</button>
+        <button class="filter-btn" data-filter="dark">Dark Roast</button>
+        <button class="filter-btn" data-filter="flavored">Flavored</button>
+        <button class="filter-btn" data-filter="accessory">Accessories</button>
+
+        <select class="sort-dropdown" id="sortSelect" aria-label="Sort products">
+            <option value="">Sort by</option>
+            <option value="price-low">Price: Low → High</option>
+            <option value="price-high">Price: High → Low</option>
+            <option value="popular">Most Popular</option>
+            <option value="roast">Roast Level</option>
+            <option value="rating-high">Highest Rating</option>
+        </select>
+        <select id="ratingFilter" class="sort-dropdown">
+            <option value="all">Rating</option>
+            <option value="4">4+ Stars</option>
+            <option value="3">3+ Stars</option>
+            <option value="2">2+ Stars</option>
+        </select>
+        <select id="priceFilter" class="sort-dropdown">
+    <option value="all">Price</option>
+    <option value="0-12">€0–12</option>
+    <option value="12-15">€12–15</option>
+    <option value="15-20">€15–20</option>
+    <option value="20-25">€20–25</option>
+    <option value="25-50">€25–50</option>
+    <option value="50-100">€50–100</option>
+        </select>
+
+    </div>
+
+    <div class="product-grid" id="productGrid">
+    </div>
+</div>
+
+<script>
+const translations = {
+    en: {
+        title: "Shizuku Coffee",
+        subtitle: "Discover our curated sakura‑inspired blends and roasts from Japan.",
+        promo: "Special Offer: Use code",
+        promoEnd: "for 20% off your first order! 🌸",
+        cartBtn: "Add to Cart",
+        searchPlh: "Search coffee…",
+        filterAll: "All",
+        filterLight: "Light Roast",
+        filterMedium: "Medium Roast",
+        filterDark: "Dark Roast",
+        filterFlavored: "Flavored",
+        filterAccessory: "Accessories",
+        sortDefault: "Sort by",
+        sortLow: "Price: Low → High",
+        sortHigh: "Price: High → Low",
+        sortPopular: "Most Popular",
+        sortRoast: "Roast Level",
+        sortRating: "Highest Rating",
+        priceDefault: "Price",
+        priceRanges: [
+            "Price",
+            "€0–12",
+            "€12–15",
+            "€15–20",
+            "€20–25",
+            "€25–50",
+            "€50–100"
+        ],
+        ratingOptions: ["Rating", "4+ Stars", "3+ Stars", "2+ Stars"],
+        progressSteps: ["Cart", "Shipping", "Payment", "Success"],
+        footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
+        fVisit: "Visit Us",
+        fAbout: "About Us",
+        fContact: "Contact Support",
+        aboutT: "Our Story",
+        aboutB: "<p><b>Shizuku Coffee (雫コーヒー)</b> was founded in the heart of Kyoto with a simple mission: to capture the transient beauty of Japan's seasons in every cup.</p><p>Our signature 'Sakura-Roast' process uses high-altitude specialty beans, roasted daily in small batches to preserve a delicate, tea-like clarity. We work directly with family-owned farms to ensure every drop supports sustainable cultivation.</p><p><i>From the bloom of spring to the frost of winter, we invite you to experience coffee as an art form.</i></p>",
+        contactT: "Get in Touch ☕",
+        contactB: "We'd love to hear from you!<br><br><strong>Email:</strong> hello@shizuku.coffee<br><strong>Phone:</strong> +81 03-1234-5678",
+        guideT: "Brewing the Perfect Sakura Cup ☕",
+        guideB: "<p>To unlock the delicate floral notes of our Sakura beans, follow our master barista's method:</p><ul class='list-unstyled mb-3'><li class='mb-2'>🌸 <b>Grind:</b> Medium-Coarse (like sea salt).</li><li class='mb-2'>🌡️ <b>Water:</b> 92°C (198°F) - too hot will burn the petals!</li><li class='mb-2'>⚖️ <b>Ratio:</b> 15g coffee to 250ml water.</li><li>⏱️ <b>Bloom:</b> Pour 30ml, wait 30s, then pour slowly in circles.</li></ul><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><i>Tip: Serve in a clear glass server to appreciate the tea-like clarity!</i></small></div>",
+        policyT: "Returns & Exchanges",
+        policyB: "<p>We want you to find your perfect cup! If a blend isn't quite right for you, we're here to help.</p><ul class='list-unstyled'><li class='mb-2'>📦 <b>Unopened Items:</b> Full refund within 30 days of arrival.</li><li class='mb-2'>☕ <b>Quality Guarantee:</b> If you find a quality issue within 7 days of opening, we'll replace your bag for free.</li><li class='mb-2'>🔄 <b>Exchanges:</b> Not a fan of the roast? Swap it for another blend of equal value!</li></ul><p class='small mt-3 opacity-75'><i>Note: As this is a portfolio simulation, no real returns are processed.</i></p>",
+        fHoursWeek: "Mon - Fri: 8am - 7pm",
+        fHoursEnd: "Sat - Sun: 9am - 6pm",
+        fNewsletter: "Join Our Newsletter",
+        fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
+        fNewsletterPlh: "Your email...",
+        fNewsletterBtn: "Join",
+        fNewsletterSuccess: "You have successfully joined our newsletter!",
+        menuHome: "🏠 Home",
+        menuProfile: "👤 Profile",
+        menuWishlist: "♥ Wishlist",
+        menuCart: "🛒 Cart",
+        utilTrack: "Track Order",
+        utilGuide: "Brewing Guide",
+        utilPolicy: "Returns Policy"
+    },
+    jp: {
+        title: "雫コーヒー",
+        subtitle: "日本直送。厳選された桜香るブレンドとローストをお楽しみください。",
+        promo: "特別オファー：初回注文時にコード",
+        promoEnd: "を使用すると20%オフ！",
+        cartBtn: "カートに入れる",
+        searchPlh: "コーヒーを検索…",
+        filterAll: "すべて",
+        filterLight: "浅煎り",
+        filterMedium: "中煎り",
+        filterDark: "深煎り",
+        filterFlavored: "フレーバー",
+        filterAccessory: "アクセサリー",
+        sortDefault: "並べ替え",
+        sortLow: "価格：安い順",
+        sortHigh: "価格：高い順",
+        sortPopular: "人気順",
+        sortRoast: "焙煎度順",
+        sortRating: "評価が高い順",
+        priceDefault: "価格",
+        priceRanges: [
+            "価格",
+            "¥0–1,920",
+            "¥1,920–2,400",
+            "¥2,400–3,200",
+            "¥3,200–4,000",
+            "¥4,000–8,000",
+            "¥8,000–16,000"
+        ],
+        ratingOptions: ["評価", "星4以上", "星3以上", "星2以上"],
+        progressSteps: ["カート", "配送", "お支払い", "完了"],
+        footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。一粒の豆には伝統と品質の物語が詰まっています。",
+        fVisit: "店舗案内",
+        fAbout: "私たちについて",
+        fContact: "お問い合わせ",
+        aboutT: "私たちの物語 ",
+        aboutB: "京都の中心で生まれた雫コーヒー（Shizuku Coffee）は、スペシャリティコーヒーと桜の儚い美しさへの情熱から誕生しました。「雫」という名前は、一滴一滴に込める正確さとこだわりを象徴しています。",
+        contactT: "お問い合わせ ☕",
+        contactB: "お気軽にご連絡ください！<br><br><strong>メール:</strong> hello@shizuku.coffee<br><strong>電話:</strong> +81 03-1234-5678",
+        guideT: "究極の桜コーヒーの淹れ方 ☕",
+        guideB: "<p>雫の豆が持つ繊細な香りを引き出すための、バリスタ秘伝の淹れ方です：</p><ul class='list-unstyled mb-3'><li class='mb-2'>🌸 <b>挽き方：</b>中粗挽き（海塩くらいの大きさ）。</li><li class='mb-2'>🌡️ <b>お湯：</b>92°C（沸騰後一呼吸置いた状態）。</li><li class='mb-2'>⚖️ <b>比率：</b>粉15gに対してお湯250ml。</li><li>⏱️ <b>蒸らし：</b>最初に30ml注いで30秒待ち、その後ゆっくり円を描くように。</li></ul><div class='p-2 rounded bg-light border-start border-primary border-4'><small><i>ポイント：透明なグラスを使うと、お茶のような透明感を楽しめます。</i></small></div>",
+        policyT: "返品・交換について ",
+        policyB: "<p>お客様に最高の一杯を見つけていただきたい。もしお好みに合わなかった場合は、お気軽にご相談ください。</p><ul class='list-unstyled'><li class='mb-2'>📦 <b>未開封の商品：</b>お届けから30日以内であれば全額返金いたします。</li><li class='mb-2'>☕ <b>品質保証：</b>開封後でも、品質に問題がある場合は7日以内にご連絡いただければ無料で交換いたします。</li><li class='mb-2'>🔄 <b>ブレンド交換：</b>「思ったより深かった」など、他の豆への交換も承ります！</li></ul><p class='small mt-3'><i>※このサイトはポートフォリオ用のシミュレーションのため、実際の返品は行われません。</i></p>",
+        fHoursWeek: "月 - 金：8:00 - 19:00",
+        fHoursEnd: "土 - 日：9:00 - 18:00",
+        fNewsletter: "ニュースレター登録",
+        fNewsletterDesc: "季節限定ブレンドの最新情報や特別オファーをお届けします！",
+        fNewsletterPlh: "メールアドレス...",
+        fNewsletterBtn: "登録",
+        fNewsletterSuccess: "ニュースレターへの登録が完了しました！",
+        menuHome: "🏠 ホーム",
+        menuProfile: "👤 プロフィール",
+        menuWishlist: "♥ ウィッシュリスト",
+        menuCart: "🛒 カート",
+        utilTrack: "注文追跡",
+        utilGuide: "淹れ方ガイド",
+        utilPolicy: "返品ポリシー"
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+const grid = document.getElementById("productGrid");
+const searchInput = document.getElementById("searchInput");
+const searchIcon = document.querySelector(".search-icon");
+const priceFilter = document.getElementById("priceFilter");
+const sortSelect = document.getElementById("sortSelect");
+const filterButtons = document.querySelectorAll(".filter-btn");
+
+function renderShop() {
+    const lang = currentLang;
+    const t = translations[lang];
+
+    const user = (typeof QuickView !== 'undefined') ? QuickView.getLoggedInUser() : null;
+    const lifetime = (typeof QuickView !== 'undefined') ? QuickView.getLifetimePoints(user) : 0;
+    const tier = (typeof QuickView !== 'undefined') ? QuickView.getCurrentTier(lifetime) : { name: "Sprout" };
+
+    if (lang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("promoTextStart").innerText = t.promo;
+    document.getElementById("promoTextEnd").innerText = t.promoEnd;
+
+    document.querySelector(".shop-title").innerText = t.title;
+    document.querySelector(".shop-subtitle").innerText = t.subtitle;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+
+    document.querySelectorAll(".step-label").forEach((el, i) => {
+        if (t.progressSteps[i]) el.innerText = t.progressSteps[i];
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        const filter = btn.dataset.filter;
+        if(filter === 'all') btn.innerText = t.filterAll;
+        if(filter === 'light') btn.innerText = t.filterLight;
+        if(filter === 'medium') btn.innerText = t.filterMedium;
+        if(filter === 'dark') btn.innerText = t.filterDark;
+        if(filter === 'flavored') btn.innerText = t.filterFlavored;
+        if(filter === 'accessory') btn.innerText = t.filterAccessory;
+    });
+
+    const sortSelect = document.getElementById("sortSelect");
+    sortSelect.options[0].text = t.sortDefault;
+    sortSelect.options[1].text = t.sortLow;
+    sortSelect.options[2].text = t.sortHigh;
+    sortSelect.options[3].text = t.sortPopular;
+    sortSelect.options[4].text = t.sortRoast;
+    sortSelect.options[5].text = t.sortRating;
+
+    const pf = document.getElementById("priceFilter");
+    t.priceRanges.forEach((text, i) => {
+        if (pf.options[i]) pf.options[i].text = text;
+    });
+
+    const rf = document.getElementById("ratingFilter");
+    t.ratingOptions.forEach((text, i) => {
+        if (rf.options[i]) rf.options[i].text = text;
+    });
+
+    if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
+
+    document.getElementById("menuHome").innerText = t.menuHome;
+    document.getElementById("menuProfile").innerText = t.menuProfile;
+    document.getElementById("menuWishlist").innerText = t.menuWishlist;
+    document.getElementById("menuCart").innerText = t.menuCart;
+    document.getElementById("menuAbout").innerText = "🌸 " + t.fAbout;
+    document.getElementById("menuContact").innerText = "☕ " + t.fContact;
+
+    if (document.getElementById("utilTrack")) document.getElementById("utilTrack").title = t.utilTrack;
+    if (document.getElementById("utilGuide")) document.getElementById("utilGuide").title = t.utilGuide;
+    if (document.getElementById("utilPolicy")) document.getElementById("utilPolicy").title = t.utilPolicy;
+
+    grid.innerHTML = SHIZUKU_PRODUCTS.map(p => {
+        const avgRating = calculateAverageRating(p.title);
+        const reviewCount = getReviewsForProduct(p.title).length + QuickView.reviewsPool.filter(r => r.productTitle === p.title).length;
+        
+        const isSeasonal = p.title.includes("Sakura") || p.roast === "flavored" || p.title.includes("桜");
+        const isAccessory = p.roast === 'accessory';
+
+        let disc = 0;
+        if (tier.name === "Sakura") {
+            disc = isAccessory ? 20 : 10;
+        } else {
+            if (isAccessory && tier.name === "Petal") disc = 10;
+            else if (isSeasonal && tier.name !== "Sprout") disc = 5;
+        }
+
+        const badge = disc > 0 ? ` <span class="badge bg-success ms-1" style="font-size: 10px; vertical-align: middle;">${disc}% OFF</span>` : '';
+        const priceHtml = disc > 0
+            ? `<div class="d-flex flex-column"><span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.75em; line-height: 1;">${formatPrice(p.price)}</span><span class="price" style="color: var(--sakura-pink-dark);">${formatPrice(parseFloat(p.price) * (1 - disc/100))}</span></div>`
+            : `<span class="price">${formatPrice(p.price)}</span>`;
+
+        return `
+        <div class="product-card" data-title="${p.title}" data-roast="${p.roast}" data-price="${p.price}" data-popular="${p.popular}" data-rating="${avgRating}">
+            <span class="wishlist-heart" data-title="${p.title}">♡</span>
+            <img src="${p.img}" alt="${p.title}">
+            <h3>${lang === 'jp' ? (p.title_jp || p.title) : p.title}${badge}</h3>
+            <p class="desc">${lang === 'jp' ? (p.tagline_jp || p.tagline) : p.tagline}</p>
+            <div class="mb-2">
+                <div class="product-rating-summary">
+                    ${renderStars(avgRating)}
+                    <span style="font-size: 11px; opacity: 0.8;">(${reviewCount})</span>
+                </div>
+            </div>
+            <div class="price-row">
+                ${priceHtml}
+                <button class="add-btn" type="button" data-title="${p.title}">${translations[lang].cartBtn}</button>
+            </div>
+        </div>
+    `; }).join("");
+    attachEventListeners();
+    applyAllFilters();
+}
+
+function attachEventListeners() {
+    const cards = document.querySelectorAll(".product-card");
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+
+    cards.forEach(card => {
+        const title = card.dataset.title;
+        const product = SHIZUKU_PRODUCTS.find(p => p.title === title);
+
+        card.addEventListener("click", (e) => {
+            if (e.target.closest(".add-btn") || e.target.closest(".wishlist-heart")) return;
+            QuickView.show(product);
+        });
+
+        card.querySelector(".add-btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            addToCart(product);
+        });
+
+        const heart = card.querySelector(".wishlist-heart");
+        if (wishlist.some(i => i.title === title)) {
+            heart.classList.add("active");
+            heart.innerText = "♥";
+        }
+        heart.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleWishlist(product, heart);
+        });
+    });
+}
+
+function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existing = cart.find(i => i.title === product.title);
+    if (existing) existing.qty++;
+    else cart.push({ ...product, qty: 1 });
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartBadge();
+    
+    const lang = currentLang;
+    const productName = lang === 'jp' ? (product.title_jp || product.title) : product.title;
+    const msg = `<span style="font-weight:600; color: var(--sakura-pink-main);">${productName}</span> ` + 
+                (lang === 'jp' ? 'がカートに追加されました！' : 'has been added to your cart!');
+
+    window.showSakuraToast(msg, '🛒', {
+        text: lang === 'jp' ? '元に戻す' : 'Undo',
+        callback: () => QuickView.undoAddToCart(product.title, 1)
+    });
+}
+
+function toggleWishlist(product, heart) {
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    const idx = wishlist.findIndex(i => i.title === product.title);
+    if (idx > -1) {
+        wishlist.splice(idx, 1);
+        heart.classList.remove("active");
+        heart.innerText = "♡";
+    } else {
+        wishlist.push(product);
+        heart.classList.add("active");
+        heart.innerText = "♥";
+        heart.classList.add("pop");
+        setTimeout(() => heart.classList.remove("pop"), 350);
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+}
+
+function updateCartBadge() {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const count = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    const badge = document.getElementById("cartBadge");
+    if (badge) {
+        badge.innerText = count;
+        badge.style.display = count > 0 ? "block" : "none";
+    }
+}
+
+function applyAllFilters() {
+    const roastFilter = document.querySelector(".filter-btn.active").dataset.filter;
+    const priceValue = priceFilter.value;
+    const ratingValue = document.getElementById("ratingFilter").value;
+    const searchValue = searchInput.value.toLowerCase();
+    const cards = document.querySelectorAll(".product-card");
+
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const productTitle = card.dataset.title;
+        const roast = card.dataset.roast;
+        const price = parseFloat(card.dataset.price);
+        const title = card.querySelector("h3").innerText.toLowerCase();
+
+        let show = true;
+        if (roastFilter !== "all" && roast !== roastFilter) show = false;
+        if (priceValue !== "all") {
+            const [min, max] = priceValue.split("-").map(Number);
+            if (price < min || price >= max) show = false;
+        }
+        if (ratingValue !== "all") {
+            const avgRating = calculateAverageRating(productTitle);
+            if (avgRating < parseFloat(ratingValue)) show = false;
+        }
+        if (!title.includes(searchValue)) show = false;
+        card.style.display = show ? "block" : "none";
+
+        if (show) visibleCount++;
+    });
+}
+
+function resetFilters() {
+    searchInput.value = "";
+    priceFilter.value = "all";
+    document.getElementById("ratingFilter").value = "all";
+    filterButtons.forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.dataset.filter === "all") btn.classList.add("active");
+    });
+    applyAllFilters();
+}
+    
+filterButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        applyAllFilters();
+    });
+});
+    
+priceFilter.addEventListener("change", applyAllFilters);
+document.getElementById("ratingFilter").addEventListener("change", applyAllFilters);
+
+let searchTimeout;
+searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(applyAllFilters, 300);
+});
+
+searchIcon.addEventListener("click", applyAllFilters);
+
+sortSelect.addEventListener("change", function() {
+    const val = this.value;
+    const cards = Array.from(document.querySelectorAll(".product-card"));
+    if (val === "price-low") cards.sort((a,b) => a.dataset.price - b.dataset.price);
+    else if (val === "price-high") cards.sort((a,b) => b.dataset.price - a.dataset.price);
+    else if (val === "popular") cards.sort((a,b) => a.dataset.popular - b.dataset.popular);
+    else if (val === "rating-high") cards.sort((a,b) => b.dataset.rating - a.dataset.rating);
+    else if (val === "roast") {
+        const order = { "light": 1, "medium": 2, "dark": 3, "flavored": 4 };
+        cards.sort((a, b) => order[a.dataset.roast] - order[b.dataset.roast]);
+    }
+    grid.innerHTML = "";
+    cards.forEach(c => grid.appendChild(c));
+});
+    
+document.getElementById("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "jp" : "en";
+    localStorage.setItem("language", currentLang);
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    renderShop();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("search")) {
+        searchInput.value = params.get("search");
+    }
+
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    const isCouponUsed = localStorage.getItem("couponApplied") === "true";
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const hasOrders = user && orders.some(o => o.userEmail === user.email);
+
+    if (user && !isCouponUsed && !hasOrders) {
+        document.getElementById("promoBanner").style.display = "flex";
+    }
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.add('active');
+    });
+    document.querySelector('.menu-close').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.remove('active');
+    });
+    document.querySelectorAll('.menu-links *').forEach(link => {
+        link.addEventListener('click', () => document.getElementById('mobileMenu').classList.remove('active'));
+    });
+
+    window.addEventListener('click', (e) => {
+        const menu = document.getElementById('mobileMenu');
+        const toggle = document.getElementById('menuToggle');
+        if (menu.classList.contains('active') && !menu.contains(e.target) && !toggle.contains(e.target)) {
+            menu.classList.remove('active');
+        }
+    });
+
+    renderShop();
+    updateCartBadge();
+});
+    </script>

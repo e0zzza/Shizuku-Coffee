@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Payment – Shizuku Coffee</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+</head>
+<body>
+    <img src="tree.png" class="sakura-tree-top" alt="">
+    
+    <nav class="glass-nav">
+        <div class="nav-left">
+            <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+        </div>
+        <div class="nav-right">
+            <a href="basket.html"><img src="cart.png" alt=""></a>
+            <a href="wishlist.html"><img src="love.png" alt=""></a>
+            <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+        </div>
+    </nav>
+
+    <div id="languageToggleContainer">
+        <button id="langToggle" class="sakura-btn">🇯🇵</button>
+    </div>
+
+    <div class="page-wrapper" style="display: block;">
+        <div class="checkout-progress">
+            <div class="progress-line"><div class="progress-line-fill" style="width: 66%;"></div></div>
+            <a href="basket.html" class="progress-step completed"><div class="step-circle">1</div><div class="step-label">Cart</div></a>
+            <a href="checkout.html" class="progress-step completed"><div class="step-circle">2</div><div class="step-label">Shipping</div></a>
+            <div class="progress-step active"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
+            <div class="progress-step"><div class="step-circle">4</div><div class="step-label">Success</div></div>
+        </div>
+
+        <div style="display: flex; justify-content: center; min-height: 50vh; align-items: center; margin-bottom: 60px;">
+        <div class="glass-card" style="width: 100%; max-width: 480px; position: relative; padding: 40px;">
+            
+            <div id="processingOverlay" class="processing-overlay">
+                <div class="spinner"></div>
+                <h3 id="authTitle" style="color: var(--sakura-brown-dark);">Authorizing...</h3>
+                <p id="authText" style="color: var(--sakura-brown-light);">Securely processing your payment</p>
+            </div>
+
+            <h1 class="page-title" id="paymentTitle" style="font-size: 28px; margin-bottom: 10px;">Payment Details</h1>
+            <div style="text-align: center; color: var(--sakura-brown-light); margin-bottom: 30px; font-size: 14px;">
+                <div id="paymentSummaryBreakdown" style="max-width: 200px; margin: 0 auto;">
+                    <p style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span class="label-sub">Subtotal:</span> <span id="paymentSubtotal">€0.00</span></p>
+                    <p id="paymentDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 4px; color: var(--sakura-pink-main);"><span class="label-disc">Discount:</span> <span id="paymentDiscount">-€0.00</span></p>
+                    <p style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span class="label-ship">Shipping:</span> <span id="paymentShipping">€0.00</span></p>
+                    <p style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px; color: var(--sakura-pink-dark); border-top: 1px solid rgba(255, 182, 193, 0.3); padding-top: 8px; margin-top: 8px;">
+                        <span class="label-total">Total:</span> <span id="paymentTotal">€0.00</span>
+                    </p>
+                </div>
+            </div>
+
+            <form id="paymentForm">
+                <label style="font-size: 12px; font-weight: 700; color: var(--sakura-brown-light); margin-bottom: 10px; display: block; letter-spacing: 1px;">1. SHIPPING METHOD</label>
+                <div class="shipping-methods">
+                    <div class="shipping-option active" data-cost="0" data-bs-toggle="tooltip" data-bs-placement="top">
+                        <span class="ship-std">Standard</span> <span>5-7 Business Days</span>
+                        <strong class="ship-free">Free</strong>
+                    </div>
+                    <div class="shipping-option" data-cost="5.99">
+                        <span class="ship-exp">Express</span> <span>2-3 Business Days</span>
+                        <strong class="ship-price">€5.99</strong>
+                    </div>
+                </div>
+
+                <label style="font-size: 12px; font-weight: 700; color: var(--sakura-brown-light); margin-bottom: 10px; display: block; letter-spacing: 1px;">2. CHOOSE PAYMENT METHOD</label>
+                <div class="payment-methods">
+                    <div class="method-option active" data-method="card" data-label="Credit Card">
+                        <img src="https://cdn-icons-png.flaticon.com/512/633/633611.png" class="method-icon" alt=""> Card
+                    </div>
+                    <div class="method-option" data-method="apple" data-label="Apple Pay">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" class="method-icon" alt="">
+                    </div>
+                    <div class="method-option" data-method="google" data-label="Google Pay">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" class="method-icon" alt="">
+                    </div>
+                    <div class="method-option" data-method="paypal" data-label="PayPal">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" class="method-icon" alt="">
+                    </div>
+                </div>
+
+                <div id="cardFields">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">CARDHOLDER NAME</label>
+                    <input type="text" id="cardNameInput" class="payment-input" placeholder="" required>
+    
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">CARD NUMBER</label>
+                    <div style="position: relative;">
+                        <input type="text" id="cardNumber" class="payment-input" style="padding-right: 50px;" placeholder="xxxx xxxx xxxx xxxx" maxlength="19" required>
+                        <div id="cardBrandIcon" style="position: absolute; right: 14px; top: 12px; height: 20px; width: 30px; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: all 0.3s ease; opacity: 0.7;"></div>
+                    </div>
+                    <div id="cardNumberError" class="error-text"></div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">EXPIRY DATE</label>
+                            <input type="text" id="expiryDate" class="payment-input" placeholder="MM/YY" maxlength="5" required>
+                            <div id="expiryError" class="error-text"></div>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">CVV (SECURITY CODE)</label>
+                            <input type="password" id="cvvInput" class="payment-input" placeholder="***" maxlength="3" required>
+                            <div id="cvvError" class="error-text"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="payBtn" class="sakura-btn" style="width: 100%; margin-top: 10px; padding: 15px;">Complete Purchase</button>
+
+                <div id="secureLabel" style="text-align: center; margin-top: 25px; opacity: 0.5; font-size: 12px; letter-spacing: 0.5px;">
+                    &#x1F512; ENCRYPTED SECURE PAYMENT
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="aboutTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="aboutBody"></div></div></div></div>
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="contactTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="contactBody"></div></div></div></div>
+    <div class="modal fade" id="brewingModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="brewingTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="brewingBody" style="font-size: 15px; color: var(--sakura-brown-light);"></div></div></div></div>
+    <div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="policyTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="policyBody" style="font-size: 15px; color: var(--sakura-brown-light);"></div></div></div></div>
+
+    <script>
+        const translations = {
+            en: {
+                authText: "Securely processing your payment.",
+                payTitle: "Payment Details",
+                sub: "Subtotal:",
+                disc: "Discount:",
+                rankDisc: "Rank Discount:",
+                ship: "Shipping:",
+                total: "Total:",
+                std: "Standard",
+                exp: "Express",
+                free: "Free",
+                complete: "Complete Purchase",
+                secure: "🔒 ENCRYPTED SECURE PAYMENT",
+                progressSteps: ["Cart", "Shipping", "Payment", "Success"],
+                cardNumber: "CARD NUMBER",
+                expiry: "EXPIRY DATE",
+                cvv: "CVV (SECURITY CODE)",
+                cardError: "Please enter a valid 16-digit card number.",
+                cardInvalid: "The card number is invalid. Please check again.",
+                cvvErrorMsg: "Please enter a valid 3-digit CVV.",
+                expiryErrorMonth: "Invalid month (01-12).",
+                expiryErrorPast: "Date cannot be in the past.",
+                cardNamePlh: "e.g. HANA SAKURA",
+                footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
+                fLinks: "Quick Links",
+                fVisit: "Visit Us",
+                fAbout: "About Us",
+                fContact: "Contact Support",
+                aboutT: "Our Story",
+                aboutB: "Founded in the heart of Kyoto, Shizuku Coffee (雫コーヒー) was born from a passion for specialty beans and the transient beauty of cherry blossoms.",
+                contactT: "Get in Touch ☕",
+                contactB: "Email: hello@shizuku.coffee<br>Phone: +81 03-1234-5678",
+                guideT: "Brewing the Perfect Sakura Cup ☕",
+                guideB: "Enjoy our specialty beans at home with this simple guide:<br><br><ul><li><b>Grind:</b> Medium-Coarse (like sea salt).</li><li><b>Water:</b> 92°C (approx. 200°F).</li><li><b>Ratio:</b> 15g coffee to 250ml water.</li><li><b>Technique:</b> Pour 30ml to 'bloom' for 30s, then pour slowly in circles.</li></ul><p><i>Tip: Serve in a clear glass to enjoy the light, tea-like color!</i></p>",
+                policyT: "Returns & Exchanges",
+                policyB: "We want you to love your Shizuku Coffee! If you are not satisfied with your purchase, you can return unopened items within 30 days of delivery. For fresh roasted beans, please contact us within 7 days if there is a quality issue.",
+                fHoursEnd: "Sat - Sun: 9am - 6pm",
+                fNewsletter: "Join Our Newsletter",
+                fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
+                fNewsletterPlh: "Your email...",
+                fNewsletterBtn: "Join",
+                utilTrack: "Track Order",
+                utilGuide: "Brewing Guide",
+                utilPolicy: "Returns Policy"
+            },
+            jp: {
+                authText: "お支払いを安全に処理しています。",
+                payTitle: "お支払い詳細",
+                sub: "小計:",
+                disc: "割引:",
+                rankDisc: "ランク特典割引:",
+                ship: "配送料:",
+                total: "合計:",
+                std: "通常配送",
+                exp: "速達",
+                free: "無料",
+                complete: "購入を確定する",
+                secure: "🔒 暗号化された安全な決済",
+                progressSteps: ["カート", "配送", "お支払い", "完了"],
+                cardNumber: "カード番号",
+                expiry: "有効期限",
+                cvv: "セキュリティコード",
+                cardError: "16桁の有効なカード番号を入力してください。",
+                cardInvalid: "カード番号が無効です。もう一度確認してください。",
+                cvvErrorMsg: "3桁の有効なセキュリティコードを入力してください。",
+                expiryErrorMonth: "無効な月です (01-12)。",
+                expiryErrorPast: "有効期限が過去になっています。",
+                cardNamePlh: "例：雫 太郎",
+                footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。一粒の豆には伝統と品質の物語が詰まっています。",
+                fLinks: "クイックリンク",
+                fVisit: "店舗案内",
+                fAbout: "私たちについて",
+                fContact: "お問い合わせ",
+                aboutT: "私たちの物語",
+                aboutB: "京都の中心で生まれた雫コーヒーは、スペシャリティコーヒーと桜の儚い美しさへの情熱から誕生しました。",
+                contactT: "お問い合わせ ☕",
+                contactB: "メール: hello@shizuku.coffee<br>電話: +81 03-1234-5678",
+                guideT: "究極の桜コーヒーの淹れ方 ☕",
+                guideB: "ご自宅でも雫コーヒーの味を再現するためのガイドです：<br><br><ul><li><b>挽き方：</b>中粗挽き（海塩くらいの大きさ）。</li><li><b>お湯の温度：</b>92℃（沸騰後1分ほど置いた状態）。</li><li><b>比率：</b>コーヒー粉15gに対してお湯250ml。</li><li><b>手順：</b>最初に30ml注いで30秒「蒸らし」、その後ゆっくり円を描くように注ぎます。</li></ul><p><i>ポイント：透明なグラスで、お茶のような透き通った色合いもお楽しみください。</i></p>",
+                policyT: "返品・交換について",
+                policyB: "雫コーヒーをご愛用いただきありがとうございます。万が一商品にご満足いただけない場合、未開封の商品に限りお届けから30日以内であれば返品を承ります。",
+                fHoursEnd: "土 - 日：9:00 - 18:00",
+                fNewsletter: "ニュースレター登録",
+                fNewsletterDesc: "季節限定ブレンドの最新情報や特別オファーをお届けします！",
+                fNewsletterPlh: "メールアドレス...",
+                fNewsletterBtn: "登録",
+                utilTrack: "注文追跡",
+                utilGuide: "淹れ方ガイド",
+                utilPolicy: "返品ポリシー"
+            }
+        };
+
+        let currentLang = localStorage.getItem("language") || "en";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+            if (cart.length === 0) {
+                window.location.href = "basket.html";
+                return;
+            }
+
+            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+            if (!loggedInUser) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            let subtotal = 0;
+            cart.forEach(item => subtotal += (item.qty || 1) * (parseFloat(item.price) || 0));
+            
+            const tier = QuickView.getCurrentTier(QuickView.getLifetimePoints(loggedInUser));
+            let rankDiscount = 0;
+
+            cart.forEach(item => {
+                const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+                const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+                const roast = item.roast || productRef?.roast;
+                const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
+                
+                let d = 0;
+                if (roast === 'accessory') {
+                    if (tier.name === 'Sakura') d = 0.20;
+                    else if (tier.name === 'Petal') d = 0.10;
+                } else {
+                    if (tier.name === 'Sakura') d = 0.10;
+                    else if (tier.name !== 'Sprout' && isSeasonal) d = 0.05;
+                }
+                rankDiscount += itemTotal * d;
+            });
+
+            let discount = 0;
+            if (localStorage.getItem("couponApplied") === "true") {
+                discount = subtotal * 0.20;
+            }
+
+            let appliedVoucher = JSON.parse(sessionStorage.getItem("appliedVoucher") || "null");
+            let voucherDiscount = 0;
+
+            function calculateVoucherDiscount() {
+                if (!appliedVoucher) return 0;
+                const result = QuickView.calculateDiscount(appliedVoucher, subtotal, shippingCost);
+                return result.amount;
+            }
+
+            let shippingCost = 0;
+
+            function updateDisplayTotal() {
+                document.getElementById("paymentSubtotal").innerText = formatPrice(subtotal);
+                
+                let runningTotal = subtotal;
+
+                const rRow = document.getElementById("paymentRankRow") || createRankRow();
+                if (rankDiscount > 0 && discount === 0) {
+                    rRow.style.display = "flex";
+                    rRow.querySelector('.r-amount').innerText = "-" + formatPrice(rankDiscount);
+                    runningTotal -= rankDiscount;
+                } else {
+                    rRow.style.display = "none";
+                }
+
+                if (discount > 0) {
+                    document.getElementById("paymentDiscountRow").style.display = "flex";
+                    document.getElementById("paymentDiscount").innerText = "-" + formatPrice(discount);
+                    runningTotal = subtotal - discount;
+                } else {
+                    document.getElementById("paymentDiscountRow").style.display = "none";
+                }
+
+                voucherDiscount = calculateVoucherDiscount();
+                const vRow = document.getElementById("paymentVoucherRow") || createVoucherRow();
+                if (voucherDiscount > 0) {
+                    vRow.style.display = "flex";
+                    vRow.querySelector('.v-amount').innerText = "-" + formatPrice(voucherDiscount);
+                } else {
+                    vRow.style.display = "none";
+                }
+
+                let effectiveShipping = shippingCost;
+                if (tier.name === "Sakura" && effectiveShipping === 5.99) {
+                    effectiveShipping = 0;
+                }
+                document.getElementById("paymentShipping").innerText = formatPrice(effectiveShipping);
+                
+                const shipExpPrice = document.querySelector(".shipping-option[data-cost='5.99'] strong");
+                if (shipExpPrice) shipExpPrice.innerText = formatPrice(5.99);
+
+                const total = runningTotal - voucherDiscount + shippingCost;
+                document.getElementById("paymentTotal").innerText = formatPrice(total);
+            };
+
+            function createRankRow() {
+                const t = translations[currentLang];
+                const row = document.createElement('p');
+                row.id = "paymentRankRow";
+                row.style.cssText = "display: none; justify-content: space-between; margin-bottom: 4px; color: var(--sakura-pink-main);";
+                row.innerHTML = `<span class="label-rank">${t.rankDisc}</span> <span class="r-amount">-€0.00</span>`;
+                const parent = document.getElementById("paymentSummaryBreakdown");
+                parent.insertBefore(row, parent.querySelector('.label-ship').parentElement);
+                return row;
+            }
+
+            function createVoucherRow() {
+                const row = document.createElement('p');
+                row.id = "paymentVoucherRow";
+                row.style.cssText = "display: none; justify-content: space-between; margin-bottom: 4px; color: var(--sakura-pink-main);";
+                row.innerHTML = `<span class="label-voucher">Voucher:</span> <span class="v-amount">-€0.00</span>`;
+                const parent = document.getElementById("paymentSummaryBreakdown");
+                parent.insertBefore(row, parent.querySelector('.label-ship').parentElement);
+                return row;
+            }
+
+            function updateLanguage() {
+                const t = translations[currentLang];
+
+                if (currentLang === 'jp') {
+                    document.body.classList.add('lang-jp');
+                } else {
+                    document.body.classList.remove('lang-jp');
+                }
+
+                document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+                document.getElementById("authTitle").innerText = t.authTitle;
+                document.getElementById("authText").innerText = t.authText;
+                document.getElementById("paymentTitle").innerText = t.payTitle;
+                document.querySelectorAll(".step-label").forEach((el, i) => el.innerText = t.progressSteps[i]);
+                
+                const cardLabels = document.querySelectorAll("#cardFields label");
+                cardLabels[0].innerText = t.cardName;
+                cardLabels[1].innerText = t.cardNumber;
+                cardLabels[2].innerText = t.expiry;
+                cardLabels[3].innerText = t.cvv;
+                document.getElementById("cardNameInput").placeholder = t.cardNamePlh;
+
+                document.querySelectorAll(".label-sub").forEach(el => el.innerText = t.sub);
+                document.querySelectorAll(".label-disc").forEach(el => el.innerText = t.disc);
+                document.querySelectorAll(".label-ship").forEach(el => el.innerText = t.ship);
+                document.querySelectorAll(".label-total").forEach(el => el.innerText = t.total);
+                if (document.querySelector(".label-voucher")) document.querySelector(".label-voucher").innerText = t.disc;
+                if (document.querySelector(".label-rank")) document.querySelector(".label-rank").innerText = t.rankDisc;
+
+                document.querySelector(".ship-std").innerText = t.std;
+                document.querySelector(".ship-exp").innerText = t.exp;
+             
+                const isSakura = tier.name === "Sakura";
+                document.querySelector(".ship-free").innerText = t.free;
+                if (isSakura) {
+                    const expPriceEl = document.querySelector(".shipping-option[data-cost='5.99'] strong");
+                    if (expPriceEl) expPriceEl.innerText = t.free;
+                }
+
+                document.getElementById("payBtn").innerText = t.complete;
+                document.getElementById("secureLabel").innerText = t.secure;
+                updateDisplayTotal();
+            }
+
+            updateLanguage();
+
+            document.querySelectorAll(".shipping-option").forEach(option => {
+                option.addEventListener("click", () => {
+                    if (option.style.cursor === 'not-allowed') return;
+                    document.querySelectorAll(".shipping-option").forEach(o => o.classList.remove("active"));
+                    option.classList.add("active");
+                    shippingCost = parseFloat(option.dataset.cost);
+                    updateDisplayTotal();
+                });
+            });
+
+            function handleShippingVoucherUI() {
+                const isShippingVoucher = appliedVoucher && (appliedVoucher.name.includes("Express Shipping") || (appliedVoucher.nameJp && appliedVoucher.nameJp.includes("速達")));
+                const stdOption = document.querySelector(".shipping-option[data-cost='0']");
+                const expOption = document.querySelector(".shipping-option[data-cost='5.99']");
+                const t = translations[currentLang];
+
+                if (!stdOption) return;
+
+                
+                const existingTooltip = bootstrap.Tooltip.getInstance(stdOption);
+                if (existingTooltip) existingTooltip.dispose();
+
+                if (isShippingVoucher) {
+                    stdOption.style.opacity = "0.5";
+                    stdOption.style.pointerEvents = "auto"; 
+                    stdOption.style.cursor = "not-allowed";
+                    
+                    stdOption.setAttribute('title', t.shippingVoucherTooltip);
+                    new bootstrap.Tooltip(stdOption);
+
+                    if (expOption) expOption.click();
+                } else {
+                    stdOption.style.opacity = "1";
+                    stdOption.style.pointerEvents = "auto";
+                    stdOption.style.cursor = "pointer";
+                    stdOption.removeAttribute('title');
+                }
+            }
+
+            handleShippingVoucherUI();
+
+            document.getElementById("langToggle").addEventListener("click", () => {
+                currentLang = currentLang === "en" ? "jp" : "en";
+                localStorage.setItem("language", currentLang);
+                updateLanguage();
+            });
+
+            let selectedMethod = "card";
+            const cardFields = document.getElementById("cardFields");
+            const payBtn = document.getElementById("payBtn");
+            const cardInputs = cardFields.querySelectorAll('input');
+
+            document.querySelectorAll(".method-option").forEach(option => {
+                option.addEventListener("click", () => {
+                    document.querySelectorAll(".method-option").forEach(o => o.classList.remove("active"));
+                    option.classList.add("active");
+                    selectedMethod = option.dataset.method;
+
+                    if (selectedMethod === "card") {
+                        cardFields.style.display = "block";
+                        payBtn.innerText = translations[currentLang].complete;
+                        cardInputs.forEach(input => input.required = true);
+                    } else {
+                        cardFields.style.display = "none";
+                        payBtn.innerText = (currentLang === 'jp' ? '' : 'Pay with ') + option.dataset.label + (currentLang === 'jp' ? 'で支払う' : '');
+                        cardInputs.forEach(input => input.required = false);
+                    }
+                });
+            });
+
+            const cardNumberInput = document.getElementById("cardNumber");
+            const cardBrandIcon = document.getElementById("cardBrandIcon");
+
+            const cardIcons = {
+                visa: "https://cdn-icons-png.flaticon.com/512/196/196578.png",
+                mastercard: "https://cdn-icons-png.flaticon.com/512/196/196561.png",
+                amex: "https://cdn-icons-png.flaticon.com/512/196/196539.png",
+                jcb: "https://cdn-icons-png.flaticon.com/512/196/196556.png",
+                discover: "https://cdn-icons-png.flaticon.com/512/196/196550.png"
+            };
+
+            function detectCardType(number) {
+                const re = {
+                    visa: /^4/,
+                    mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
+                    amex: /^3[47]/,
+                    discover: /^6(?:011|5|4[4-9]|22(?:12[6-9]|1[3-9]\d|[2-8]\d\d|9[01]\d|92[0-5]))/,
+                    jcb: /^35(?:2[89]|[3-8]\d)/
+                };
+                for (const key in re) {
+                    if (re[key].test(number)) return key;
+                }
+                return 'unknown';
+            }
+
+            cardNumberInput.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/\D/g, ""); 
+                e.target.value = value.replace(/(\d{4})(?=\d)/g, "$1 "); 
+
+                const type = detectCardType(value);
+                if (type !== 'unknown' && cardIcons[type]) {
+                    cardBrandIcon.innerHTML = `<img src="${cardIcons[type]}" style="height: 100%; width: auto; object-fit: contain;">`;
+                    cardBrandIcon.style.opacity = "1";
+                } else {
+                    cardBrandIcon.innerHTML = "";
+                    cardBrandIcon.style.opacity = "0.7";
+                }
+            });
+
+            const cvvInput = document.getElementById("cvvInput");
+            cvvInput.addEventListener("input", (e) => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+            });
+
+            const expiryInput = document.getElementById("expiryDate");
+            expiryInput.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/\D/g, "");
+                e.target.value = value.replace(/(\d{2})(?=\d)/g, "$1/");
+            });
+
+            const showError = (id, msg) => {
+                const el = document.getElementById(id);
+                el.innerText = msg;
+                el.style.display = "block";
+            };
+
+            const clearErrors = () => {
+                document.querySelectorAll(".error-text").forEach(el => el.style.display = "none");
+            };
+
+            function isValidLuhn(num) {
+                let sum = 0;
+                let shouldDouble = false;
+                for (let i = num.length - 1; i >= 0; i--) {
+                    let digit = parseInt(num.substring(i, i + 1));
+                    if (shouldDouble) {
+                        digit *= 2;
+                        if (digit > 9) digit -= 9;
+                    }
+                    sum += digit;
+                    shouldDouble = !shouldDouble;
+                }
+                return (sum % 10) === 0;
+            }
+
+            document.getElementById("paymentForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                clearErrors();
+
+                if (selectedMethod === "card") {
+                    const rawCardNumber = cardNumberInput.value.replace(/\s/g, ''); 
+                    if (rawCardNumber.length !== 16) {
+                        showError("cardNumberError", translations[currentLang].cardError);
+                        return;
+                    }
+                    if (!isValidLuhn(rawCardNumber)) {
+                        showError("cardNumberError", translations[currentLang].cardInvalid);
+                        return;
+                    }
+
+                    const expiryVal = expiryInput.value.trim();
+                    const parts = expiryVal.split("/");
+                    const month = parts.length > 0 ? parseInt(parts[0], 10) : 0;
+                    const year = parts.length > 1 ? parseInt("20" + parts[1], 10) : 0;
+                    const now = new Date();
+                    const currMonth = now.getMonth() + 1;
+                    const currYear = now.getFullYear();
+
+                    if (parts.length !== 2 || isNaN(month) || isNaN(year) || month < 1 || month > 12) {
+                        showError("expiryError", translations[currentLang].expiryErrorMonth);
+                        return;
+                    }
+                    if (year < currYear || (year === currYear && month < currMonth)) {
+                        showError("expiryError", translations[currentLang].expiryErrorPast);
+                        return;
+                    }
+
+                    const cvvVal = cvvInput.value.trim();
+                    if (cvvVal.length !== 3) {
+                        showError("cvvError", translations[currentLang].cvvErrorMsg);
+                        return;
+                    }
+                }
+
+
+                document.getElementById("processingOverlay").style.display = "flex";
+    
+                setTimeout(() => {
+                    finalizeOrder();
+                }, 2500);
+            });
+
+            function finalizeOrder() {
+                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+                const shippingInfo = JSON.parse(sessionStorage.getItem("pendingShipping") || "{}");
+                
+                const currentSubtotal = cart.reduce((sum, item) => sum + (item.qty || 1) * parseFloat(item.price), 0);
+    
+                let orderDiscount = 0;
+                if (localStorage.getItem("couponApplied") === "true") {
+                    orderDiscount = currentSubtotal * 0.20;
+                }
+
+                const newOrder = {
+                    orderId: Date.now().toString(), 
+                    items: cart.map(item => ({
+                        name: item.title,
+                        price: item.price,
+                        image: item.img,
+                        qty: item.qty || 1
+                    })),
+                    userEmail: loggedInUser.email,
+                    subtotal: currentSubtotal,
+                    discount: orderDiscount,
+                    shippingCost: (tier.name === "Sakura" && shippingCost === 5.99) ? 0 : shippingCost, 
+                    shippingDetails: {
+                        name: shippingInfo.name || loggedInUser.username,
+                        address: shippingInfo.address || "N/A",
+                        zip: shippingInfo.zip || "",
+                        phone: shippingInfo.phone || ""
+                    },
+                    total: (orderDiscount > 0 ? (currentSubtotal - orderDiscount) : (currentSubtotal - rankDiscount)) - voucherDiscount + shippingCost,
+                    rankDiscount: (orderDiscount > 0) ? 0 : rankDiscount,
+                    voucherDiscount: voucherDiscount,
+                    timestamp: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    status: "Paid & Preparing"
+                };
+
+                if (appliedVoucher) {
+                    const userVouchers = Array.isArray(loggedInUser.vouchers) ? loggedInUser.vouchers : [];
+                    const voucherInStore = userVouchers.find(v => v.code === appliedVoucher.code);
+                    
+                    if (voucherInStore && !voucherInStore.used) {
+                        voucherInStore.used = true;
+                        loggedInUser.vouchers = userVouchers;
+                        sessionStorage.removeItem("appliedVoucher");
+                    } else {
+                        document.getElementById("processingOverlay").style.display = "none";
+                        const errorMsg = currentLang === 'jp' ? '適用されたクーポンは無効か、既に使用されています。' : 'The applied voucher is invalid or has already been used.';
+                        window.showSakuraToast(errorMsg, '⚠️');
+                        sessionStorage.removeItem("appliedVoucher");
+                        setTimeout(() => window.location.reload(), 2000);
+                        return;
+                    }
+                }
+    
+                const pointsEarned = Math.floor(newOrder.total);
+                const pointTransaction = {
+                    date: new Date().toISOString(),
+                    amount: pointsEarned,
+                    reason: `Purchase (Order #${newOrder.orderId})`,
+                    reason_jp: `商品購入 (注文番号 #${newOrder.orderId})`
+                };
+
+                const updatedUser = { 
+                    ...loggedInUser, 
+                    points: (loggedInUser.points || 0) + pointsEarned,
+                    pointsHistory: [...(Array.isArray(loggedInUser.pointsHistory) ? loggedInUser.pointsHistory : []), pointTransaction]
+                };
+
+                orders.push(newOrder); 
+
+                let users = JSON.parse(localStorage.getItem("users")) || [];
+                users = users.map(u => u.email === updatedUser.email ? updatedUser : u);
+                localStorage.setItem("users", JSON.stringify(users));
+                localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+                localStorage.setItem("orders", JSON.stringify(orders));
+
+                localStorage.removeItem("cart");
+
+                localStorage.removeItem("couponApplied");
+                sessionStorage.removeItem("pendingShipping");
+
+                window.location.href = "success.html";
+            }
+        });
+    </script>
+</body>
+</html>

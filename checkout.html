@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout – Shizuku Coffee</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/css/intlTelInput.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/intlTelInput.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+<script src="products.js"></script>
+<script src="quickview.js"></script>
+</head>
+
+<body>
+    <img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Search coffee..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html"><img src="cart.png" alt=""></a>
+    <a href="wishlist.html"><img src="love.png" alt=""></a>
+    <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+  </div>
+
+<div class="page-wrapper">
+
+    <div class="checkout-progress">
+        <div class="progress-line"><div class="progress-line-fill" style="width: 33%;"></div></div>
+        <a href="basket.html" class="progress-step completed"><div class="step-circle">1</div><div class="step-label">Cart</div></a>
+        <div class="progress-step active"><div class="step-circle">2</div><div class="step-label">Shipping</div></div>
+        <div class="progress-step"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
+        <div class="progress-step"><div class="step-circle">4</div><div class="step-label">Success</div></div>
+    </div>
+
+    <h1 class="page-title">Checkout</h1>
+
+    <div class="checkout-container">
+
+        <div class="glass-card checkout-left">
+            <h2 id="shippingTitle">Shipping Information</h2>
+
+            <form id="checkoutForm" method="post">
+                <input type="text" id="name" required inputmode="text">
+                <input type="text" id="address" required inputmode="text">
+                <input type="text" id="zip" required inputmode="numeric">
+                <input type="email" id="email" required inputmode="email">
+                <input id="phone" type="tel" required>
+                <div id="phoneError" class="error-text" style="margin-top: 5px;"></div>
+                <br>
+                <button type="submit" id="placeOrderBtn" class="sakura-btn place-order-btn" style="width:100%;">Place Order</button>
+        </form>
+        </div>
+
+        <div class="glass-card checkout-right">
+            <h2 id="orderTitle">Your Order</h2>
+            <div id="orderItems"></div>
+
+            <div id="voucherSelectionArea" class="mt-4 p-3 rounded-4" style="background: rgba(255,182,193,0.1); border: 1px dashed var(--sakura-pink-main);">
+                <h6 id="labelSelectVoucher" style="font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">Select a Voucher</h6>
+                <div id="checkoutVoucherList" class="d-flex flex-column gap-2"></div>
+            </div>
+
+            <hr style="border-top: 1px solid rgba(255, 182, 193, 0.3); margin: 20px 0;">
+            <div id="summaryBreakdown" style="font-size: 14px; color: var(--sakura-brown-light);">
+                <p style="display: flex; justify-content: space-between;"><span id="labelSub">Subtotal:</span> <span id="checkoutSubtotal">€0.00</span></p>
+                <p id="checkoutDiscountRow" style="display: none; justify-content: space-between; color: var(--sakura-pink-main);">
+                    <span id="labelDisc">Discount (SAKURA20):</span> <span id="checkoutDiscount">−€0.00</span>
+                </p>
+                <p id="voucherDiscountRow" style="display: none; justify-content: space-between; color: var(--sakura-pink-main);">
+                    <span id="labelVoucherDisc">Voucher Discount:</span> <span id="voucherDiscountAmount">−€0.00</span>
+                </p>
+                <div id="checkoutVoucherWarning" class="voucher-warning" style="display: none; text-align: right; margin-top: 5px;"></div>
+            </div>
+            <p class="order-total-label" id="labelTotal" style="margin-top: 10px;">Total:</p>
+            <p id="orderTotal" class="order-total-price" style="margin-top: 0;">€0.00</p>
+        </div>
+
+    </div>
+</div>
+<script>
+const translations = {
+    en: {
+        shippingTitle: "Shipping Information",
+        namePlh: "Full Name",
+        addressPlh: "Address",
+        zipPlh: "ZIP Code",
+        emailPlh: "Email",
+        placeOrder: "Place Order",
+        yourOrder: "Your Order",
+        sub: "Subtotal:",
+        disc: "Discount(SAKURA20):",
+        voucherDisc: "Voucher Discount:",
+        selectVoucher: "Select a Voucher",
+        total: "Total:",
+        empty: "Your cart is empty.",
+        searchPlh: "Search coffee...",
+        progressSteps: ["Cart", "Shipping", "Payment", "Success"],
+        footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
+        fLinks: "Quick Links",
+        fVisit: "Visit Us",
+        fAbout: "About Us",
+        fContact: "Contact Support",
+        aboutT: "Our Story",
+        aboutB: "Founded in the heart of Kyoto, Shizuku Coffee (雫コーヒー) was born from a passion for specialty beans and the transient beauty of cherry blossoms.",
+        contactT: "Get in Touch ☕",
+        contactB: "Email: hello@shizuku.coffee<br>Phone: +81 03-1234-5678",
+        guideT: "Brewing the Perfect Sakura Cup ☕",
+        guideB: "Enjoy our specialty beans at home with this simple guide:<br><br><ul><li><b>Grind:</b> Medium-Coarse (like sea salt).</li><li><b>Water:</b> 92°C (approx. 200°F).</li><li><b>Ratio:</b> 15g coffee to 250ml water.</li><li><b>Technique:</b> Pour 30ml to 'bloom' for 30s, then pour slowly in circles.</li></ul><p><i>Tip: Serve in a clear glass to enjoy the light, tea-like color!</i></p>",
+        policyT: "Returns & Exchanges",
+        policyB: "We want you to love your Shizuku Coffee! If you are not satisfied with your purchase, you can return unopened items within 30 days of delivery. For fresh roasted beans, please contact us within 7 days if there is a quality issue.",
+        fHoursWeek: "Mon - Fri: 8am - 7pm",
+        fHoursEnd: "Sat - Sun: 9am - 6pm",
+        fNewsletter: "Join Our Newsletter",
+        fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
+        fNewsletterPlh: "Your email...",
+        fNewsletterBtn: "Join",
+        utilTrack: "Track Order",
+        utilGuide: "Brewing Guide",
+        utilPolicy: "Returns Policy"
+    },
+    jp: {
+        shippingTitle: "配送先情報",
+        namePlh: "氏名",
+        addressPlh: "住所",
+        zipPlh: "郵便番号",
+        emailPlh: "メールアドレス",
+        placeOrder: "注文を確定する",
+        yourOrder: "ご注文内容",
+        sub: "小計:",
+        disc: "割引(SAKURA20):",
+        voucherDisc: "クーポン割引:",
+        selectVoucher: "クーポンを選択",
+        total: "合計:",
+        empty: "カートは空です。",
+        searchPlh: "コーヒーを検索...",
+        progressSteps: ["カート", "配送", "お支払い", "完了"],
+        footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。一粒の豆には伝統と品質の物語が詰まっています。",
+        fLinks: "クイックリンク",
+        fVisit: "店舗案内",
+        fAbout: "私たちについて",
+        fContact: "お問い合わせ",
+        aboutT: "私たちの物語",
+        aboutB: "京都の中心で生まれた雫コーヒーは、スペシャリティコーヒーと桜の儚い美しさへの情熱から誕生しました。",
+        contactT: "お問い合わせ ☕",
+        contactB: "メール: hello@shizuku.coffee<br>電話: +81 03-1234-5678",
+        guideT: "究極の桜コーヒーの淹れ方 ☕",
+        guideB: "ご自宅でも雫コーヒーの味を再現するためのガイドです：<br><br><ul><li><b>挽き方：</b>中粗挽き（海塩くらいの大きさ）。</li><li><b>お湯の温度：</b>92℃（沸騰後1分ほど置いた状態）。</li><li><b>比率：</b>コーヒー粉15gに対してお湯250ml。</li><li><b>手順：</b>最初に30ml注いで30秒「蒸らし」、その後ゆっくり円を描くように注ぎます。</li></ul><p><i>ポイント：透明なグラスで、お茶のような透き通った色合いもお楽しみください。</i></p>",
+        policyT: "返品・交換について ",
+        policyB: "雫コーヒーをご愛用いただきありがとうございます。万が一商品にご満足いただけない場合、未開封の商品に限りお届けから30日以内であれば返品を承ります。焙煎豆などの生鮮品については、品質に問題がある場合、お届けから7日以内にご連絡ください。",
+        fHoursWeek: "月 - 金：8:00 - 19:00",
+        fHoursEnd: "土 - 日：9:00 - 18:00",
+        fNewsletter: "ニュースレター登録",
+        fNewsletterDesc: "季節限定ブレンドの最新情報や特別オファーをお届けします！",
+        fNewsletterPlh: "メールアドレス...",
+        fNewsletterBtn: "登録",
+        utilTrack: "注文追跡",
+        utilGuide: "淹れ方ガイド",
+        utilPolicy: "返品ポリシー"
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) {
+        const msg = translations[currentLang].authRequired;
+        if (window.showSakuraToast) {
+            window.showSakuraToast(msg, '👤');
+        }
+        setTimeout(() => {
+            window.location.href = "signup.html";
+        }, 2500);
+        return;
+    }
+
+    function getCart() {
+        return JSON.parse(localStorage.getItem("cart")) || [];
+    }
+    const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+    function updateLanguage() {
+        const lang = currentLang;
+        const t = translations[lang];
+
+        if (lang === 'jp') {
+            document.body.classList.add('lang-jp');
+        } else {
+            document.body.classList.remove('lang-jp');
+        }
+
+        document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+        document.getElementById("shippingTitle").innerText = t.shippingTitle;
+        document.getElementById("name").placeholder = t.namePlh;
+        document.getElementById("address").placeholder = t.addressPlh;
+        document.getElementById("zip").placeholder = t.zipPlh;
+        document.getElementById("email").placeholder = t.emailPlh;
+        placeOrderBtn.innerText = t.placeOrder;
+        document.getElementById("orderTitle").innerText = t.yourOrder;
+        document.getElementById("labelSub").innerText = t.sub;
+        document.getElementById("labelDisc").innerText = t.disc;
+        document.getElementById("labelTotal").innerText = t.total;
+        if(document.getElementById("labelSelectVoucher")) document.getElementById("labelSelectVoucher").innerText = t.selectVoucher;
+        if(document.getElementById("labelVoucherDisc")) document.getElementById("labelVoucherDisc").innerText = t.voucherDisc;
+
+        document.getElementById("searchInput").placeholder = t.searchPlh;
+
+        if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
+
+        document.querySelectorAll(".step-label").forEach((el, i) => {
+            if (t.progressSteps[i]) el.innerText = t.progressSteps[i];
+        });
+        renderOrder(t);
+        loadCheckoutVouchers(t);
+    }
+
+    let appliedVoucher = JSON.parse(sessionStorage.getItem("appliedVoucher") || "null");
+    document.getElementById("langToggle").addEventListener("click", () => {
+        currentLang = currentLang === "en" ? "jp" : "en";
+        localStorage.setItem("language", currentLang);
+        updateLanguage();
+    });
+
+    const phoneInputField = document.getElementById("phone");
+    const iti = window.intlTelInput(phoneInputField, {
+        initialCountry: "auto",
+        geoIpLookup: function (callback) {
+            const cached = localStorage.getItem("userCountryCode");
+            if (cached) return callback(cached);
+
+            fetch("https://ipapi.co/json/")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.country_code && !data.error) {
+                        localStorage.setItem("userCountryCode", data.country_code);
+                        callback(data.country_code);
+                    } else {
+                        throw new Error();
+                    }
+                })
+                .catch(() => {
+                    fetch("https://ipinfo.io/json")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.country) {
+                                localStorage.setItem("userCountryCode", data.country);
+                                callback(data.country);
+                            } else {
+                                callback("US");
+                            }
+                        })
+                        .catch(() => callback("US"));
+                });
+        },
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/utils.js"
+    });
+
+    phoneInputField.addEventListener("countrychange", () => {
+        const countryData = iti.getSelectedCountryData();
+        const dial = countryData.dialCode ? "+" + countryData.dialCode + " " : "";
+        if (!phoneInputField.value.trim() || phoneInputField.value.startsWith("+")) {
+            phoneInputField.value = dial;
+        }
+        placeOrderBtn.disabled = !validateShippingForm();
+    });
+
+    iti.promise.then(() => {
+        const countryData = iti.getSelectedCountryData();
+        const dial = countryData.dialCode ? "+" + countryData.dialCode + " " : "";
+        if (!phoneInputField.value) phoneInputField.value = dial;
+        placeOrderBtn.disabled = !validateShippingForm();
+    });
+
+    const validateShippingForm = () => {
+        const name = document.getElementById("name").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const zip = document.getElementById("zip").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        const isNameValid = name !== '';
+        const isAddressValid = address !== '';
+        const isZipValid = zip !== '';
+        const isEmailValid = email !== '' && emailRegex.test(email);
+
+        let isPhoneValid = false;
+        if (typeof iti !== 'undefined') {
+            isPhoneValid = iti.isValidNumber();
+        }
+
+        return isNameValid && isAddressValid && isZipValid && isEmailValid && isPhoneValid;
+    };
+    
+    document.getElementById("name").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
+    document.getElementById("address").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
+    document.getElementById("zip").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
+    document.getElementById("email").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
+    
+    phoneInputField.addEventListener("input", () => {
+        const isValid = iti.isValidNumber();
+        const errorEl = document.getElementById("phoneError");
+        errorEl.style.display = (phoneInputField.value.trim() && !isValid) ? "block" : "none";
+        errorEl.innerText = currentLang === 'jp' ? "無効な電話番号です" : "Invalid phone number";
+        placeOrderBtn.disabled = !validateShippingForm();
+    });
+
+    phoneInputField.addEventListener("countrychange", () => placeOrderBtn.disabled = !validateShippingForm());
+
+    function renderOrder(t) {
+        const container = document.getElementById("orderItems");
+        const cart = getCart();
+        const lang = currentLang;
+        const user = QuickView.getLoggedInUser();
+        const tier = QuickView.getCurrentTier(QuickView.getLifetimePoints(user));
+
+        if (cart.length === 0) {
+            container.innerHTML = `<p>${t.empty}</p>`;
+            return;
+        }
+
+        container.innerHTML = cart.map(item => {
+            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === (item.title || item.name));
+            const roast = item.roast || productRef?.roast;
+            const isSeasonal = (item.title || item.name).includes("Sakura") || roast === "flavored" || (item.title || item.name).includes("桜");
+
+            let d = 0;
+            if (tier.name === 'Sakura') {
+                d = (roast === 'accessory') ? 20 : 10;
+            } else {
+                if (roast === 'accessory' && tier.name === 'Petal') d = 10;
+                else if (roast !== 'accessory' && tier.name !== 'Sprout' && isSeasonal) d = 5;
+            }
+
+            const priceHtml = d > 0
+                ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(item.price)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(item.price * (1 - d/100))}</span>`
+                : formatPrice(item.price);
+
+            return `
+            <div class="order-item">
+                <img src="${item.img || item.image || 'coffee1.png'}">
+                <div>
+                    <h4>${lang === 'jp' ? (item.title_jp || item.title || item.name || 'Coffee') : (item.title || item.name || 'Coffee')}</h4>
+                    <p>Qty: ${item.qty || 1}</p>
+                    <p>${priceHtml}</p>
+                </div>
+            </div>
+        `;}).join("");
+
+        let subtotal = 0;
+        let rankDiscount = 0;
+        cart.forEach(item => {
+            const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+            subtotal += itemTotal;
+
+            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === (item.title || item.name));
+            const roast = item.roast || productRef?.roast;
+            const isSeasonal = (item.title || item.name).includes("Sakura") || roast === "flavored" || (item.title || item.name).includes("桜");
+            
+            let d = 0;
+            if (roast === 'accessory') {
+                if (tier.name === 'Sakura') d = 0.20;
+                else if (tier.name === 'Petal') d = 0.10;
+            } else {
+                if (tier.name === 'Sakura') d = 0.10;
+                else if (tier.name !== 'Sprout' && isSeasonal) d = 0.05;
+            }
+            rankDiscount += itemTotal * d;
+        });
+
+        document.getElementById("checkoutSubtotal").innerText = formatPrice(subtotal);
+
+        let total = subtotal - rankDiscount;
+        let hasPromo = false;
+        const warningEl = document.getElementById("checkoutVoucherWarning");
+
+        if (localStorage.getItem("couponApplied") === "true") {
+            const discount = subtotal * 0.20;
+            total = subtotal - discount;
+            document.getElementById("checkoutDiscountRow").style.display = "flex";
+            document.getElementById("checkoutDiscount").innerText = "−" + formatPrice(discount);
+            hasPromo = true;
+        } else {
+            document.getElementById("checkoutDiscountRow").style.display = "none";
+        }
+
+        const rRow = document.getElementById("voucherDiscountRow");
+        if (rankDiscount > 0) {
+            document.getElementById("summaryBreakdown").insertAdjacentHTML('beforeend', `
+                <p style="display: flex; justify-content: space-between; color: var(--sakura-pink-main);">
+                    <span>${lang === 'jp' ? 'ランク特典割引:' : 'Rank Discount:'}</span> <span>−${formatPrice(rankDiscount)}</span>
+                </p>`);
+        }
+
+        if (appliedVoucher) {
+            
+            const shippingEst = 5.00; 
+            const result = QuickView.calculateDiscount(appliedVoucher, subtotal, shippingEst);
+            
+            if (result.success) {
+                const vDisc = result.amount;
+                
+                if (result.type !== 'shipping') {
+                    total -= vDisc;
+                }
+                document.getElementById("voucherDiscountRow").style.display = "flex";
+                document.getElementById("voucherDiscountAmount").innerText = "−" + formatPrice(vDisc);
+                if (warningEl) warningEl.style.display = "none";
+            } else {
+                document.getElementById("voucherDiscountRow").style.display = "none";
+                if (warningEl) {
+                    warningEl.innerText = result.message;
+                    warningEl.style.display = "block";
+                }
+            }
+        } else {
+            document.getElementById("voucherDiscountRow").style.display = "none";
+            if (warningEl) warningEl.style.display = "none";
+        }
+
+        document.getElementById("orderTotal").innerText = formatPrice(total);
+    }
+
+    function loadCheckoutVouchers(t) {
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        const area = document.getElementById("voucherSelectionArea");
+        const list = document.getElementById("checkoutVoucherList");
+        
+        area.style.display = "block";
+        
+        const vouchers = (user?.vouchers || []).filter(v => !v.used);
+        if (vouchers.length === 0) {
+            list.innerHTML = `<p class="small opacity-50 mb-0">${currentLang === 'jp' ? '利用可能なクーポンがありません' : 'No vouchers available'}</p>`;
+            return;
+        }
+
+        list.innerHTML = user.vouchers.filter(v => !v.used).map(v => `
+            <div class="voucher-picker-item p-2 rounded-3 d-flex justify-content-between align-items-center ${appliedVoucher?.code === v.code ? 'selected' : ''}" 
+                 onclick="selectVoucher('${v.code}')">
+                <div>
+                    <div style="font-size: 12px; font-weight: 600;">${currentLang === 'jp' ? v.nameJp : v.name}</div>
+                    <div style="font-size: 10px; opacity: 0.6;">${v.code}</div>
+                </div>
+                <span class="badge bg-light text-dark" style="font-size: 9px;">${appliedVoucher?.code === v.code ? '✓' : 'Select'}</span>
+            </div>
+        `).join('');
+    }
+
+    window.selectVoucher = function(code) {
+        const result = QuickView.validateVoucher(code);
+        if (result.success) {
+            appliedVoucher = (appliedVoucher?.code === code) ? null : result.voucher;
+            sessionStorage.setItem("appliedVoucher", JSON.stringify(appliedVoucher));
+            updateLanguage(); 
+        }
+    }
+
+    updateLanguage();
+
+    placeOrderBtn.disabled = !validateShippingForm();
+
+
+   document.getElementById("checkoutForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    const shippingInfo = {
+        name: document.getElementById("name").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        zip: document.getElementById("zip").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: iti.getNumber() 
+    };
+    sessionStorage.setItem("pendingShipping", JSON.stringify(shippingInfo));
+    window.location.href = "payment.html";
+});
+
+
+
+});
+</script>

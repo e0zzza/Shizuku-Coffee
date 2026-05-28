@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart – Shizuku Coffee</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+
+</head>
+<body>
+<img src="tree.png" class="sakura-tree-top" alt="">
+<nav class="glass-nav">
+  <div class="nav-left">
+    <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Search coffee..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <a href="basket.html">
+        <img src="cart.png" alt="">
+        <span id="cartBadge" class="cart-badge">0</span>
+    </a>
+    <a href="wishlist.html"><img src="love.png" alt=""></a>
+    <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+  </div>
+</nav>
+
+<div id="languageToggleContainer">
+    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+</div>
+
+<div class="page-wrapper">
+    <div class="checkout-progress">
+        <div class="progress-line"><div class="progress-line-fill" style="width: 0%;"></div></div>
+        <div class="progress-step active"><div class="step-circle">1</div><div class="step-label">Cart</div></div>
+        <div class="progress-step"><div class="step-circle">2</div><div class="step-label">Shipping</div></div>
+        <div class="progress-step"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
+        <div class="progress-step"><div class="step-circle">4</div><div class="step-label">Success</div></div>
+    </div>
+    <h1 class="cart-title" id="cartMainTitle" style="margin-top: 0;">Your Cart</h1>
+</div>
+<div id="cartContainer" class="cart-grid"></div>
+
+<div class="cart-summary" style="display: none;">
+    <div class="coupon-section">
+        <input type="text" id="couponInput" class="coupon-input" placeholder="Coupon Code">
+        <button id="applyCouponBtn" class="sakura-btn">Apply</button>
+    </div>
+    <div id="discountInfo" style="display: none; color: var(--sakura-pink-main); margin-bottom: 10px; font-weight: 600;">
+        Discount Applied (20% Off) 
+    </div>
+    <div id="voucherWarning" class="voucher-warning" style="display: none; text-align: right; margin-bottom: 15px;"></div>
+    <p class="cart-total-label">Total:</p>
+    <p id="cartTotal" class="cart-total-price">€0.00</p>
+
+    <div class="cart-summary-actions">
+        <button id="clearCartBtn" class="remove-btn">Clear Cart</button>
+        <a href="checkout.html" class="checkout-btn">Checkout</a>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header border-0">
+        <h5 class="modal-title w-100" id="confirmModalTitle">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody">
+        Are you sure?
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="sakura-btn secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="sakura-btn" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const translations = {
+    en: {
+        cartTitle: "Your Cart",
+        empty: "Your cart is feeling a bit lonely :(",
+        explore: "Explore Our Blends",
+        recent: "Recently Viewed",
+        total: "Total:",
+        clear: "Clear Cart",
+        checkout: "Checkout",
+        apply: "Apply",
+        discount: "Discount Applied (20% Off) ",
+        searchPlh: "Search coffee...",
+        progressSteps: ["Cart", "Shipping", "Payment", "Success"],
+        couponSuccess: "Coupon applied!",
+        couponInvalid: "Invalid coupon code.",
+        firstOrderOnly: "Sorry, this coupon is only valid for your first order!",
+        add: "Add to Cart",
+        remove: "Remove",
+        footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
+        fLinks: "Quick Links",
+        fVisit: "Visit Us",
+        fAbout: "About Us",
+        aboutT: "Our Story ",
+        aboutB: "Founded in the heart of Kyoto, Shizuku Coffee (雫コーヒー) was born from a passion for specialty beans and the transient beauty of cherry blossoms.",
+        contactT: "Get in Touch ",
+        contactB: "Email: hello@shizuku.coffee<br>Phone: +81 03-1234-5678",
+        guideT: "Brewing the Perfect Sakura Cup ",
+        guideB: "Enjoy our specialty beans at home with this simple guide:<br><br><ul><li><b>Grind:</b> Medium-Coarse (like sea salt).</li><li><b>Water:</b> 92°C (approx. 200°F).</li><li><b>Ratio:</b> 15g coffee to 250ml water.</li><li><b>Technique:</b> Pour 30ml to 'bloom' for 30s, then pour slowly in circles.</li></ul><p><i>Tip: Serve in a clear glass to enjoy the light, tea-like color!</i></p>",
+        policyT: "Returns & Exchanges",
+        policyB: "We want you to love your Shizuku Coffee! If you are not satisfied with your purchase, you can return unopened items within 30 days of delivery. For fresh roasted beans, please contact us within 7 days if there is a quality issue.",
+        fHoursWeek: "Mon - Fri: 8am - 7pm",
+        fHoursEnd: "Sat - Sun: 9am - 6pm",
+        fNewsletter: "Join Our Newsletter",
+        fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
+        fNewsletterPlh: "Your email...",
+        fNewsletterBtn: "Join",
+        utilTrack: "Track Order",
+        utilGuide: "Brewing Guide",
+        utilPolicy: "Returns Policy",
+        clearConfirm: "Are you sure you want to clear your cart?"
+    },
+    jp: {
+        cartTitle: "ショッピングカート",
+        empty: "カートに商品が入っていません",
+        explore: "ブレンドを探す",
+        recent: "最近チェックした商品",
+        total: "合計:",
+        clear: "カートを空にする",
+        checkout: "レジへ進む",
+        apply: "適用",
+        discount: "割引適用中 (20% OFF) ",
+        searchPlh: "コーヒーを検索...",
+        progressSteps: ["カート", "配送", "お支払い", "完了"],
+        couponSuccess: "クーポンを適用しました！ ",
+        couponInvalid: "無効なクーポンコードです。",
+        firstOrderOnly: "申し訳ありませんが、このクーポンは初回注文のみ有効です！ ",
+        add: "カートに入れる",
+        remove: "削除",
+        footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。一粒の豆には伝統と品質の物語が詰まっています。",
+        fLinks: "クイックリンク",
+        fVisit: "店舗案内",
+        fAbout: "私たちについて",
+        aboutT: "私たちの物語 ",
+        aboutB: "京都の中心で生まれた雫コーヒーは、スペシャリティコーヒーと桜の儚い美しさへの情熱から誕生しました。",
+        contactT: "お問い合わせ ",
+        contactB: "メール: hello@shizuku.coffee<br>電話: +81 03-1234-5678",
+        guideT: "究極の桜コーヒーの淹れ方 ",
+        guideB: "ご自宅でも雫コーヒーの味を再現するためのガイドです：<br><br><ul><li><b>挽き方：</b>中粗挽き（海塩くらいの大きさ）。</li><li><b>お湯の温度：</b>92℃（沸騰後1分ほど置いた状態）。</li><li><b>比率：</b>コーヒー粉15gに対してお湯250ml。</li><li><b>手順：</b>最初に30ml注いで30秒「蒸らし」、その後ゆっくり円を描くように注ぎます。</li></ul><p><i>ポイント：透明なグラスで、お茶のような透き通った色合いもお楽しみください。</i></p>",
+        policyT: "返品・交換について ",
+        policyB: "雫コーヒーをご愛用いただきありがとうございます。万が一商品にご満足いただけない場合、未開封の商品に限りお届けから30日以内であれば返品を承ります。焙煎豆などの生鮮品については、品質に問題がある場合、お届けから7日以内にご連絡ください。",
+        fHoursWeek: "月 - 金：8:00 - 19:00",
+        fHoursEnd: "土 - 日：9:00 - 18:00",
+        fNewsletter: "ニュースレター登録",
+        fNewsletterDesc: "季節限定ブレンドの最新情報や特別オファーをお届けします！",
+        fNewsletterPlh: "メールアドレス...",
+        fNewsletterBtn: "登録",
+        utilTrack: "注文追跡",
+        utilGuide: "淹れ方ガイド",
+        utilPolicy: "返品ポリシー",
+        clearConfirm: "カートを空にしてもよろしいですか？ "
+    }
+};
+
+let appliedDiscount = 0;
+let currentLang = localStorage.getItem("language") || "en";
+
+const searchInput = document.getElementById("searchInput");
+const searchIcon = document.querySelector(".search-icon");
+
+    function triggerSearch() {
+    window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value);
+}
+searchInput.addEventListener("keypress", (e) => { if (e.key === "Enter") triggerSearch(); });
+searchIcon.addEventListener("click", triggerSearch);
+
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartBadge();
+}
+
+function updateCartBadge() {
+    const cart = getCart();
+    const count = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    const badge = document.getElementById("cartBadge");
+    if (badge) {
+        badge.innerText = count;
+        badge.style.display = count > 0 ? "block" : "none";
+    }
+}
+
+function renderCart() {
+    const container = document.getElementById("cartContainer");
+    const summary = document.querySelector(".cart-summary");
+    const cart = getCart();
+    const lang = currentLang;
+    const t = translations[lang];
+
+    if (lang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    const validCart = cart.filter(item => item && item.title && item.price);
+    if (validCart.length !== cart.length) {
+        saveCart(validCart);
+        return renderCart();
+    }
+    
+    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("cartMainTitle").innerText = t.cartTitle;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+    document.getElementById("applyCouponBtn").innerText = t.apply;
+    document.getElementById("discountInfo").innerText = t.discount;
+    document.querySelector(".cart-total-label").innerText = t.total;
+    document.getElementById("clearCartBtn").innerText = t.clear;
+    document.querySelector(".checkout-btn").innerText = t.checkout;
+
+    if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
+
+    document.querySelectorAll(".step-label").forEach((el, i) => {
+        if (t.progressSteps[i]) el.innerText = t.progressSteps[i];
+    });
+
+    if (cart.length > 0) {
+        syncCartToUser(cart);
+    }
+
+    if (cart.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <img src="empty.png" class="empty-img" alt="">
+                <p class="empty-text">${t.empty}</p>
+                <a href="index.html" class="sakura-btn" style="text-decoration: none; margin-top: 20px;">${t.explore}</a>
+            </div>
+            <div id="recentlyViewedSection" style="margin-top: 60px;">
+                <h2 class="cart-title" style="margin-top: 0; font-size: 24px;">${t.recent}</h2>
+                <div id="recentlyViewedContainer" class="wishlist-grid"></div>
+            </div>
+        `;
+        renderRecentlyViewed();
+        document.getElementById("cartTotal").innerText = "€0.00";
+        if (summary) summary.style.display = "none";
+        return;
+    }
+    if (summary) summary.style.display = "block";
+
+    const user = QuickView.getLoggedInUser();
+    const tier = QuickView.getCurrentTier(QuickView.getLifetimePoints(user));
+
+    container.innerHTML = cart.map(item => {
+        const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+        const roast = item.roast || productRef?.roast || 'light';
+        const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
+        
+        let d = 0;
+        if (tier.name === 'Sakura') {
+            d = (roast === 'accessory') ? 20 : 10;
+        } else {
+            if (roast === 'accessory' && tier.name === 'Petal') d = 10;
+            else if (roast !== 'accessory' && tier.name !== 'Sprout' && isSeasonal) d = 5;
+        }
+
+        const priceHtml = d > 0
+            ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(item.price)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(item.price * (1 - d/100))}</span>`
+            : formatPrice(item.price);
+
+        return `
+        <div class="cart-card">
+            <img src="${item.img}">
+            <div class="cart-info">
+                <h3>${lang === 'jp' ? (item.title_jp || item.title) : item.title} ${d > 0 ? `<span class="badge bg-success ms-1" style="font-size: 10px;">${d}% OFF</span>` : ''}</h3>
+                <p>${lang === 'jp' ? (item.desc_jp || item.desc) : item.desc}</p>
+                <p class="price">${priceHtml}</p>
+            </div>
+
+            <div class="cart-actions">
+                <button class="qty-btn decrease" data-title="${item.title}">−</button>
+                <span class="qty-number">${item.qty || 1}</span>
+                <button class="qty-btn increase" data-title="${item.title}">+</button>
+
+                <button class="remove-btn" data-title="${item.title}">
+                    ${t.remove}
+                </button>
+            </div>
+        </div>
+    `;}).join("");
+
+    attachCartEvents();
+    updateTotal();
+}
+
+function syncCartToUser(cart) {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) return;
+    
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    users = users.map(u => {
+        if (u.email === user.email) u.cart = cart;
+        return u;
+    });
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
+function renderRecentlyViewed() {
+    const container = document.getElementById("recentlyViewedContainer");
+    const section = document.getElementById("recentlyViewedSection");
+    const viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+    const lang = currentLang;
+
+    if (!container || viewed.length === 0) {
+        if (section) section.style.display = "none";
+        return;
+    }
+
+    container.innerHTML = viewed.map(item => `
+        <div class="wishlist-card" onclick="QuickView.showByName('${item.title.replace(/'/g, "\\'")}')">
+            <img src="${item.img}">
+            <h3>${lang === 'jp' ? (item.title_jp || item.title) : item.title}</h3>
+            <div class="mb-2">
+                <div class="product-rating-summary" style="justify-content: center;">
+                    ${renderStars(calculateAverageRating(item.title))}
+                    <span style="font-size: 11px; opacity: 0.8;">(${getReviewsForProduct(item.title).length + QuickView.reviewsPool.filter(r => r.productTitle === item.title).length})</span>
+                </div>
+            </div>
+            <p class="price">${formatPrice(item.price)}</p>
+            <button class="sakura-btn add-btn" style="width: 100%;" onclick="event.stopPropagation(); quickAdd('${item.title.replace(/'/g, "\\'")}');">${translations[currentLang].add}</button>
+        </div>
+    `).join("");
+}
+
+function quickAdd(title) {
+    const product = SHIZUKU_PRODUCTS.find(p => p.title === title);
+    if (!product) return;
+    let cart = getCart();
+    const existing = cart.find(i => i.title === title);
+    if (existing) existing.qty++;
+    else cart.push({...product, qty: 1});
+    saveCart(cart);
+    renderCart();
+
+    const lang = currentLang;
+    const productName = lang === 'jp' ? (product.title_jp || product.title) : product.title;
+    const msg = `<span style="font-weight:600; color: var(--sakura-pink-main);">${productName}</span> ` + 
+                (lang === 'jp' ? 'がカートに追加されました！' : 'has been added to your cart!');
+    
+    window.showSakuraToast(msg, '🛒', {
+        text: lang === 'jp' ? '元に戻す' : 'Undo',
+        callback: () => QuickView.undoAddToCart(product.title, 1)
+    });
+}
+
+function attachCartEvents() {
+    document.querySelectorAll(".increase").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let cart = getCart();
+            const item = cart.find(i => i.title === btn.dataset.title);
+            item.qty = (item.qty || 1) + 1;
+            saveCart(cart);
+            renderCart();
+        });
+    });
+
+    document.querySelectorAll(".decrease").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let cart = getCart();
+            const item = cart.find(i => i.title === btn.dataset.title);
+            if ((item.qty || 1) > 1) {
+                item.qty--;
+                saveCart(cart);
+                renderCart();
+            }
+        });
+    });
+
+    document.querySelectorAll(".cart-card .remove-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const card = e.target.closest(".cart-card");
+            if (card) card.classList.add("removing");
+            setTimeout(() => {
+                let cart = getCart();
+                cart = cart.filter(i => i && i.title && i.title !== btn.dataset.title);
+                saveCart(cart);
+                renderCart();
+            }, 400);
+        });
+    });
+}
+
+function updateTotal() {
+    const cart = getCart();
+    const lang = currentLang;
+    const t = translations[lang];
+
+    const user = QuickView.getLoggedInUser();
+    const tier = QuickView.getCurrentTier(QuickView.getLifetimePoints(user));
+
+    let subtotal = 0;
+    let rankDiscount = 0;
+    
+    cart.forEach(item => {
+        const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+        subtotal += itemTotal;
+
+        const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+        const roast = item.roast || productRef?.roast;
+        const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
+        
+        let d = 0;
+        if (roast === 'accessory') {
+            if (tier.name === 'Sakura') d = 0.20;
+            else if (tier.name === 'Petal') d = 0.10;
+        } else {
+            if (tier.name === 'Sakura') d = 0.10;
+            else if (tier.name !== 'Sprout' && isSeasonal) d = 0.05;
+        }
+        rankDiscount += itemTotal * d;
+    });
+
+    let total = subtotal - rankDiscount;
+
+    if (appliedDiscount > 0) {
+        total = subtotal * (1 - appliedDiscount);
+        document.getElementById("discountInfo").style.display = "block";
+    } else {
+        document.getElementById("discountInfo").style.display = "none";
+    }
+
+    const activeVoucherCode = localStorage.getItem('activeVoucherCode');
+    const warningEl = document.getElementById("voucherWarning");
+    
+    if (activeVoucherCode) {
+        const voucher = user?.vouchers?.find(v => v.code === activeVoucherCode);
+        if (voucher && !voucher.used) {
+            const result = QuickView.calculateDiscount(voucher, subtotal, 5.00); 
+            if (result.success) {
+                if (result.type !== 'shipping') {
+                    total -= result.amount;
+                }
+                if (warningEl) warningEl.style.display = "none";
+            } else {
+                if (warningEl) {
+                    warningEl.innerText = result.message;
+                    warningEl.style.display = "block";
+                }
+            }
+        }
+    } else if (warningEl) {
+        warningEl.style.display = "none";
+    }
+    
+    let rankRow = document.getElementById("rankDiscountRow");
+    if (rankDiscount > 0) {
+        if (!rankRow) {
+            rankRow = document.createElement("p");
+            rankRow.id = "rankDiscountRow";
+            rankRow.style.cssText = "color: var(--sakura-pink-main); font-weight: 600; margin-bottom: 5px;";
+            document.getElementById("cartTotal").parentElement.insertBefore(rankRow, document.getElementById("cartTotal").previousElementSibling);
+        }
+        rankRow.innerText = (lang === 'jp' ? "ランク特典割引: -" : "Rank Discount: -") + formatPrice(rankDiscount);
+    } else if (rankRow) {
+        rankRow.remove();
+    }
+
+    document.getElementById("cartTotal").innerText = formatPrice(total);
+}
+
+document.getElementById("applyCouponBtn")?.addEventListener("click", () => {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const code = document.getElementById("couponInput").value.trim().toUpperCase();
+    const t = translations[currentLang];
+
+    if (!code) return;
+
+    const hasPreviousOrders = user && orders.some(o => o.userEmail === user.email);
+
+    if (code === "SAKURA20") {
+        if (hasPreviousOrders) {
+            alert(t.firstOrderOnly);
+            return;
+        }
+        appliedDiscount = 0.20;
+        localStorage.setItem("couponApplied", "true");
+        updateTotal();
+        alert(t.couponSuccess);
+    } else if (user && user.vouchers && user.vouchers.some(v => v.code === code)) {
+       
+        QuickView.applyVoucher(code);
+        updateTotal();
+    } else {
+        alert(t.couponInvalid);
+    }
+});
+
+const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+const confirmActionBtn = document.getElementById('confirmActionBtn');
+
+document.getElementById("clearCartBtn").addEventListener("click", () => {
+    document.getElementById('confirmModalBody').innerText = translations[currentLang].clearConfirm;
+    confirmModal.show();
+    confirmActionBtn.onclick = () => {
+        document.querySelectorAll(".cart-card").forEach(c => c.classList.add("removing"));
+        setTimeout(() => {
+            localStorage.removeItem("cart");
+            updateCartBadge();
+            renderCart();
+            confirmModal.hide();
+        }, 400);
+    };
+});
+
+document.getElementById("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "jp" : "en";
+    localStorage.setItem("language", currentLang);
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    renderCart();
+});
+renderCart();
+</script>
+</body>
+</html>

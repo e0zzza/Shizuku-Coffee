@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Shizuku Coffee</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="products.js"></script>
+    <script src="quickview.js"></script>
+</head>
+<body>
+    <img src="tree.png" class="sakura-tree-top" alt="">
+    <nav class="glass-nav">
+        <div class="nav-left">
+            <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+        </div>
+        <div class="nav-center">
+            <div class="nav-search">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search coffee…">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="basket.html"><img src="cart.png" alt=""></a>
+            <a href="wishlist.html"><img src="love.png" alt=""></a>
+            <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+        </div>
+    </nav>
+
+    <div id="languageToggleContainer">
+        <button id="langToggle" class="sakura-btn">🇯🇵</button>
+    </div>
+
+    <div class="edit-profile-wrapper">
+        <div class="glass-card edit-profile-card reveal-hidden">
+            <h1 class="page-title">Edit Profile</h1>
+            
+            <div class="completeness-container">
+                <div class="completeness-label">
+                    <span>Profile Completeness</span>
+                    <span id="completenessPercent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+            
+            <form id="editProfileForm">
+                <div class="text-center mb-4">
+                    <div class="avatar-upload-container editable" onclick="document.getElementById('profilePicInput').click()" title="Change Profile Picture">
+                        <img id="profileAvatar" src="profile-icon.png" class="profile-avatar">
+                        <div class="avatar-upload-overlay">📸</div>
+                    </div>
+                    <button type="button" id="removePicBtn" class="btn btn-link btn-sm text-decoration-none" style="color: var(--sakura-brown-light); font-size: 11px; opacity: 0.7;">Remove Current Photo</button>
+                    <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
+                </div>
+
+                <div class="profile-section-card">
+                    <h6 class="modal-section-title mb-3">Basic Information</h6>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control payment-input" id="username" placeholder="New username" style="margin-bottom: 0;">
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control payment-input" id="email" placeholder="New email" style="margin-bottom: 0;">
+
+                        <div class="verification-group">
+                            <button class="sakura-btn secondary" type="button" id="verifyBtn" style="width: auto; padding: 8px 16px; font-size: 13px;">Verify Email</button>
+                            <input type="text" id="verificationCodeInput" class="form-control auth-input" placeholder="Code" style="display:none; max-width:120px;">
+                            <button class="sakura-btn" type="button" id="submitCodeBtn" style="display:none; width: auto; padding: 8px 16px; font-size: 13px;">Submit</button>
+                        </div>
+                        <div id="emailStatus" class="mt-2 small"></div>
+                    </div>
+                </div>
+
+                <div class="profile-section-card">
+                    <h6 class="modal-section-title mb-3">Security</h6>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">New Password</label>
+                        <div class="password-toggle-wrapper">
+                            <input type="password" class="form-control payment-input" id="password" placeholder="Min 8 characters" style="margin-bottom: 0;">
+                            <span class="password-toggle-icon">👁️</span>
+                        </div>
+                        <div class="strength-meter-container">
+                            <div class="strength-bar"></div>
+                        </div>
+                        <small class="strength-text" style="display: block; margin-top: 5px;"></small>
+                    </div>
+    
+                    <div class="mb-2">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <div class="password-toggle-wrapper">
+                            <input type="password" class="form-control payment-input" id="confirmPassword" placeholder="Re-type password" style="margin-bottom: 0;">
+                            <span class="password-toggle-icon">👁️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profileFlagSelector" class="mb-4"></div>
+
+                <button type="submit" id="saveProfileBtn" class="sakura-btn w-100 p-3" style="font-size: 16px;">Save Profile Changes</button>
+                <a href="profile.html" class="d-block text-center mt-3 text-muted text-decoration-none small">Cancel and Return</a>
+            </form>
+        </div>
+    </div>
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aboutTitle">Our Story </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="aboutBody">
+                Founded in the heart of Kyoto, <b>Shizuku Coffee</b> was born from a passion for specialty beans and the transient beauty of cherry blossoms.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactTitle">Get in Touch </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="contactBody">
+                <p>Email: hello@shizuku.coffee</p>
+                <p>Phone: +81 03-1234-5678</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="brewingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="brewingTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="brewingBody" style="font-size: 15px; color: var(--sakura-brown-light);">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="policyTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="policyBody" style="font-size: 15px; color: var(--sakura-brown-light);">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const translations = {
+    en: {
+        title: "Edit Profile",
+        completeness: "Profile Completeness",
+        username: "Username",
+        usernamePlh: "New username",
+        email: "Email Address",
+        emailPlh: "New email",
+        verify: "Verify Email",
+        codePlh: "Code",
+        submit: "Submit",
+        pass: "New Password",
+        passPlh: "Min 8 characters",
+        confirm: "Confirm Password",
+        confirmPlh: "Re-type password",
+        save: "Save Profile Changes",
+        change: "Change",
+        remove: "Remove",
+        searchPlh: "Search coffee...",
+        invalidEmail: "Invalid email format",
+        codeSent: "Your verification code: ",
+        codeVerified: "Email verified ✔",
+        codeWrong: "Incorrect code. Try again.",
+        msgMatch: "Passwords do not match.",
+        msgVerify: "Please verify your new email before saving.",
+        msgTaken: "This email is already in use by another account.",
+        msgSuccess: "Profile updated successfully!"
+    },
+    jp: {
+        title: "プロフィール編集",
+        completeness: "プロフィールの完成度",
+        username: "ユーザー名",
+        usernamePlh: "新しいユーザー名",
+        email: "メールアドレス",
+        emailPlh: "新しいメールアドレス",
+        verify: "認証する",
+        codePlh: "コード",
+        submit: "送信",
+        pass: "新しいパスワード",
+        passPlh: "8文字以上",
+        confirm: "パスワード（確認）",
+        confirmPlh: "もう一度入力してください",
+        save: "変更を保存",
+        change: "変更",
+        remove: "削除",
+        searchPlh: "コーヒーを検索...",
+        invalidEmail: "無効なメール形式です",
+        codeSent: "認証コード: ",
+        codeVerified: "認証済み ✔",
+        codeWrong: "コードが正しくありません。",
+        msgMatch: "パスワードが一致しません。",
+        msgVerify: "保存する前に新しいメールアドレスを認証してください。",
+        msgTaken: "このメールアドレスは既に登録されています。",
+        msgSuccess: "プロフィールが更新されました！"
+    }
+};
+
+let currentLang = localStorage.getItem("language") || "en";
+
+function updateLanguage() {
+    const t = translations[currentLang];
+
+    if (currentLang === 'jp') {
+        document.body.classList.add('lang-jp');
+    } else {
+        document.body.classList.remove('lang-jp');
+    }
+
+    document.querySelector(".page-title").innerText = t.title;
+    document.querySelector(".completeness-label span").innerText = t.completeness;
+    document.querySelector('label[for="username"]').innerText = t.username;
+    document.getElementById("username").placeholder = t.usernamePlh;
+    document.querySelector('label[for="email"]').innerText = t.email;
+    document.getElementById("email").placeholder = t.emailPlh;
+    document.getElementById("verifyBtn").innerText = t.verify;
+    document.getElementById("verificationCodeInput").placeholder = t.codePlh;
+    document.getElementById("submitCodeBtn").innerText = t.submit;
+    document.querySelector('label[for="password"]').innerText = t.pass;
+    document.getElementById("password").placeholder = t.passPlh;
+    document.querySelector('label[for="confirmPassword"]').innerText = t.confirm;
+    document.getElementById("confirmPassword").placeholder = t.confirmPlh;
+    document.querySelector("button[type='submit']").innerText = t.save;
+    document.getElementById("removePicBtn").innerText = t.remove;
+    document.getElementById("searchInput").placeholder = t.searchPlh;
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("editProfileForm");
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const emailStatus = document.getElementById("emailStatus");
+    const verificationCodeInput = document.getElementById("verificationCodeInput");
+    const submitCodeBtn = document.getElementById("submitCodeBtn");
+    const profilePicInput = document.getElementById("profilePicInput");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const removePicBtn = document.getElementById("removePicBtn");
+
+    const searchInput = document.getElementById("searchInput");
+    const searchIcon = document.querySelector(".search-icon");
+
+    function triggerSearch() {
+        window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value);
+    }
+    if (searchInput) searchInput.addEventListener("keypress", (e) => { if (e.key === "Enter") triggerSearch(); });
+    if (searchIcon) searchIcon.addEventListener("click", triggerSearch);
+
+    let verificationCode = null;
+    let emailVerified = false;
+    let pendingProfilePic = null;
+
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    usernameInput.value = user.username;
+    emailInput.value = user.email;
+    if (user.profilePic) {
+        profileAvatar.src = user.profilePic;
+        pendingProfilePic = user.profilePic;
+    }
+    
+    function updateCompleteness() {
+        let score = 0;
+        const totalSteps = 4;
+
+        if (usernameInput.value.trim() !== "") score++;
+        if (emailInput.value.trim() !== "") score++;
+        if (emailVerified || emailInput.value === user.email) score++;
+        if (pendingProfilePic) score++;
+    
+        const percentage = Math.round((score / totalSteps) * 100);
+        document.getElementById("progressFill").style.width = percentage + "%";
+        document.getElementById("completenessPercent").textContent = percentage + "%";
+    }
+
+    usernameInput.addEventListener("input", updateCompleteness);
+    updateCompleteness();
+
+    verifyBtn.addEventListener("click", function () {
+        const t = translations[currentLang];
+        const email = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            emailStatus.textContent = t.invalidEmail;
+            emailStatus.style.color = "red";
+            return;
+        }
+        verificationCode = Math.floor(100000 + Math.random() * 900000);
+        emailStatus.style.color = "green";
+        verificationCodeInput.style.display = "inline-block";
+        submitCodeBtn.style.display = "inline-block";
+        verificationCodeInput.value = "";
+        alert(t.codeSent + verificationCode);
+    });
+
+    submitCodeBtn.addEventListener("click", function () {
+        const t = translations[currentLang];
+        const userCode = verificationCodeInput.value.trim();
+        if (userCode == verificationCode) {
+            emailVerified = true;
+            emailStatus.textContent = t.codeVerified;
+            emailStatus.style.color = "green";
+            verificationCodeInput.style.display = "none";
+            submitCodeBtn.style.display = "none";
+            updateCompleteness();
+        } else {
+            emailStatus.textContent = t.codeWrong;
+            emailStatus.style.color = "red";
+        }
+    });
+
+    emailInput.addEventListener("input", function () {
+        emailVerified = false;
+        emailStatus.textContent = "";
+        verificationCodeInput.style.display = "none";
+        submitCodeBtn.style.display = "none";
+        updateCompleteness();
+    });
+    
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            if (input.type === "password") {
+                input.type = "text";
+                this.innerText = "🙈"; 
+            } else {
+                input.type = "password";
+                this.innerText = "👁️";
+            }
+        });
+    });
+    
+    const meter = document.querySelector('.strength-meter-container');
+    const bar = document.querySelector('.strength-bar');
+    const textLabel = document.querySelector('.strength-text');
+
+    if (passwordInput && meter) {
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            const t = translations[currentLang];
+            if (!val) {
+                meter.style.display = 'none';
+                textLabel.innerText = '';
+                return;
+            }
+            meter.style.display = 'block';
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            let lvl = { width: '33%', color: '#ff4d4d', text: currentLang === 'jp' ? '弱い' : 'Weak' };
+            if (score >= 4) lvl = { width: '100%', color: '#2ecc71', text: currentLang === 'jp' ? '強い' : 'Strong' };
+            else if (score >= 2) lvl = { width: '66%', color: '#ffa500', text: currentLang === 'jp' ? '中程度' : 'Medium' };
+
+            bar.style.width = lvl.width;
+            bar.style.backgroundColor = lvl.color;
+            textLabel.innerText = lvl.text;
+            textLabel.style.color = lvl.color;
+        });
+    }
+
+    profilePicInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function() {
+               
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+    
+
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                pendingProfilePic = compressedBase64;
+                profileAvatar.src = compressedBase64;
+                updateCompleteness();
+                
+                const msg = currentLang === 'jp' ? "画像を最適化しました（保存を忘れずに！）" : "Image optimized (don't forget to save!)";
+                window.showSakuraToast(msg, "📸");
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    removePicBtn.addEventListener("click", () => {
+        pendingProfilePic = null;
+        profileAvatar.src = "profile-icon.png";
+        updateCompleteness();
+    });
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const btn = document.getElementById("saveProfileBtn");
+        const t = translations[currentLang];
+
+      
+        btn.disabled = true;
+        btn.innerText = currentLang === 'jp' ? "保存中..." : "Saving Changes...";
+        
+        const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (!currentUser) return;
+
+        const newUsername = usernameInput.value.trim();
+        const newEmail = emailInput.value.trim();
+        const newPassword = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+
+        const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+        if (newEmail !== currentUser.email && allUsers.some(u => u.email === newEmail)) {
+            btn.disabled = false;
+            btn.innerText = t.save;
+            alert(t.msgTaken);
+            return;
+        }
+    
+        const selectedFlag = QuickView.pendingFlag || currentUser.flag || "🌸";
+
+        if (newEmail !== currentUser.email && !emailVerified) {
+            btn.disabled = false;
+            btn.innerText = t.save;
+            alert(t.msgVerify);
+            return;
+        }
+    
+        if (newPassword && newPassword !== confirmPassword) {
+            btn.disabled = false;
+            btn.innerText = t.save;
+            alert(t.msgMatch);
+            return;
+        }
+
+        const updatedUser = {
+            ...currentUser,
+            username: newUsername,
+            email: newEmail,
+            password: newPassword || currentUser.password,
+            flag: selectedFlag,
+            profilePic: pendingProfilePic
+        };
+    
+        localStorage.setItem("userCountryFlag", selectedFlag);
+    
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        const userIdx = users.findIndex(u => u.email === currentUser.email);
+        if (userIdx !== -1) users[userIdx] = updatedUser;
+        
+        try {
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+            localStorage.setItem("profileUpdatePendingMsg", "true");
+            
+            setTimeout(() => {
+                window.location.href = "profile.html";
+            }, 100);
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerText = t.save;
+            alert(currentLang === 'jp' ? "エラー：画像が大きすぎて保存できません。別の画像をお試しください。" : "Error: Data limit exceeded. Try a smaller image.");
+        }
+    });
+    document.getElementById("langToggle").addEventListener("click", () => {
+        currentLang = currentLang === "en" ? "jp" : "en";
+        localStorage.setItem("language", currentLang);
+        updateLanguage();
+        updateCompleteness();
+    });
+    updateLanguage();
+    updateCompleteness();
+});
+</script>
