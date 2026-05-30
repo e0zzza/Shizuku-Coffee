@@ -2482,10 +2482,8 @@ const QuickView = {
     },
 
     calculateDiscount(voucher, subtotal, shipping) {
-        const lang = localStorage.getItem("language") || "en"; 
-        const isJp = lang === 'jp';
-        const exchangeRate = 160;
         const subtotalNum = parseFloat(subtotal) || 0;
+        const lang = localStorage.getItem("language") || "en";
 
         if (voucher.name.includes("10%")) {
             return { amount: subtotalNum * 0.1, type: 'percent', success: true };
@@ -2494,22 +2492,15 @@ const QuickView = {
             return { amount: shipping, type: 'shipping', success: true };
         }
         if (voucher.name.includes("€5") || voucher.name.includes("¥800")) { 
-            const discountValueEuro = 5;
-            const minPurchaseEuro = 10;
-
-            
-            const minPurchase = isJp ? (minPurchaseEuro * exchangeRate) : minPurchaseEuro;
-            const discountValue = isJp ? (discountValueEuro * exchangeRate) : discountValueEuro;
-
-            if (subtotalNum < minPurchase) {
+            if (subtotalNum < 10) {
                 return {
                     amount: 0,
                     type: 'fixed',
                     success: false,
-                    message: isJp ? `このギフトカードは¥${minPurchase.toLocaleString()}以上の購入で利用可能です。` : `Minimum purchase of €${minPurchaseEuro.toFixed(2)} required for this gift card.`
+                    message: lang === 'jp' ? `このギフトカードは合計金額が€10.00（約¥1,600）以上の場合に利用可能です。` : `Minimum purchase of €10.00 required for this gift card.`
                 };
             }
-            const actualDiscount = Math.min(discountValue, subtotalNum);
+            const actualDiscount = Math.min(5, subtotalNum);
             return { amount: actualDiscount, type: 'fixed', success: true, message: '' };
         }
         return { amount: 0, type: 'none', success: false };
