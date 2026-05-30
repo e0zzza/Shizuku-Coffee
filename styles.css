@@ -785,6 +785,27 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea {
     margin-top: auto; 
 }
 
+@media (max-width: 576px) {
+    .cart-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    .cart-card img {
+        width: 100%;
+        max-width: 160px;
+    }
+    .cart-actions {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .payment-methods, .shipping-methods { grid-template-columns: 1fr; }
+    .checkout-progress { overflow-x: auto; padding-bottom: 10px; justify-content: flex-start; gap: 20px; }
+}
+
 .cart-title {
     text-align: center;
     margin-top: 140px;
@@ -936,6 +957,10 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea {
     margin: 40px auto;
     display: flex;
     gap: 40px;
+}
+
+@media (max-width: 992px) {
+    .checkout-container { flex-direction: column; }
 }
 
 .checkout-left, .checkout-right {
@@ -1157,7 +1182,8 @@ body.lang-jp {
 }
 
 .success-card {
-    width: 420px;
+    width: 95%;
+    max-width: 420px;
     padding: 40px 30px;
     border-radius: 22px;
 
@@ -1274,10 +1300,14 @@ body.lang-jp {
 
 .page-wrapper {
     margin-top: 140px;
-    margin-bottom: 120px; /* Increased spacing for better footer separation */
+    margin-bottom: 120px;
     width: 85%;
     margin-left: auto;
     margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .page-wrapper { width: 92%; }
 }
 
 .glass-card {
@@ -1299,6 +1329,7 @@ body.lang-jp {
 .iti {
     position: relative;
     width: 100%;
+    margin-bottom: 12px;
 }
 
 .iti__flag-container {
@@ -2686,6 +2717,15 @@ body.lang-jp {
     flex-direction: column;
     overflow: hidden;
     animation: slideUp 0.4s ease;
+}
+
+@media (max-width: 576px) {
+    .chat-window {
+        width: calc(100vw - 30px);
+        height: 60vh;
+        max-height: 500px;
+        margin-bottom: 10px;
+    }
 }
 
 .chat-header {
