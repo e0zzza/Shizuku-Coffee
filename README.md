@@ -1,4 +1,4 @@
-# ShizukuCoffee
+# Shizuku Coffee
 
 Shizuku Coffee is a frontend-only e-commerce simulation inspired by Japanese cafés, seasonal aesthetics, and cozy online storefronts. The project is built with Vanilla JavaScript and Bootstrap 5, focusing on atmosphere and interaction rather than real commerce.
 
