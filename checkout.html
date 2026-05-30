@@ -65,8 +65,7 @@
                 <input type="email" id="email" required inputmode="email">
                 <input id="phone" type="tel" required>
                 <div id="phoneError" class="error-text" style="margin-top: 5px;"></div>
-                <br>
-                <button type="submit" id="placeOrderBtn" class="sakura-btn place-order-btn" style="width:100%;">Place Order</button>
+                <button type="submit" id="placeOrderBtn" class="sakura-btn place-order-btn" style="width:100%; margin-top: 20px;">Place Order</button>
         </form>
         </div>
 
@@ -133,6 +132,7 @@ const translations = {
         fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
         fNewsletterPlh: "Your email...",
         fNewsletterBtn: "Join",
+        authRequired: "Please log in to proceed to checkout.",
         utilTrack: "Track Order",
         utilGuide: "Brewing Guide",
         utilPolicy: "Returns Policy"
@@ -172,6 +172,7 @@ const translations = {
         fNewsletterDesc: "季節限定ブレンドの最新情報や特別オファーをお届けします！",
         fNewsletterPlh: "メールアドレス...",
         fNewsletterBtn: "登録",
+        authRequired: "チェックアウトに進むにはログインしてください。",
         utilTrack: "注文追跡",
         utilGuide: "淹れ方ガイド",
         utilPolicy: "返品ポリシー"
@@ -338,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         container.innerHTML = cart.map(item => {
-            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === (item.title || item.name));
+            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title || p.title_jp === item.title);
             const roast = item.roast || productRef?.roast;
             const isSeasonal = (item.title || item.name).includes("Sakura") || roast === "flavored" || (item.title || item.name).includes("桜");
 
@@ -371,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
             subtotal += itemTotal;
 
-            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === (item.title || item.name));
+            const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title || p.title_jp === item.title);
             const roast = item.roast || productRef?.roast;
             const isSeasonal = (item.title || item.name).includes("Sakura") || roast === "flavored" || (item.title || item.name).includes("桜");
             
