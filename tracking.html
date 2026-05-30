@@ -206,7 +206,7 @@
 
         if (stage === 4) {
             statusLabelEl.innerText = t.statusCompleted;
-            arrivalEl.innerText = t.deliveredMsg;
+            arrivalEl.innerText = t.delivered;
         } else {
             statusLabelEl.innerText = t.estArrival;
     
@@ -278,7 +278,7 @@
             let allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
             
             if (user && latestOrder) {
-                const pointsToSubtract = Math.floor(latestOrder.total);
+                const pointsToSubtract = Math.max(0, Math.floor(latestOrder.total - (latestOrder.shippingCost || 0)));
                 let toastMsg = t.cancelSuccess;
 
                 if (pointsToSubtract > 0) {
