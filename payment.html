@@ -153,6 +153,7 @@
                 expiryErrorPast: "Date cannot be in the past.",
                 cardNamePlh: "e.g. HANA SAKURA",
                 shippingVoucherTooltip: "Standard shipping is disabled with this voucher.",
+                voucherError: "The applied voucher is invalid or has already been used.",
                 footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
                 fLinks: "Quick Links",
                 fVisit: "Visit Us",
@@ -201,6 +202,7 @@
                 expiryErrorPast: "有効期限が過去になっています。",
                 cardNamePlh: "例：雫 太郎",
                 shippingVoucherTooltip: "速達配送料無料クーポンが適用されています。",
+                voucherError: "適用されたクーポンは無効か、既に使用されています。",
                 footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。一粒の豆には伝統と品質の物語が詰まっています。",
                 fLinks: "クイックリンク",
                 fVisit: "店舗案内",
@@ -320,7 +322,7 @@
                 const shipExpPrice = document.querySelector(".shipping-option[data-cost='5.99'] strong");
                 if (shipExpPrice) shipExpPrice.innerText = formatPrice(5.99);
 
-                const total = runningTotal - voucherDiscount + shippingCost;
+                const total = runningTotal - voucherDiscount + effectiveShipping;
                 document.getElementById("paymentTotal").innerText = formatPrice(total);
             };
 
@@ -596,6 +598,9 @@
                     orderDiscount = currentSubtotal * 0.20;
                 }
 
+                const actualShipping = (tier.name === "Sakura" && shippingCost === 5.99) ? 0 : shippingCost;
+                const finalVoucherDiscount = appliedVoucher ? QuickView.calculateDiscount(appliedVoucher, currentSubtotal, actualShipping).amount : 0;
+
                 const newOrder = {
                     orderId: Date.now().toString(), 
                     items: cart.map(item => ({
@@ -607,16 +612,16 @@
                     userEmail: loggedInUser.email,
                     subtotal: currentSubtotal,
                     discount: orderDiscount,
-                    shippingCost: (tier.name === "Sakura" && shippingCost === 5.99) ? 0 : shippingCost, 
+                    shippingCost: actualShipping, 
                     shippingDetails: {
                         name: shippingInfo.name || loggedInUser.username,
                         address: shippingInfo.address || "N/A",
                         zip: shippingInfo.zip || "",
                         phone: shippingInfo.phone || ""
                     },
-                    total: (orderDiscount > 0 ? (currentSubtotal - orderDiscount) : (currentSubtotal - rankDiscount)) - voucherDiscount + shippingCost,
+                    total: (orderDiscount > 0 ? (currentSubtotal - orderDiscount) : (currentSubtotal - rankDiscount)) - finalVoucherDiscount + actualShipping,
                     rankDiscount: (orderDiscount > 0) ? 0 : rankDiscount,
-                    voucherDiscount: voucherDiscount,
+                    voucherDiscount: finalVoucherDiscount,
                     timestamp: Date.now(),
                     date: new Date().toLocaleDateString(),
                     status: "Paid & Preparing"
@@ -632,15 +637,14 @@
                         sessionStorage.removeItem("appliedVoucher");
                     } else {
                         document.getElementById("processingOverlay").style.display = "none";
-                        const errorMsg = currentLang === 'jp' ? '適用されたクーポンは無効か、既に使用されています。' : 'The applied voucher is invalid or has already been used.';
-                        window.showSakuraToast(errorMsg, '⚠️');
+                        window.showSakuraToast(translations[currentLang].voucherError, '⚠️');
                         sessionStorage.removeItem("appliedVoucher");
                         setTimeout(() => window.location.reload(), 2000);
                         return;
                     }
                 }
     
-                const pointsEarned = Math.floor(newOrder.total);
+                const pointsEarned = Math.max(0, Math.floor(newOrder.total - newOrder.shippingCost));
                 const pointTransaction = {
                     date: new Date().toISOString(),
                     amount: pointsEarned,
