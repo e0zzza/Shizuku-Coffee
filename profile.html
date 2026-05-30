@@ -112,7 +112,6 @@
     </div>
   </div>
 </div>
-<!-- Invoice Modal -->
 <div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content invoice-modal" style="background: white !important; color: #4a373b !important; padding: 40px; border-radius: 20px !important;">
@@ -429,7 +428,7 @@ function showInvoice(orderId) {
         
         <div class="mt-5 pt-4 border-top text-center">
             <p class="small text-muted mb-0">Thank you for choosing Shizuku Coffee.</p>
-            <p class="small text-muted">Visit us again at e0zzza.github.io/ShizukuCoffee </p>
+            <p class="small text-muted">Visit us again at e0zzza.github.io/Shizuku-Coffee </p>
         </div>
     `;
 
@@ -523,7 +522,7 @@ function loadPointsHistory(user, t) {
 
     if (!pointsList || !pointsTitle || !user) return;
     
-    if (typeof QuickView !== 'undefined' && QuickView.initProfileRank) QuickView.initProfileRank();
+    if (typeof QuickView !== 'undefined' && QuickView.initProfileRank) QuickView.initProfileRank(user);
     
     pointsTitle.innerText = t.pointsHistoryTitle;
     const currentPoints = user.points || 0;
