@@ -1,5 +1,5 @@
 # Shizuku Coffee
-<span style="display: inline-block; padding: 4px 10px; background: #000; color: #fff; border-radius: 20px; font-family: sans-serif; font-size: 12px; font-weight: bold;">macOS Optimized</span>
+![macOS](https://img.shields.io/badge/platform-macOS%20%7C%20Safari-blue)
 ![Status](https://img.shields.io/badge/status-maintained%20and%20developing-brightgreen)
 
 Shizuku Coffee is a frontend-only e-commerce simulation inspired by Japanese cafés, seasonal aesthetics, and cozy online storefronts. The project is built with Vanilla JavaScript and Bootstrap 5, focusing on atmosphere and interaction rather than real commerce.
