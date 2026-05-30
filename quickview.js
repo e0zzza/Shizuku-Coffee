@@ -1461,15 +1461,17 @@ const QuickView = {
     getLifetimePoints: function(user) {
         if (!user) return 0;
         const history = Array.isArray(user.pointsHistory) ? user.pointsHistory : [];
+        
+    
+        const totalRedeemed = history.reduce((sum, tx) => {
+            const isRedemption = tx.amount < 0 && (
+                (tx.reason && tx.reason.toLowerCase().includes('redeem')) || 
+                (tx.reason_jp && tx.reason_jp.includes('交換'))
+            );
+            return isRedemption ? sum + Math.abs(tx.amount) : sum;
+        }, 0);
 
-        
-        const positiveHistory = history.reduce((sum, tx) => tx.amount > 0 ? sum + tx.amount : sum, 0);
-        
-        
-        const netHistory = history.reduce((sum, tx) => sum + tx.amount, 0);
-        const legacyPoints = Math.max(0, (user.points || 0) - netHistory);
-
-        return positiveHistory + legacyPoints;
+        return (user.points || 0) + totalRedeemed;
     },
 
     getCurrentTier: function(lifetimePoints) {
@@ -1479,12 +1481,12 @@ const QuickView = {
         return { name: "Sprout", icon: "🌱", color: "#8b6f63" };
     },
 
-    initProfileRank: function() {
+    initProfileRank: function(userOverride) {
         const container = document.getElementById('profileRankBadge');
         if (!container) return;
         const vipBadgeContainer = document.getElementById('sakuraVipBadge');
 
-        const user = this.getLoggedInUser();
+        const user = userOverride || this.getLoggedInUser();
         if (!user) return; 
 
         const lang = localStorage.getItem("language") || "en";
