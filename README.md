@@ -8,6 +8,7 @@ It includes features like the Miko AI assistant, loyalty tiers, localization, an
 
 > This is a simulation project.  
 > Products are not actually sold and no real transactions happen.
+> This website is currently optimized for macOS and Safari. Experience on other platforms may vary.
 
 ---
 
