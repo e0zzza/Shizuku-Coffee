@@ -1069,11 +1069,86 @@ const QuickView = {
         const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
         const lastBotMsg = [...this.chatHistory].reverse().find(m => m.role === 'assistant')?.content || "";
 
-        if (/(sakura|桜)/i.test(msg)) {
+        const foundInMsg = SHIZUKU_PRODUCTS.filter(p => 
+            msg.includes(p.title.toLowerCase()) || 
+            (p.title_jp && msg.includes(p.title_jp.toLowerCase()))
+        );
+
+        const isComparing = /(compare|比較|くらべて|違い|versus|vs)/i.test(msg);
+        const wasWaitingForSecond = lastBotMsg.includes('compare it with?') || lastBotMsg.includes('比較したいですか？');
+
+        if (isComparing || (wasWaitingForSecond && foundInMsg.length > 0)) {
+            let p1, p2;
+            
+            if (foundInMsg.length >= 2) {
+                p1 = foundInMsg[0];
+                p2 = foundInMsg[1];
+            } else if (foundInMsg.length === 1 && wasWaitingForSecond) {
+                const match = lastBotMsg.match(/\[\[(.*?)\]\]/);
+                if (match) {
+                    const firstName = match[1];
+                    p1 = SHIZUKU_PRODUCTS.find(p => p.title === firstName || p.title_jp === firstName);
+                    p2 = foundInMsg[0];
+                }
+            }
+
+            if (p1 && p2 && p1.title !== p2.title) {
+                const name1 = isJp ? (p1.title_jp || p1.title) : p1.title;
+                const name2 = isJp ? (p2.title_jp || p2.title) : p2.title;
+                const desc1 = isJp ? (p1.desc_jp || p1.desc) : p1.desc;
+                const desc2 = isJp ? (p2.desc_jp || p2.desc) : p2.desc;
+
+                if (isJp) {
+                    return `お待たせしました！[[${name1}]]と[[${name2}]]を比較しますね！\n\n・焙煎度: ${name1}は${p1.roast}、${name2}は${p2.roast}です。\n・特徴: ${name1}は「${desc1}」、${name2}は「${desc2}」のノートが楽しめます。\n・価格: ${formatPrice(p1.price)} vs ${formatPrice(p2.price)}\n\nどちらが気になりますか？🌸`;
+                } else {
+                    return `Got it! Comparing [[${name1}]] and [[${name2}]] for you.\n\n• Roast: ${name1} is ${p1.roast}, while ${name2} is ${p2.roast}.\n• Profile: ${name1} features ${desc1}, and ${name2} has ${desc2}.\n• Price: ${formatPrice(p1.price)} vs ${formatPrice(p2.price)}\n\nWhich one sounds better to you? ☕`;
+                }
+            } else if (foundInMsg.length === 1) {
+                const foundName = isJp ? (foundInMsg[0].title_jp || foundInMsg[0].title) : foundInMsg[0].title;
+                return isJp ? `[[${foundName}]]ともう一つ、どの商品を比較したいですか？` : `I found [[${foundName}]], but what was the second coffee you wanted to compare it with?`;
+            }
+        }
+
+        const wasWaitingForChoice = lastBotMsg.includes('sounds better to you?') || lastBotMsg.includes('どちらが気になりますか？');
+        if (wasWaitingForChoice) {
+            let selectedProduct = foundInMsg[0];
+            
+            if (!selectedProduct) {
+                const matches = [...lastBotMsg.matchAll(/\[\[(.*?)\]\]/g)].map(m => m[1]);
+                if (matches.length >= 2) {
+                    if (/(first|former|1st|最初|1番目|一つ目|前者)/i.test(msg)) {
+                        selectedProduct = SHIZUKU_PRODUCTS.find(p => p.title === matches[0] || p.title_jp === matches[0]);
+                    } else if (/(second|latter|2nd|2番目|二つ目|最後|後者)/i.test(msg)) {
+                        selectedProduct = SHIZUKU_PRODUCTS.find(p => p.title === matches[1] || p.title_jp === matches[1]);
+                    }
+                }
+            }
+
+            if (selectedProduct) {
+                const name = isJp ? (selectedProduct.title_jp || selectedProduct.title) : selectedProduct.title;
+                return isJp 
+                    ? `[[${name}]]ですね！素晴らしい選択です。詳細をチェックしたり、カートに追加しますか？ 🌸`
+                    : `[[${name}]] is a great choice! Would you like to see more details or add it to your cart? ☕`;
+            }
+        }
+
+        if (/(can't decide|cannot decide|too many|help me choose|迷う|決められない|決まらない|選べない)/i.test(msg)) {
+            const randomProduct = SHIZUKU_PRODUCTS[Math.floor(Math.random() * SHIZUKU_PRODUCTS.length)];
+            const name = isJp ? (randomProduct.title_jp || randomProduct.title) : randomProduct.title;
+            
+            this.triggerMikoLuckEffect();
+            
+            return isJp 
+                ? `運命に任せてみましょう... Miko's Luck! ✨\n私のおすすめは [[${name}]] です。この一杯が、あなたの今日を特別なものにしてくれるはずですよ。🌸`
+                : `Let's leave it to fate... Miko's Luck! ✨\nI've chosen [[${name}]] for you. I have a feeling this is exactly what you need today! ☕`;
+        }
+
+        if (msg === "sakura" || msg === "桜" || msg.includes("magic") || msg.includes("魔法")) {
             this.triggerSakuraStorm();
             return isJp ? "桜の魔法をお見せしましょう！🌸" : "Let me show you some sakura magic! 🌸";
         }
-        if (/(midnight|ミッドナイト)/i.test(msg)) {
+        
+        if (msg === "midnight" || msg === "ミッドナイト") {
             this.triggerMidnightEffect();
             return isJp ? "真夜中の静寂をお楽しみください... 🌙" : "Enjoy the silence of midnight... 🌙";
         }
@@ -1142,6 +1217,18 @@ const QuickView = {
                     ? `贈り物をお探しですか？新商品の [[${getName(pinSet)}]] は、穏やかなカフェの雰囲気を楽しめるデザインでギフトに最適ですよ。🌸`
                     : `Looking for a gift? Our new [[${getName(pinSet)}]] is a beautiful choice, capturing serene cafe vibes in elegant gold-framed designs. 🎁`;
             }
+        }
+
+        if (/(shipping|ship|配達|発送)/i.test(msg)) {
+            return isJp 
+                ? "私たちは実際に製品を配送しているわけではありません。これはシミュレーションのポートフォリオページです。"
+                : "We don't actually deliver products. This is a simulation portfolio page.";
+        }
+
+        if (/(origin|from|source|起源|出所)/i.test(msg)) {
+            return isJp 
+                ? "私たちの豆は日本全土の最高のコーヒー生産地域から調達されています。"
+                : "Our beans are sourced from the finest coffee-growing regions around the whole Japan.";
         }
 
         let bestMatch = null;
@@ -2435,6 +2522,58 @@ const QuickView = {
             document.body.classList.remove('golden-hour-active', 'golden-bloom');
             setTimeout(() => golden.remove(), 3000);
         }, 9000);
+    },
+
+    triggerMikoLuckEffect: function() {
+        if (document.getElementById('mikoLuckActive')) return;
+        
+        if (!document.getElementById('miko-luck-styles')) {
+            const style = document.createElement('style');
+            style.id = 'miko-luck-styles';
+            style.innerHTML = `
+                @keyframes miko-luck-sparkle {
+                    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+                    50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+                    100% { transform: scale(1) rotate(360deg); opacity: 0; }
+                }
+                .luck-sparkle {
+                    position: fixed;
+                    color: #ffd700;
+                    font-size: 24px;
+                    pointer-events: none;
+                    z-index: 5000;
+                    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+                    animation: miko-luck-sparkle 0.8s ease-out forwards;
+                }
+                body.miko-luck-active {
+                    box-shadow: inset 0 0 150px rgba(255, 215, 0, 0.2) !important;
+                    transition: box-shadow 0.5s ease-in-out !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const activeFlag = document.createElement('div');
+        activeFlag.id = 'mikoLuckActive';
+        document.body.appendChild(activeFlag);
+        document.body.classList.add('miko-luck-active');
+
+        for (let i = 0; i < 25; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'luck-sparkle';
+                sparkle.innerHTML = '✨';
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
+            }, i * 40);
+        }
+
+        setTimeout(() => {
+            document.body.classList.remove('miko-luck-active');
+            activeFlag.remove();
+        }, 2500);
     },
 
     initBokehBackground: function() {
