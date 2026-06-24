@@ -2019,6 +2019,9 @@ generateLocalResponse: async function(input, lang, context) {
         const existingToggle = document.getElementById('giftCardTypeToggle');
         if (existingToggle) existingToggle.remove();
 
+        window.currentGiftCardIsDigital = false;
+        window.currentGiftCardPrice = parseFloat(product.price);
+
         if (isGiftCard && product.digitalDiscount) {
             const digitalLabel = lang === 'jp' ? 'デジタル版 (10%割引)' : 'Digital (10% off)';
             const physicalLabel = lang === 'jp' ? 'Physical' : 'Physical';
@@ -2032,15 +2035,14 @@ generateLocalResponse: async function(input, lang, context) {
 
             const basePrice = parseFloat(product.price);
             currentPrice = basePrice * 0.9;
+            window.currentGiftCardIsDigital = true;
+            window.currentGiftCardPrice = currentPrice;
             priceEl.innerHTML = `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.7em;">${formatPrice(basePrice)}</span><span style="color: var(--sakura-pink-dark); font-size: 1.4em;">${formatPrice(currentPrice)}</span>`;
 
             setTimeout(() => {
                 const btnDigital = document.getElementById('btnDigital');
                 const btnPhysical = document.getElementById('btnPhysical');
                 if (btnDigital && btnPhysical) {
-                    window.currentGiftCardIsDigital = true;
-                    window.currentGiftCardPrice = currentPrice;
-
                     btnDigital.addEventListener('click', () => {
                         window.currentGiftCardIsDigital = true;
                         const baseP = parseFloat(product.price);
@@ -2387,11 +2389,25 @@ generateLocalResponse: async function(input, lang, context) {
         }
 
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const item = cart.find(i => i.title === this.currentProduct.title);
+        const isDigitalCartItem = !!window.currentGiftCardIsDigital;
+        const item = cart.find(i => i.title === this.currentProduct.title && !!i.isDigital === isDigitalCartItem);
         let qty = parseInt(this.currentQty, 10);
         if (isNaN(qty) || qty < 1) qty = 1;
-        if (item) item.qty += qty;
-        else cart.push({ ...this.currentProduct, qty: qty });
+
+        const newCartItem = {
+            ...this.currentProduct,
+            qty: qty,
+            isDigital: isDigitalCartItem,
+            priceDigital: this.currentProduct.roast === 'giftcard' && isDigitalCartItem
+                ? (parseFloat(this.currentProduct.priceDigital) || parseFloat(this.currentProduct.price) * 0.9).toFixed(2)
+                : undefined
+        };
+
+        if (item) {
+            item.qty += qty;
+        } else {
+            cart.push(newCartItem);
+        }
         localStorage.setItem('cart', JSON.stringify(cart)); 
         this.bsModal.hide();
         if (typeof updateCartBadge === 'function') updateCartBadge();
@@ -2406,17 +2422,17 @@ generateLocalResponse: async function(input, lang, context) {
         const productTitle = this.currentProduct.title;
         window.showSakuraToast(msg, '🛒', {
             text: undoLabel,
-            callback: () => this.undoAddToCart(productTitle, qty)
+            callback: () => this.undoAddToCart(productTitle, qty, isDigitalCartItem)
         });
     },
 
-    undoAddToCart: function(title, qtyToRemove) {
+    undoAddToCart: function(title, qtyToRemove, isDigital = false) {
         let cart = JSON.parse(localStorage.getItem('cart') || '[]'); 
-        const item = cart.find(i => i.title === title);
+        const item = cart.find(i => i.title === title && !!i.isDigital === isDigital);
         if (item) {
             item.qty -= qtyToRemove;
             if (item.qty <= 0) {
-                cart = cart.filter(i => i.title !== title);
+                cart = cart.filter(i => !(i.title === title && !!i.isDigital === isDigital));
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             if (typeof updateCartBadge === 'function') updateCartBadge();

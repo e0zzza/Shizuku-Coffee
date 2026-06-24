@@ -245,15 +245,24 @@
                 return;
             }
 
+            function getItemEffectivePrice(item) {
+                const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+                const roast = item.roast || productRef?.roast;
+                if (roast === 'giftcard' && item.isDigital && item.priceDigital) {
+                    return parseFloat(item.priceDigital) || 0;
+                }
+                return parseFloat(item.price) || 0;
+            }
+
             let subtotal = 0;
-            cart.forEach(item => subtotal += (item.qty || 1) * (parseFloat(item.price) || 0));
+            cart.forEach(item => subtotal += (item.qty || 1) * getItemEffectivePrice(item));
             
             const tier = QuickView.getCurrentTier(QuickView.getLifetimePoints(loggedInUser));
             let rankDiscount = 0;
 
             cart.forEach(item => {
-                const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
-                const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+                const itemTotal = (item.qty || 1) * getItemEffectivePrice(item);
+                const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title || p.title_jp === item.title);
                 const roast = item.roast || productRef?.roast;
                 const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
                 
@@ -605,7 +614,7 @@
                 const orders = JSON.parse(localStorage.getItem("orders") || "[]");
                 const shippingInfo = JSON.parse(sessionStorage.getItem("pendingShipping") || "{}");
 
-                const currentSubtotal = cart.reduce((sum, item) => sum + (item.qty || 1) * parseFloat(item.price), 0);
+                const currentSubtotal = cart.reduce((sum, item) => sum + (item.qty || 1) * getItemEffectivePrice(item), 0);
 
                 let orderDiscount = 0;
                 if (localStorage.getItem("couponApplied") === "true") {
@@ -619,7 +628,7 @@
                 const tierObj = QuickView.getCurrentTier(QuickView.getLifetimePoints(loggedInUser));
                 let rankDiscount = 0;
                 cart.forEach(item => {
-                    const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+                    const itemTotal = (item.qty || 1) * getItemEffectivePrice(item);
                     const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
                     const roast = item.roast || productRef?.roast;
                     const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
@@ -697,7 +706,7 @@
                     orderId: Date.now().toString(),
                     items: cart.map(item => ({
                         name: item.title,
-                        price: item.price,
+                        price: item.isDigital && item.priceDigital ? item.priceDigital : item.price,
                         image: item.img,
                         qty: item.qty || 1,
                         giftValue: item.giftValue || null

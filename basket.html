@@ -187,6 +187,15 @@ searchIcon.addEventListener("click", triggerSearch);
 function getCart() {
     return JSON.parse(localStorage.getItem("cart")) || [];
 }
+
+function getItemEffectivePrice(item) {
+    const roast = item.roast;
+    if (roast === 'giftcard' && item.isDigital && item.priceDigital) {
+        return parseFloat(item.priceDigital) || 0;
+    }
+    return parseFloat(item.price) || 0;
+}
+
 function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartBadge();
@@ -291,7 +300,7 @@ function renderCart() {
                 : formatPrice(displayPrice));
 
         return `
-        <div class="cart-card" data-title="${item.title}">
+        <div class="cart-card" data-title="${item.title}" data-is-digital="${item.isDigital ? 'true' : 'false'}">
             <img src="${item.img}">
             <div class="cart-info">
                 <h3>${lang === 'jp' ? (item.title_jp || item.title) : item.title} ${d > 0 ? `<span class="badge bg-success ms-1" style="font-size: 10px;">${d}% OFF</span>` : ''}</h3>
@@ -358,9 +367,9 @@ function quickAdd(title) {
     const product = SHIZUKU_PRODUCTS.find(p => p.title === title);
     if (!product) return;
     let cart = getCart();
-    const existing = cart.find(i => i.title === title);
+    const existing = cart.find(i => i.title === title && !!i.isDigital === false);
     if (existing) existing.qty++;
-    else cart.push({...product, qty: 1});
+    else cart.push({...product, qty: 1, isDigital: false});
     saveCart(cart);
     renderCart();
 
@@ -389,7 +398,9 @@ function attachCartEvents() {
     document.querySelectorAll(".increase").forEach(btn => {
         btn.addEventListener("click", () => {
             let cart = getCart();
-            const item = cart.find(i => i.title === btn.dataset.title);
+            const isDigital = btn.closest('.cart-card')?.dataset.isDigital === 'true';
+            const item = cart.find(i => i.title === btn.dataset.title && !!i.isDigital === isDigital);
+            if (!item) return;
             item.qty = (item.qty || 1) + 1;
             saveCart(cart);
             renderCart();
@@ -399,7 +410,9 @@ function attachCartEvents() {
     document.querySelectorAll(".decrease").forEach(btn => {
         btn.addEventListener("click", () => {
             let cart = getCart();
-            const item = cart.find(i => i.title === btn.dataset.title);
+            const isDigital = btn.closest('.cart-card')?.dataset.isDigital === 'true';
+            const item = cart.find(i => i.title === btn.dataset.title && !!i.isDigital === isDigital);
+            if (!item) return;
             if ((item.qty || 1) > 1) {
                 item.qty--;
                 saveCart(cart);
@@ -411,10 +424,11 @@ function attachCartEvents() {
     document.querySelectorAll(".cart-card .remove-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const card = e.target.closest(".cart-card");
+            const isDigital = card?.dataset.isDigital === 'true';
             if (card) card.classList.add("removing");
             setTimeout(() => {
                 let cart = getCart();
-                cart = cart.filter(i => i && i.title && i.title !== btn.dataset.title);
+                cart = cart.filter(i => i && i.title && (i.title !== btn.dataset.title || !!i.isDigital !== isDigital));
                 saveCart(cart);
                 renderCart();
             }, 400);
@@ -434,7 +448,7 @@ function updateTotal() {
     let rankDiscount = 0;
     
     cart.forEach(item => {
-        const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+        const itemTotal = (item.qty || 1) * getItemEffectivePrice(item);
         subtotal += itemTotal;
 
         const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
