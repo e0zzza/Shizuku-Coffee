@@ -135,13 +135,29 @@ function updateLanguage() {
 
 function populateOrderSummary() {
     const user = JSON.parse(localStorage.getItem("loggedInUser") || "null");
-    if (!user) return;
-
     const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-    const userOrders = orders.filter(o => o.userEmail === user.email);
-    if (userOrders.length === 0) return;
+    if (!orders.length) return;
 
-    const lastOrder = userOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
+    const latestOrderId = sessionStorage.getItem("latestOrderId");
+    let lastOrder = null;
+
+    if (latestOrderId) {
+        lastOrder = orders.find(o => o.orderId === latestOrderId) || null;
+    }
+
+    if (!lastOrder && user) {
+        const userOrders = orders.filter(o => o.userEmail === user.email);
+        if (userOrders.length) {
+            lastOrder = userOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
+        }
+    }
+
+    if (!lastOrder) {
+        lastOrder = orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
+    }
+
+    if (!lastOrder) return;
+
     document.getElementById("successSubtotal").innerText = formatPrice(lastOrder.subtotal);
     document.getElementById("successShipping").innerText = formatPrice(lastOrder.shippingCost);
     document.getElementById("successTotal").innerText = formatPrice(lastOrder.total);
