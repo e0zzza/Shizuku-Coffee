@@ -123,6 +123,7 @@ function renderWishlist() {
 
         return `
         <div class="wishlist-card" data-title="${item.title}">
+            <img src="${item.img}">
             <h3>${lang === 'jp' ? (item.title_jp || item.title) : item.title}${discountBadge}</h3>
             <p>${lang === 'jp' ? (item.tagline_jp || item.tagline) : item.tagline}</p>
             <div class="mb-2">
@@ -145,9 +146,30 @@ function renderWishlist() {
         card.addEventListener("click", (e) => {
             if (e.target.closest("button")) return;
             const title = card.getAttribute('data-title');
-            if (title) QuickView.showByName(title);
+            if (title && typeof QuickView !== 'undefined') {
+                QuickView.showByName(title);
+            } else if (title) {
+                const product = SHIZUKU_PRODUCTS?.find(p => p.title === title);
+                if (product && typeof openQuickView === 'function') openQuickView(product);
+            }
         });
     });
+
+    const recContainer = document.getElementById("recommendationsContainer");
+    if (recContainer) {
+        recContainer.querySelectorAll(".wishlist-card").forEach(card => {
+            card.addEventListener("click", (e) => {
+                if (e.target.closest("button")) return;
+                const title = card.getAttribute('data-title');
+                if (title && typeof QuickView !== 'undefined') {
+                    QuickView.showByName(title);
+                } else if (title) {
+                    const product = SHIZUKU_PRODUCTS?.find(p => p.title === title);
+                    if (product && typeof openQuickView === 'function') openQuickView(product);
+                }
+            });
+        });
+    }
 
     document.querySelectorAll(".add-btn").forEach(btn => {
         btn.addEventListener("click", () => {
