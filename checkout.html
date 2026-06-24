@@ -44,8 +44,8 @@
 <div class="page-wrapper">
 
     <div class="checkout-progress">
-        <div class="progress-line"><div class="progress-line-fill" style="width: 33%;"></div></div>
-        <a href="basket.html" class="progress-step completed"><div class="step-circle">1</div><div class="step-label">Cart</div></a>
+        <div class="progress-line"><div class="progress-line-fill" style="width: 33%;" aria-hidden="true"></div></div>
+                <a href="basket.html" class="progress-step completed" aria-label="Go to Cart"><div class="step-circle">1</div><div class="step-label">Cart</div></a>
         <div class="progress-step active"><div class="step-circle">2</div><div class="step-label">Shipping</div></div>
         <div class="progress-step"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
         <div class="progress-step"><div class="step-circle">4</div><div class="step-label">Success</div></div>
@@ -55,18 +55,48 @@
 
     <div class="checkout-container">
 
-        <div class="glass-card checkout-left">
+        <div class="glass-card checkout-left" role="region">
             <h2 id="shippingTitle">Shipping Information</h2>
 
             <form id="checkoutForm" method="post">
-                <input type="text" id="name" required inputmode="text">
-                <input type="text" id="address" required inputmode="text">
-                <input type="text" id="zip" required inputmode="numeric">
-                <input type="email" id="email" required inputmode="email">
-                <input id="phone" type="tel" required>
-                <div id="phoneError" class="error-text" style="margin-top: 5px;"></div>
+                <div class="shipping-form-group">
+                    <div class="shipping-form-group-title">Delivery</div>
+                    <input type="text" id="name" required inputmode="text" placeholder="Full Name">
+                    <input type="text" id="address" required inputmode="text" placeholder="Address">
+                    <div class="shipping-row">
+                        <input type="text" id="zip" required inputmode="numeric" placeholder="ZIP">
+                        <input type="email" id="email" required inputmode="email" placeholder="Email">
+                    </div>
+                    <input id="phone" type="tel" required placeholder="Phone" />
+                    <div class="shipping-inline-errors">
+                    <div id="phoneError" class="error-text"></div>
+                        <div id="emailError" class="error-text"></div>
+                        <div id="zipError" class="error-text"></div>
+                    </div>
+                </div>
+
+                <div class="address-preview-card" aria-live="polite">
+                    <div class="address-preview-title">Address Preview</div>
+                    <div class="address-preview-row"><span class="muted">Name</span><span id="previewName">—</span></div>
+                    <div class="address-preview-row"><span class="muted">Address</span><span id="previewAddress">—</span></div>
+                    <div class="address-preview-row">
+                        <span class="muted">ZIP</span><span id="previewZip">—</span>
+                        <span class="muted" style="margin-left: 14px;">Email</span><span id="previewEmail">—</span>
+                    </div>
+                    <div class="address-preview-row"><span class="muted">Phone</span><span id="previewPhone">—</span></div>
+                    <div id="previewCompleteBadge" class="preview-complete-badge" style="display:none;" aria-hidden="true">Looks good ✅</div>
+                </div>
+
+                <button type="button" id="useDefaultAddrBtn" class="sakura-btn use-default-btn" style="width:100%; margin-top:12px; display:none;">📍 Use Saved Address</button>
+
+                <label class="save-default-toggle">
+                    <input type="checkbox" id="saveAsDefault" class="saveAsDefaultCheckbox" />
+                    <span class="toggle-slider"></span>
+                    <span class="save-default-text">Set as default address</span>
+                </label>
+
                 <button type="submit" id="placeOrderBtn" class="sakura-btn place-order-btn" style="width:100%; margin-top: 20px;">Place Order</button>
-        </form>
+            </form>
         </div>
 
         <div class="glass-card checkout-right">
@@ -76,6 +106,55 @@
             <div id="voucherSelectionArea" class="mt-4 p-3 rounded-4" style="background: rgba(255,182,193,0.1); border: 1px dashed var(--sakura-pink-main);">
                 <h6 id="labelSelectVoucher" style="font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">Select a Voucher</h6>
                 <div id="checkoutVoucherList" class="d-flex flex-column gap-2"></div>
+            </div>
+
+            <div id="giftCardSection" class="mt-3 p-3 rounded-4" style="background: rgba(255,215,0,0.1); border: 1px dashed #d4af37;">
+                <h6 style="font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; color: #8b6914;">Gift Card Code</h6>
+                <div class="d-flex gap-2">
+                    <input type="text" id="giftCardCodeInput" class="form-control form-control-sm" placeholder="GC-XXXX-XXXX-XXXX" style="font-family: monospace; text-transform: uppercase;">
+                    <button type="button" id="applyGiftCardBtn" class="btn btn-sm" style="background: #d4af37; color: white;">Apply</button>
+                </div>
+                <div id="giftCardMessage" class="small mt-2" style="display: none;"></div>
+
+                <div id="digitalGiftSendSection" class="mt-3 p-3 rounded-4" style="background: rgba(255,182,193,0.15); border: 1px dashed var(--sakura-pink-main); display: none;">
+                    <h6 style="font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; color: var(--sakura-pink-main);">Digital Gift Card</h6>
+                    <p class="small mb-2" style="font-size: 12px;" id="digitalGcInstructions">Send as a digital gift to someone's email</p>
+
+                    <div class="mb-2">
+                        <label style="font-size: 11px; font-weight: 600;">Recipient Email *</label>
+                        <input type="email" id="giftRecipientEmail" class="form-control form-control-sm" placeholder="recipient@example.com">
+                        <div id="emailFirstError" class="small mt-1" style="color: var(--sakura-pink-dark); display: none;"></div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label style="font-size: 11px; font-weight: 600;">Confirm Email *</label>
+                        <input type="email" id="giftRecipientEmailConfirm" class="form-control form-control-sm" placeholder="Confirm recipient@example.com">
+                        <div id="emailConfirmError" class="small mt-1" style="color: var(--sakura-pink-dark); display: none;"></div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label style="font-size: 11px; font-weight: 600;">Message (optional) <span id="charCount">0/300</span></label>
+                        <textarea id="giftMessage" class="form-control form-control-sm" rows="3" maxlength="300" placeholder="Add a personal message..."></textarea>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input type="checkbox" id="keepForSelf" class="form-check-input" checked>
+                        <label for="keepForSelf" class="form-check-label" style="font-size: 12px;">Keep in my inventory</label>
+                    </div>
+                </div>
+
+                <div id="appliedGiftCardRow" class="mt-2 p-2 rounded-3" style="display: none; background: rgba(212,175,55,0.15);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div style="font-size: 12px; font-weight: 600; color: #8b6914;">Gift Card Applied</div>
+                            <div id="appliedGiftCardCode" style="font-size: 11px; font-family: monospace; opacity: 0.7;"></div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="appliedGiftCardValue" style="font-size: 14px; font-weight: 700; color: #8b6914;"></div>
+                            <button type="button" class="btn btn-sm btn-link p-0" style="font-size: 10px; color: #8b6914;" onclick="removeGiftCard()">Remove</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <hr style="border-top: 1px solid rgba(255, 182, 193, 0.3); margin: 20px 0;">
@@ -132,7 +211,6 @@ const translations = {
         fNewsletterDesc: "Subscribe to get seasonal blend updates and special offers!",
         fNewsletterPlh: "Your email...",
         fNewsletterBtn: "Join",
-        authRequired: "Please log in to proceed to checkout.",
         utilTrack: "Track Order",
         utilGuide: "Brewing Guide",
         utilPolicy: "Returns Policy"
@@ -175,7 +253,8 @@ const translations = {
         authRequired: "チェックアウトに進むにはログインしてください。",
         utilTrack: "注文追跡",
         utilGuide: "淹れ方ガイド",
-        utilPolicy: "返品ポリシー"
+        utilPolicy: "返品ポリシー",
+        useSavedAddr: "保存された住所を使う"
     }
 };
 
@@ -194,6 +273,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('sendFee') === '1') {
+        handleSendFeeCheckout();
+    }
+
     function getCart() {
         return JSON.parse(localStorage.getItem("cart")) || [];
     }
@@ -210,6 +294,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+        if (document.getElementById("useDefaultAddrBtn")) {
+            document.getElementById("useDefaultAddrBtn").innerText = lang === 'jp' ? '📍 保存</minimax:tool_call>を使う' : '📍 Use Saved Address';
+        }
+        if (window.changeAddrBtn) {
+            window.changeAddrBtn.textContent = lang === 'jp' ? '↻ 住所を変更' : '↻ Change Address';
+        }
         document.getElementById("shippingTitle").innerText = t.shippingTitle;
         document.getElementById("name").placeholder = t.namePlh;
         document.getElementById("address").placeholder = t.addressPlh;
@@ -223,6 +313,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if(document.getElementById("labelSelectVoucher")) document.getElementById("labelSelectVoucher").innerText = t.selectVoucher;
         if(document.getElementById("labelVoucherDisc")) document.getElementById("labelVoucherDisc").innerText = t.voucherDisc;
 
+        const shippingTipsText = document.getElementById("shippingTipsText");
+        if (shippingTipsText) {
+            shippingTipsText.innerText = lang === 'jp' ? 'この住所は配送に使用されます。' : "We’ll use this address for delivery.";
+        }
+        const saveDefaultLabel = document.querySelector('.save-default span');
+        if (saveDefaultLabel) saveDefaultLabel.innerText = lang === 'jp' ? 'デフォルト住所として設定' : 'Set as default address';
+
         document.getElementById("searchInput").placeholder = t.searchPlh;
 
         if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
@@ -232,9 +329,87 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         renderOrder(t);
         loadCheckoutVouchers(t);
+
+        updatePreview();
     }
 
     let appliedVoucher = JSON.parse(sessionStorage.getItem("appliedVoucher") || "null");
+    let appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
+
+    async function applyGiftCardCode() {
+        const input = document.getElementById("giftCardCodeInput");
+        const messageEl = document.getElementById("giftCardMessage");
+        const code = input.value.trim().toUpperCase().replace(/ /g, '-');
+
+        if (!code || code.length < 8) {
+            messageEl.innerText = currentLang === 'jp' ? '有効なコードを入力してください' : 'Please enter a valid code';
+            messageEl.style.color = '#dc3545';
+            messageEl.style.display = 'block';
+            return;
+        }
+
+        messageEl.innerText = currentLang === 'jp' ? '確認中...' : 'Checking...';
+        messageEl.style.color = '#856404';
+        messageEl.style.display = 'block';
+
+        try {
+            const res = await fetch('/api/giftcard/check/' + encodeURIComponent(code));
+            const data = await res.json();
+
+            if (data.valid) {
+                appliedGiftCard = { code: code, value: data.value };
+                sessionStorage.setItem("appliedGiftCard", JSON.stringify(appliedGiftCard));
+                renderOrder({});
+                messageEl.style.display = 'none';
+                input.value = '';
+            } else {
+                messageEl.innerText = data.message || (currentLang === 'jp' ? '無効なギフトカードコード' : 'Invalid gift card code');
+                messageEl.style.color = '#dc3545';
+            }
+        } catch (e) {
+            messageEl.innerText = currentLang === 'jp' ? 'エラーが発生しました' : 'An error occurred';
+            messageEl.style.color = '#dc3545';
+        }
+    }
+
+    window.removeGiftCard = function() {
+        appliedGiftCard = null;
+        sessionStorage.removeItem("appliedGiftCard");
+        document.getElementById("appliedGiftCardRow").style.display = "none";
+        renderOrder({});
+    };
+
+    document.getElementById("applyGiftCardBtn").addEventListener("click", applyGiftCardCode);
+    document.getElementById("giftCardCodeInput").addEventListener("keypress", (e) => {
+        if (e.key === 'Enter') applyGiftCardCode();
+    });
+
+    const giftMessageEl = document.getElementById("giftMessage");
+    const charCountEl = document.getElementById("charCount");
+    if (giftMessageEl && charCountEl) {
+        giftMessageEl.addEventListener("input", () => {
+            const len = giftMessageEl.value.length;
+            charCountEl.innerText = len + "/300";
+            charCountEl.style.color = len > 270 ? 'var(--sakura-pink-dark)' : '';
+        });
+    }
+
+    const keepForSelfEl = document.getElementById("keepForSelf");
+    if (keepForSelfEl) {
+        keepForSelfEl.addEventListener("change", () => {
+            const emailSection = document.getElementById("giftRecipientEmail").closest(".mb-2");
+            const confirmSection = document.getElementById("giftRecipientEmailConfirm").closest(".mb-2");
+            if (keepForSelfEl.checked) {
+                emailSection.style.display = "none";
+                confirmSection.style.display = "none";
+            } else {
+                emailSection.style.display = "block";
+                confirmSection.style.display = "block";
+            }
+        });
+        keepForSelfEl.dispatchEvent(new Event("change"));
+    }
+
     document.getElementById("langToggle").addEventListener("click", () => {
         currentLang = currentLang === "en" ? "jp" : "en";
         localStorage.setItem("language", currentLang);
@@ -248,23 +423,32 @@ document.addEventListener("DOMContentLoaded", () => {
             const cached = localStorage.getItem("userCountryCode");
             if (cached) return callback(cached);
 
-            fetch("https://ipapi.co/json/")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.country_code && !data.error) {
-                        localStorage.setItem("userCountryCode", data.country_code);
-                        callback(data.country_code);
+            fetch("https://cloudflare.com/cdn-cgi/trace")
+                .then(res => res.text())
+                .then(text => {
+                    let lines = text.split("\n");
+                    let countryCode = "";
+                    for (let line of lines) {
+                        if (line.startsWith("loc=")) {
+                            countryCode = line.split("=")[1].trim().toUpperCase();
+                            break;
+                        }
+                    }
+                    console.log("[Geo] Cloudflare loc:", countryCode);
+                    if (countryCode && countryCode.length === 2) {
+                        localStorage.setItem("userCountryCode", countryCode);
+                        callback(countryCode);
                     } else {
                         throw new Error();
                     }
                 })
                 .catch(() => {
-                    fetch("https://ipinfo.io/json")
+                    fetch("https://ipapi.co/json/")
                         .then(res => res.json())
                         .then(data => {
-                            if (data.country) {
-                                localStorage.setItem("userCountryCode", data.country);
-                                callback(data.country);
+                            if (data.country_code && !data.error) {
+                                localStorage.setItem("userCountryCode", data.country_code);
+                                callback(data.country_code);
                             } else {
                                 callback("US");
                             }
@@ -281,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!phoneInputField.value.trim() || phoneInputField.value.startsWith("+")) {
             phoneInputField.value = dial;
         }
-        placeOrderBtn.disabled = !validateShippingForm();
+        updatePreview();
     });
 
     iti.promise.then(() => {
@@ -289,7 +473,61 @@ document.addEventListener("DOMContentLoaded", () => {
         const dial = countryData.dialCode ? "+" + countryData.dialCode + " " : "";
         if (!phoneInputField.value) phoneInputField.value = dial;
         placeOrderBtn.disabled = !validateShippingForm();
+
+        if (localStorage.getItem("defaultAddress")) {
+            loadDefaultAddress();
+            document.getElementById("useDefaultAddrBtn").style.display = "none";
+            document.getElementById("changeAddrBtn").style.display = "block";
+        }
     });
+
+    function loadDefaultAddress() {
+        const savedAddr = localStorage.getItem("defaultAddress");
+        if (savedAddr) {
+            const addr = JSON.parse(savedAddr);
+            document.getElementById("name").value = addr.name || "";
+            document.getElementById("address").value = addr.address || "";
+            document.getElementById("zip").value = addr.zip || "";
+            document.getElementById("email").value = addr.email || "";
+            if (addr.phone) {
+                phoneInputField.value = addr.phone;
+            }
+            document.getElementById("saveAsDefault").checked = true;
+            updatePreview();
+        }
+    }
+
+    const useDefaultBtn = document.getElementById("useDefaultAddrBtn");
+    const changeAddrBtn = document.createElement("button");
+    changeAddrBtn.type = "button";
+    changeAddrBtn.className = "sakura-btn change-address-btn";
+    changeAddrBtn.id = "changeAddrBtn";
+    changeAddrBtn.textContent = currentLang === 'jp' ? '↻ 住所を変更' : '↻ Change Address';
+    changeAddrBtn.style.cssText = "width:100%; margin-top:12px; background:linear-gradient(135deg,rgba(255,182,193,0.4),rgba(255,105,180,0.25)); border:2px dashed rgba(255,105,180,0.4); padding:10px;border-radius:14px;color:var(--sakura-brown-light);font-weight:600;cursor:pointer;transition:0.25s ease;display:none;";
+
+    useDefaultBtn.addEventListener("click", () => {
+        loadDefaultAddress();
+        useDefaultBtn.style.display = "none";
+        changeAddrBtn.style.display = "block";
+    });
+
+    changeAddrBtn.addEventListener("click", () => {
+        document.getElementById("name").value = "";
+        document.getElementById("address").value = "";
+        document.getElementById("zip").value = "";
+        document.getElementById("email").value = "";
+        iti.promise.then(() => {
+            const countryData = iti.getSelectedCountryData();
+            phoneInputField.value = countryData.dialCode ? "+" + countryData.dialCode + " " : "";
+        });
+        updatePreview();
+        changeAddrBtn.style.display = "none";
+        useDefaultBtn.style.display = "block";
+    });
+
+    useDefaultBtn.parentNode.insertBefore(changeAddrBtn, useDefaultBtn.nextSibling);
+
+    window.changeAddrBtn = changeAddrBtn;
 
     const validateShippingForm = () => {
         const name = document.getElementById("name").value.trim();
@@ -307,24 +545,76 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof iti !== 'undefined') {
             isPhoneValid = iti.isValidNumber();
         }
+        const phoneErr = document.getElementById("phoneError");
+        const emailErr = document.getElementById("emailError");
+        const zipErr = document.getElementById("zipError");
+
+        if (emailErr) {
+            emailErr.style.display = (email.trim() && !isEmailValid) ? "block" : "none";
+            emailErr.innerText = currentLang === 'jp' ? "無効なメールアドレスです" : "Invalid email address";
+        }
+        if (zipErr) {
+            zipErr.style.display = (zip.trim() && !isZipValid) ? "block" : "none";
+            zipErr.innerText = currentLang === 'jp' ? "郵便番号を入力してください" : "ZIP is required";
+        }
+        if (phoneErr) {
+            phoneErr.style.display = (phoneInputField.value.trim() && !isPhoneValid) ? "block" : "none";
+            phoneErr.innerText = currentLang === 'jp' ? "無効な電話番号です" : "Invalid phone number";
+        }
 
         return isNameValid && isAddressValid && isZipValid && isEmailValid && isPhoneValid;
     };
     
-    document.getElementById("name").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
-    document.getElementById("address").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
-    document.getElementById("zip").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
-    document.getElementById("email").addEventListener("input", () => placeOrderBtn.disabled = !validateShippingForm());
+
     
-    phoneInputField.addEventListener("input", () => {
-        const isValid = iti.isValidNumber();
-        const errorEl = document.getElementById("phoneError");
-        errorEl.style.display = (phoneInputField.value.trim() && !isValid) ? "block" : "none";
-        errorEl.innerText = currentLang === 'jp' ? "無効な電話番号です" : "Invalid phone number";
-        placeOrderBtn.disabled = !validateShippingForm();
+    function updatePreview() {
+        const name = document.getElementById("name").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const zip = document.getElementById("zip").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = (typeof iti !== 'undefined') ? iti.getNumber() : document.getElementById("phone").value.trim();
+
+        const previewName = document.getElementById("previewName");
+        const previewAddress = document.getElementById("previewAddress");
+        const previewZip = document.getElementById("previewZip");
+        const previewEmail = document.getElementById("previewEmail");
+        const previewPhone = document.getElementById("previewPhone");
+        const previewCompleteBadge = document.getElementById("previewCompleteBadge");
+
+        if (previewName) previewName.innerText = name || "—";
+        if (previewAddress) previewAddress.innerText = address || "—";
+        if (previewZip) previewZip.innerText = zip || "—";
+        if (previewEmail) previewEmail.innerText = email || "—";
+        if (previewPhone) previewPhone.innerText = phone || "—";
+
+        const isComplete = validateShippingForm();
+        if (previewCompleteBadge) {
+            previewCompleteBadge.style.display = isComplete ? "block" : "none";
+        }
+
+        
+        const card = document.querySelector('.address-preview-card');
+        if (card) {
+            card.classList.toggle('preview-valid', isComplete);
+            card.classList.toggle('preview-incomplete', !isComplete);
+        }
+
+        placeOrderBtn.disabled = !isComplete;
+    }
+
+    ["name", "address", "zip", "email"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", () => {
+            updatePreview();
+        });
     });
 
-    phoneInputField.addEventListener("countrychange", () => placeOrderBtn.disabled = !validateShippingForm());
+    phoneInputField.addEventListener("input", () => {
+        updatePreview();
+    });
+
+    phoneInputField.addEventListener("countrychange", () => updatePreview());
+
 
     function renderOrder(t) {
         const container = document.getElementById("orderItems");
@@ -351,9 +641,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 else if (roast !== 'accessory' && tier.name !== 'Sprout' && isSeasonal) d = 5;
             }
 
+            let displayPrice = item.price;
+            let originalPrice = item.price;
+            let isDigital = item.isDigital;
+
+            if (roast === 'giftcard' && isDigital && item.priceDigital) {
+                originalPrice = parseFloat(item.price);
+                displayPrice = parseFloat(item.priceDigital);
+            }
+
             const priceHtml = d > 0
-                ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(item.price)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(item.price * (1 - d/100))}</span>`
-                : formatPrice(item.price);
+                ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(originalPrice)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(displayPrice * (1 - d/100))}</span>`
+                : (isDigital && roast === 'giftcard' && item.priceDigital
+                    ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(originalPrice)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(displayPrice)}</span>`
+                    : formatPrice(displayPrice));
 
             return `
             <div class="order-item">
@@ -365,6 +666,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             </div>
         `;}).join("");
+
+        const digitalGiftSection = document.getElementById("digitalGiftSendSection");
+        const hasGiftCard = cart.some(item => item.roast === 'giftcard');
+        if (digitalGiftSection) {
+            digitalGiftSection.style.display = hasGiftCard ? 'block' : 'none';
+            if (hasGiftCard) {
+                const lang = currentLang;
+                document.getElementById('digitalGcInstructions').innerText = lang === 'jp'
+                    ? 'デジタルギフトカードを谁的メールに送りますか？'
+                    : 'Send digital gift card to someone\'s email';
+                document.getElementById('keepForSelf').nextElementSibling.innerText = lang === 'jp'
+                    ? '自分のインベントリに保管'
+                    : 'Keep in my inventory';
+            }
+        }
 
         let subtotal = 0;
         let rankDiscount = 0;
@@ -393,6 +709,20 @@ document.addEventListener("DOMContentLoaded", () => {
         let hasPromo = false;
         const warningEl = document.getElementById("checkoutVoucherWarning");
 
+        let giftCardDiscount = 0;
+        if (appliedGiftCard && appliedGiftCard.value) {
+            const exchangeRate = 160;
+            const giftCardValueJpy = appliedGiftCard.value;
+            const giftCardValueEur = giftCardValueJpy / exchangeRate;
+            giftCardDiscount = Math.min(giftCardValueEur, total);
+            total -= giftCardDiscount;
+            document.getElementById("appliedGiftCardRow").style.display = "flex";
+            document.getElementById("appliedGiftCardCode").innerText = appliedGiftCard.code;
+            document.getElementById("appliedGiftCardValue").innerText = "−" + formatPrice(giftCardDiscount);
+        } else {
+            document.getElementById("appliedGiftCardRow").style.display = "none";
+        }
+
         if (localStorage.getItem("couponApplied") === "true") {
             const discount = subtotal * 0.20;
             total = subtotal - discount;
@@ -403,10 +733,11 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("checkoutDiscountRow").style.display = "none";
         }
 
-        const rRow = document.getElementById("voucherDiscountRow");
+        document.getElementById("checkoutRankDiscountRow")?.remove();
+
         if (rankDiscount > 0) {
             document.getElementById("summaryBreakdown").insertAdjacentHTML('beforeend', `
-                <p style="display: flex; justify-content: space-between; color: var(--sakura-pink-main);">
+                <p id="checkoutRankDiscountRow" style="display: flex; justify-content: space-between; color: var(--sakura-pink-main);">
                     <span>${lang === 'jp' ? 'ランク特典割引:' : 'Rank Discount:'}</span> <span>−${formatPrice(rankDiscount)}</span>
                 </p>`);
         }
@@ -476,20 +807,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateLanguage();
 
-    placeOrderBtn.disabled = !validateShippingForm();
+    updatePreview();
 
+    function handleSendFeeCheckout() {
+        const pendingSendFee = JSON.parse(sessionStorage.getItem("pendingSendFee") || "null");
+        if (!pendingSendFee) return;
+
+        const lang = localStorage.getItem("language") || "en";
+        const t = translations[lang];
+
+        const cart = getCart();
+        cart.push({
+            title: lang === 'jp' ? 'ギフトカード送信料' : 'Gift Card Send Fee',
+            title_jp: 'ギフトカード送信料',
+            price: 900,
+            price_jp: 900,
+            qty: 1,
+            image: 'fee.png',
+            desc: lang === 'jp' ? pendingSendFee.giftCardCode + ' 受取人: ' + pendingSendFee.recipientEmail : 'Code: ' + pendingSendFee.giftCardCode + ' To: ' + pendingSendFee.recipientEmail,
+            desc_jp: pendingSendFee.giftCardCode + ' 受取人: ' + pendingSendFee.recipientEmail,
+            isSendFee: true,
+            sendFeeData: pendingSendFee
+        });
+        localStorage.setItem("cart", JSON.stringify(cart));
+        sessionStorage.setItem("pendingSendFee", null);
+
+        window.showSakuraToast(
+            lang === 'jp' ?
+            "送信料¥900がカートに追加されました。" :
+            "Send fee ¥900 added to cart.",
+            '💳'
+        );
+    }
 
    document.getElementById("checkoutForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    
+
     const shippingInfo = {
         name: document.getElementById("name").value.trim(),
         address: document.getElementById("address").value.trim(),
         zip: document.getElementById("zip").value.trim(),
         email: document.getElementById("email").value.trim(),
-        phone: iti.getNumber() 
+        phone: iti.getNumber()
     };
+
+    const saveAsDefault = document.getElementById("saveAsDefault");
+    if (saveAsDefault && saveAsDefault.checked) {
+        localStorage.setItem("defaultAddress", JSON.stringify(shippingInfo));
+    }
+
     sessionStorage.setItem("pendingShipping", JSON.stringify(shippingInfo));
+
+    const digitalGiftSection = document.getElementById("digitalGiftSendSection");
+    if (digitalGiftSection && digitalGiftSection.style.display !== 'none') {
+        const recipientEmail = document.getElementById("giftRecipientEmail").value.trim();
+        const recipientEmailConfirm = document.getElementById("giftRecipientEmailConfirm").value.trim();
+        const giftMessage = document.getElementById("giftMessage").value.trim();
+        const keepForSelf = document.getElementById("keepForSelf")?.checked;
+
+        if (!keepForSelf) {
+            const emailError = document.getElementById("emailFirstError");
+            const confirmError = document.getElementById("emailConfirmError");
+
+            if (!recipientEmail) {
+                emailError.innerText = currentLang === 'jp' ? 'メールアドレスを入力してください' : 'Please enter email';
+                emailError.style.display = 'block';
+                return;
+            }
+            emailError.style.display = 'none';
+
+            if (!recipientEmailConfirm || recipientEmail !== recipientEmailConfirm) {
+                confirmError.innerText = currentLang === 'jp' ? 'メールアドレスが一致しません' : 'Emails do not match';
+                confirmError.style.display = 'block';
+                return;
+            }
+            confirmError.style.display = 'none';
+        }
+
+        const digitalGiftInfo = {
+            recipientEmail: recipientEmail || '',
+            message: giftMessage || '',
+            keepForSelf: keepForSelf || false
+        };
+        sessionStorage.setItem("digitalGiftInfo", JSON.stringify(digitalGiftInfo));
+    }
+
     window.location.href = "payment.html";
 });
 
