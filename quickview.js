@@ -128,6 +128,19 @@ const QuickView = {
     currentQty: 1,
     chatHistory: [],
     reviewFilter: null,
+
+    // Lightweight persisted context for Miko (so she can answer follow-ups after refresh)
+    mikoMemoryKey: 'miko_memory_v1',
+    mikoMemory: {
+        lastMentionedProducts: [], // product titles (EN titles) in order of discovery
+        lastMissingPref: null, // one of: roast|flavor|origin|budget|taste
+        compare: {
+            waitingSecond: false,
+            // resolved product objects (optional)
+            product1: null,
+            product2: null
+        }
+    },
     flagData: [
         { name: "Afghanistan", flag: "🇦🇫" }, { name: "Armenia", flag: "🇦🇲" }, { name: "Azerbaijan", flag: "🇦🇿" }, { name: "Bahrain", flag: "🇧🇭" }, { name: "Bangladesh", flag: "🇧🇩" }, { name: "Bhutan", flag: "🇧🇹" }, { name: "Brunei", flag: "🇧🇳" }, { name: "Cambodia", flag: "🇰🇭" }, { name: "China", flag: "🇨🇳" }, { name: "Georgia", flag: "🇬🇪" }, { name: "India", flag: "🇮🇳" }, { name: "Indonesia", flag: "🇮🇩" }, { name: "Iran", flag: "🇮🇷" }, { name: "Iraq", flag: "🇮🇶" }, { name: "Israel", flag: "🇮🇱" }, { name: "Japan", flag: "🇯🇵" }, { name: "Jordan", flag: "🇯🇴" }, { name: "Kazakhstan", flag: "🇰🇿" }, { name: "Kuwait", flag: "🇰🇼" }, { name: "Kyrgyzstan", flag: "🇰🇬" }, { name: "Laos", flag: "🇱🇦" }, { name: "Lebanon", flag: "🇱🇧" }, { name: "Malaysia", flag: "🇲🇾" }, { name: "Maldives", flag: "🇲🇻" }, { name: "Mongolia", flag: "🇲🇳" }, { name: "Myanmar", flag: "🇲🇲" }, { name: "Nepal", flag: "🇳🇵" }, { name: "North Korea", flag: "🇰🇵" }, { name: "Oman", flag: "🇴🇲" }, { name: "Pakistan", flag: "🇵🇰" }, { name: "Palestine", flag: "🇵🇸" }, { name: "Philippines", flag: "🇵🇭" }, { name: "Qatar", flag: "🇶🇦" }, { name: "Saudi Arabia", flag: "🇸🇦" }, { name: "Singapore", flag: "🇸🇬" }, { name: "South Korea", flag: "🇰🇷" }, { name: "Sri Lanka", flag: "🇱🇰" }, { name: "Syria", flag: "🇸🇾" }, { name: "Taiwan", flag: "🇹🇼" }, { name: "Tajikistan", flag: "🇹🇯" }, { name: "Thailand", flag: "🇹🇭" }, { name: "Timor-Leste", flag: "🇹🇱" }, { name: "Turkey", flag: "🇹🇷" }, { name: "Turkmenistan", flag: "🇹🇲" }, { name: "UAE", flag: "🇦🇪" }, { name: "Uzbekistan", flag: "🇺🇿" }, { name: "Vietnam", flag: "🇻🇳" }, { name: "Yemen", flag: "🇾🇪" },
         { name: "Albania", flag: "🇦🇱" }, { name: "Andorra", flag: "🇦🇩" }, { name: "Austria", flag: "🇦🇹" }, { name: "Belarus", flag: "🇧🇾" }, { name: "Belgium", flag: "🇧🇪" }, { name: "Bosnia and Herzegovina", flag: "🇧🇦" }, { name: "Bulgaria", flag: "🇧🇬" }, { name: "Croatia", flag: "🇭🇷" }, { name: "Cyprus", flag: "🇨🇾" }, { name: "Czechia", flag: "🇨🇿" }, { name: "Denmark", flag: "🇩🇰" }, { name: "Estonia", flag: "🇪🇪" }, { name: "Finland", flag: "🇫🇮" }, { name: "France", flag: "🇫🇷" }, { name: "Germany", flag: "🇩🇪" }, { name: "Greece", flag: "🇬🇷" }, { name: "Hungary", flag: "🇭🇺" }, { name: "Iceland", flag: "🇮🇸" }, { name: "Ireland", flag: "🇮🇪" }, { name: "Italy", flag: "🇮🇹" }, { name: "Latvia", flag: "🇱🇻" }, { name: "Liechtenstein", flag: "🇱🇮" }, { name: "Lithuania", flag: "🇱🇹" }, { name: "Luxembourg", flag: "🇱🇺" }, { name: "Malta", flag: "🇲🇹" }, { name: "Moldova", flag: "🇲🇩" }, { name: "Monaco", flag: "🇲🇨" }, { name: "Montenegro", flag: "🇲🇪" }, { name: "Netherlands", flag: "🇳🇱" }, { name: "Norway", flag: "🇳🇴" }, { name: "Poland", flag: "🇵🇱" }, { name: "Portugal", flag: "🇵🇹" }, { name: "Romania", flag: "🇷🇴" }, { name: "Russia", flag: "🇷🇺" }, { name: "San Marino", flag: "🇸🇲" }, { name: "Serbia", flag: "🇷🇸" }, { name: "Slovakia", flag: "🇸🇰" }, { name: "Slovenia", flag: "🇸🇮" }, { name: "Spain", flag: "🇪🇸" }, { name: "Sweden", flag: "🇸🇪" }, { name: "Switzerland", flag: "🇨🇭" }, { name: "Ukraine", flag: "🇺🇦" }, { name: "UK", flag: "🇬🇧" }, { name: "Vatican City", flag: "🇻🇦" },
@@ -173,7 +186,7 @@ const QuickView = {
         { productTitle: "Tokyo Drip Blend", name: "minimalist_mama", flag: "🇩🇰", rating: 5, en: "Incredibly fast shipping to Copenhagen, impressed by the plastic-free packaging efforts", jp: "コペンハーゲンまで届くのがめちゃくちゃ早かった。プラスチックフリーな梱包も好印象です。", verified: true, timestamp: Date.now() - 86400000 * 2 },
         { productTitle: "Sakura Mid Roast", name: "pixel_pioneer", flag: "🇰🇷", rating: 4, en: "The website experience is so smooth. Love the small details in the branding.", jp: "サイトの使い心地が最高にスムーズ。ブランドのこだわりが細部まで感じられて好きだな。", verified: true, timestamp: Date.now() - 86400000 * 3 },
         { productTitle: "Kyoto Night Roast", name: "travel_bunny", flag: "🇹🇭", rating: 5, en: "The aroma takes me right back to my morning walks in Arashiyama. Such a vibe.", jp: "香りを嗅ぐだけで嵐山の朝の散歩を思い出します。雰囲気が最高。", verified: true, timestamp: Date.now() - 86400000 * 5 },
-        { productTitle: "Vanilla Sakura Blend", name: "gift_guru", flag: "🇨🇦", rating: 5, en: "bought this as a birthday gift and the presentation was 10/10. my friend loved it🥰", jp: "友達の誕生日にプレゼントしたんだけど、パッケージが可愛くて大正解だった！", verified: true, timestamp: Date.now() - 86400000 * 6 },
+        { productTitle: "Vanilla Sakura Blend", name: "gigi_bb", flag: "🇨🇦", rating: 5, en: "bought this as a birthday gift and the presentation was 10/10. my friend loved it🥰", jp: "友達の誕生日にプレゼントしたんだけど、パッケージが可愛くて大正解だった！", verified: true, timestamp: Date.now() - 86400000 * 6 },
         { productTitle: "Morning Blossom", name: "chill_vibe_only", flag: "🇳🇱", rating: 4, en: "The free stickers included in the box are so cute. Great attention to detail 🤩", jp: "おまけのステッカーが可愛すぎる。こういう細かいサービス、嬉しいよね。", verified: true, timestamp: Date.now() - 86400000 * 10 },
         { productTitle: "Samurai Espresso", name: "tech_nomad", flag: "🇸🇬", rating: 5, en: "The QR code on the bag for brewing tips was super helpful!!! Top notch customer service💯", jp: "袋のQRコードから淹れ方のコツが見れるの、マジで便利。カスタマーサービスも一流。", verified: true, timestamp: Date.now() - 86400000 * 15 },
         { productTitle: "Dragon Pearl Jasmine", name: "Angelineguerin", flag: "🇫🇷", rating: 5, en: "the design of the bag is literally ART. shizuku really understands luxury branding.", jp: "袋のデザインがもはや芸術。高級感のあるブランディングが素晴らしいです。", verified: true, timestamp: Date.now() - 86400000 * 20 },
@@ -208,7 +221,12 @@ const QuickView = {
         { productTitle: "Imperial Blends Pin Set", name: "CandleLightHearted", flag: "🇸🇪", rating: 4, en: "Very detailed, though the butterfly clutches are a bit tight. The lotus design is 10/10.", jp: "細部まで凝っていますが、留め具が少し固めです。蓮のデザインは最高ですね。", verified: true, timestamp: Date.now() - 86400000 * 12 },
         { productTitle: "Tranquil Blends Pin Set", name: "Chloe_Osweiler", flag: "🇱🇺", rating: 5, en: "the pastel gradients are gorgeous, the Zen Ripple pin helps me feel mindful just looking at it", jp: "パステルカラーのグラデーションが最高に可愛い。禅の波紋のピンは見ているだけで心が落ち着きます。", verified: true, timestamp: Date.now() - 86400000 * 3 },
         { productTitle: "Tranquil Blends Pin Set", name: "yu.na", flag: "🇯🇵", rating: 5, en: "Colors are even better in person. The Strawberry Latte pin is incredibly cute!!", jp: "実物の色味はもっと綺麗です。ストロベリーラテのピンがめちゃくちゃ可愛い！！", verified: true, timestamp: Date.now() - 86400000 * 6 },
-        { productTitle: "Tranquil Blends Pin Set", name: "karolina.nv", flag: "🇨🇿", rating: 4, en: "Great quality and soft colors, but smaller than I expected. Still look great on a denim jacket.", jp: "質が良くて色合いも優しいですが、思ってたより小ぶりでした。デニムジャケットにはよく映えます。", verified: true, timestamp: Date.now() - 86400000 * 15 }
+        { productTitle: "Tranquil Blends Pin Set", name: "karolina.nv", flag: "🇨🇿", rating: 4, en: "Great quality and soft colors, but smaller than I expected. Still look great on a denim jacket.", jp: "質が良いけど色合いも優しいですが、思ってたより小ぶりでした。牛仔ジャケットにはよく映えます。", verified: true, timestamp: Date.now() - 86400000 * 15 },
+        { productTitle: "Gift Card ¥1,000", name: "kaiAika", flag: "🇫🇮", rating: 5, en: "Perfect last minute gift😁 My colleague loved it", jp: "急なギフトに最適！同僚に大喜びされました", verified: true, timestamp: Date.now() - 86400000 * 2 },
+        { productTitle: "Gift Card ¥2,500", name: "Wa.Sora", flag: "🇯🇵", rating: 5, en: "Bought this for my mom's birthday, she was so happy!!", jp: "母の誕生日にあげたら超喜んでもらえました", verified: true, timestamp: Date.now() - 86400000 * 5 },
+        { productTitle: "Gift Card ¥2,500", name: "kitcatKat", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", rating: 5, en: "A thoughtful gift for any occasion", jp: "どんな場面にもぴったりの心遣いギフト", verified: true, timestamp: Date.now() - 86400000 * 10 },
+        { productTitle: "Gift Card ¥5,000", name: "puuLau", flag: "🇸🇬", rating: 5, en: "the code worked perfectly. great idea for coffee lovers", jp: "コードがバッチリ動作！コーヒー愛好家に最高のギフトです", verified: true, timestamp: Date.now() - 86400000 * 1 },
+        { productTitle: "Gift Card ¥20,000", name: "cuukiesweetcookie", flag: "🇯🇵", rating: 5, en: "An amazing gift for my coffee loving friend!", jp: "コーヒー好きの友達への素晴らしいギフト！", verified: true, timestamp: Date.now() - 86400000 * 3 }
     ],
 
     footerTranslations: {
@@ -217,7 +235,7 @@ const QuickView = {
             links: "Quick Links", visit: "Visit Us", newsletter: "Join Our Newsletter",
             fAbout: "About Us", fContact: "Contact Support",
             newsDesc: "Subscribe to get seasonal blend updates and special offers!",
-            mikoT: "Meet Miko: Your Shizuku Barista 🌸",
+            mikoT: "Meet Miko: Your Shizuku Barista",
             mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Who is Miko?</span><p class='small mb-0'>Miko is our digital concierge and trainee barista. She's here to help you navigate our collections and find your perfect roast.</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>How She Works</span><p class='small mb-0'>She uses intent-based scoring to scan our entire product catalog for flavor notes and roast profiles that match your mood.</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ Beta Version:</b> As Miko is still in training, she may occasionally provide incorrect information or misunderstand complex requests. Thank you for your patience as she continues to learn! ✨</small></div>",
             newsNamePlh: "First Name", newsEmailPlh: "Email Address", newsBtn: "Join",
             newsSuccess: "You have successfully joined our newsletter!",
@@ -248,7 +266,7 @@ const QuickView = {
             newsError: "このメールアドレスは既に登録されています。",
             aboutT: "私たちの物語", 
             aboutB: "<p><b>雫コーヒー</b>は、京都の歴史ある街並みの中で、日本の四季の移ろいを一杯のコーヒーに閉じ込めるために誕生しました。</p><p>独自の『サクラ・ロースト』製法により、お茶のような透明感と繊細な香りを引き出しています。私たちは世界中の小規模農家と直接提携し、持続可能なコーヒー作りを支援しています。</p><p><i>春の芽吹きから冬の静寂まで、芸術としてのコーヒーをご体験ください。</i></p>",
-            mikoT: "Mikoについて：あなたの専属バリスタ 🌸",
+            mikoT: "Mikoについて：あなたの専属バリスタ",
             mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Mikoとは？</span><p class='small mb-0'>Mikoは雫コーヒーのデジタルコンシェルジュであり、見習いバリスタです。あなたにぴったりの一杯を見つけるお手伝いをします。</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>仕組み</span><p class='small mb-0'>会話の意図を分析し、カタログ全体からあなたの気分に合った風味や焙煎度をスキャンして提案します。</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ ベータ版：</b>Mikoは現在学習中のため、時々間違った情報を伝えたり、複雑なリクエストを誤解したりすることがあります。成長を見守っていただければ幸いです！ ✨</small></div>",
             contactT: "カスタマーサポート", 
             contactB: "<p class='small mb-3'>配送状況や淹れ方についてのご質問は、バリスタチームが<b>24時間以内</b>に回答いたします。</p><form id='footerContactForm' class='d-flex flex-column gap-2'><input type='text' class='form-control form-control-sm' placeholder='注文番号（任意）'><textarea class='form-control form-control-sm' rows='3' placeholder='メッセージをご入力ください'></textarea><button type='button' class='sakura-btn' style='font-size: 13px; padding: 8px;' onclick='window.showSakuraToast(\"送信完了しました。\", \"✉️\")'>メッセージを送信</button></form><div class='mt-3 small'><b>メール:</b> hello@shizuku.coffee<br><b>電話:</b> +81 03-1234-5678</div>",
@@ -305,6 +323,9 @@ const QuickView = {
                 <div class="chat-quick-actions px-3 mb-2 d-flex gap-2">
                     <button id="surpriseMeBtn" class="helpful-btn" style="padding: 4px 10px; font-size: 11px;"></button>
                 </div>
+
+
+
                 <div class="chat-input-area">
                     <input type="text" id="chatInput" class="form-control" style="font-size: 13px; border-radius: 12px;" placeholder="Ask Miko something...">
                     <button class="sakura-btn" id="sendChat" style="padding: 5px 15px; font-size: 12px; margin: 0;">Send</button>
@@ -363,10 +384,10 @@ const QuickView = {
                         <p class="small footer-newsletter-desc" id="fNewsDesc"></p>
                         <form class="newsletter-form mt-3 d-flex flex-column gap-2" id="newsletterForm">
                             <div class="newsletter-field-group">
-                                <input type="text" class="form-control" id="newsletterName" required>
+                                <input type="text" class="form-control" id="newsletterName" name="name" required>
                             </div>
                             <div class="input-group newsletter-field-group">
-                                <input type="email" class="form-control" id="newsletterEmail" style="font-size: 14px;" required>
+                                <input type="email" class="form-control" id="newsletterEmail" name="email" style="font-size: 14px;" required>
                                 <button class="sakura-btn" type="submit" id="newsletterBtn" style="border-radius: 0; margin: 0; width: 80px;">Join</button>
                             </div>
                         </form>
@@ -385,6 +406,7 @@ const QuickView = {
         <div class="modal fade" id="mikoModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="mikoTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="mikoBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="privacyNoticeModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="privacyNoticeTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="privacyNoticeBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="tierModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="tierModalTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="tierModalBody"></div></div></div></div>
+        <div class="modal fade" id="originMapModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="originMapTitle">Coffee Origins in Japan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="originMapBody" style="text-align: center;"></div></div></div></div>
     `,
 
     init() {
@@ -526,7 +548,13 @@ const QuickView = {
         this.initBokehBackground();
         this.startCommunitySimulation();
         this.updateFooterUI();
-        this.loadChatHistory();
+        // Always start fresh on page refresh (no persisted chat state)
+        this.chatHistory = [];
+        try { localStorage.removeItem('miko_chat_history'); } catch (e) {}
+        // Also reset persisted Miko memory so the greeting/options are shown again
+        this.clearMikoMemory();
+
+        // this.loadChatHistory();
         this.renderRecentlyViewed();
         this.initScrollReveal();
         this.initProfileFlagSelector();
@@ -537,16 +565,33 @@ const QuickView = {
             const petalsEnabled = localStorage.getItem("petalsEnabled") !== "false";
             this.updatePetals(petalsEnabled);
 
+            const treeEnabled = localStorage.getItem("treeEnabled") !== "false";
+
             if (!document.getElementById('petalToggleContainer')) {
                 const petalToggleHtml = `
-                    <div id="petalToggleContainer" style="position: fixed; bottom: 80px; left: 20px; z-index: 1000;">
+                    <div id="petalToggleContainer" style="position: fixed; bottom: 80px; left: 20px; z-index: 1000; display: flex; gap: 8px; flex-direction: column;">
+                        <button id="treeToggle" class="sakura-btn" title="Toggle Sakura Tree" style="padding: 10px 15px; font-size: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; width: auto;">
+                            ${treeEnabled ? '🌳' : '🚫'}
+                        </button>
                         <button id="petalToggle" class="sakura-btn" title="Toggle Falling Petals" style="padding: 10px 15px; font-size: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; width: auto;">
                             ${petalsEnabled ? '🌸' : '🚫'}
                         </button>
                     </div>
                 `;
                 document.body.insertAdjacentHTML('beforeend', petalToggleHtml);
+                this.updateTree(treeEnabled);
             }
+
+        document.getElementById('treeToggle')?.addEventListener('click', (e) => {
+            const currentState = localStorage.getItem("treeEnabled") !== "false";
+            const newState = !currentState;
+            localStorage.setItem("treeEnabled", newState);
+            e.target.innerText = newState ? '🌳' : '🚫';
+            this.updateTree(newState);
+            const lang = localStorage.getItem("language") || "en";
+            const msg = newState ? (lang === 'jp' ? "桜の木を有効にしました！ 🌳" : "Tree enabled! 🌳") : (lang === 'jp' ? "桜の木を非表示にしました。 🌳" : "Tree hidden. 🌳");
+            window.showSakuraToast(msg, newState ? '🌳' : '🌳');
+        });
 
         document.getElementById('petalToggle')?.addEventListener('click', (e) => {
             const currentState = localStorage.getItem("petalsEnabled") !== "false";
@@ -913,13 +958,32 @@ const QuickView = {
         const input = document.getElementById('chatInput');
         const chatMsgContainer = document.getElementById('chatMessages');
 
+        // Ensure persisted memory is loaded before routing logic runs
+        this.loadMikoMemory();
+
         toggle?.addEventListener('click', () => {
             const isOpening = windowEl.style.display !== 'flex';
             windowEl.style.display = isOpening ? 'flex' : 'none';
             
             if (isOpening && chatMsgContainer.querySelectorAll('.chat-msg').length === 0) {
                 this.renderPickOfTheDay();
-                handleSend(localStorage.getItem("language") === 'jp' ? 'こんにちは' : 'hello', true);
+                // Show start options on first open (taste buttons)
+                const opts = document.getElementById('mikoStartOptions');
+                if (opts) opts.style.display = 'block';
+
+                handleSend(localStorage.getItem("language") === 'jp' ? 'hello' : 'hello', true);
+                // Ensure the first bot message is a personalized greeting (avoid repeating the same pick prompt)
+                // by directly greeting through generateLocalResponse.
+                const firstGreeting = (localStorage.getItem("language") === 'jp')
+                    ? 'こんにちは！雫コーヒーへようこそ 🌸 あなたの気分に合う一杯を一緒に見つけましょう。'
+                    : 'Hello! Welcome to Shizuku Coffee 🌸 Let’s find a perfect cup for your mood.';
+                this.addChatMessage('bot', firstGreeting);
+            }
+
+            // Hide options as soon as user starts sending real input
+            const opts = document.getElementById('mikoStartOptions');
+            if (opts && opts.style.display !== 'none') {
+                // do not hide immediately on toggle open; hide on actual send
             }
         });
 
@@ -1003,7 +1067,7 @@ const QuickView = {
                 isSending = true;
                 await new Promise(resolve => setTimeout(resolve, 800));
 
-                const response = this.generateLocalResponse(val, lang, siteContext);
+                const response = await this.generateLocalResponse(val, lang, siteContext);
                 
                 if (typing) typing.style.display = 'none';
                 this.addChatMessage('bot', response);
@@ -1029,7 +1093,15 @@ const QuickView = {
             this.chatHistory = [];
             localStorage.removeItem('miko_chat_history');
             chatMsgContainer.innerHTML = '<div id="mikoTyping" class="typing-indicator">Miko is typing...</div>';
+
+            // also clear persisted memory so the next convo starts fresh
+            this.clearMikoMemory();
+
+            // show start options again
+
         });
+
+
     },
 
     getPickOfTheDay: function(lang) {
@@ -1059,236 +1131,175 @@ const QuickView = {
         container.insertAdjacentHTML('afterbegin', html);
     },
 
-    generateLocalResponse: function(input, lang, context) {
-        const msg = input.toLowerCase().trim();
-        const isJp = lang === 'jp';
-        const getName = (p) => isJp ? (p.title_jp || p.title) : p.title;
-        const getTag = (p) => isJp ? (p.tagline_jp || p.tagline) : p.tagline;
-        const getDesc = (p) => isJp ? (p.desc_jp || p.desc) : p.desc; 
-
-        const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-        const lastBotMsg = [...this.chatHistory].reverse().find(m => m.role === 'assistant')?.content || "";
-
-        const foundInMsg = SHIZUKU_PRODUCTS.filter(p => 
-            msg.includes(p.title.toLowerCase()) || 
-            (p.title_jp && msg.includes(p.title_jp.toLowerCase()))
-        );
-
-        const isComparing = /(compare|比較|くらべて|違い|versus|vs)/i.test(msg);
-        const wasWaitingForSecond = lastBotMsg.includes('compare it with?') || lastBotMsg.includes('比較したいですか？');
-
-        if (isComparing || (wasWaitingForSecond && foundInMsg.length > 0)) {
-            let p1, p2;
-            
-            if (foundInMsg.length >= 2) {
-                p1 = foundInMsg[0];
-                p2 = foundInMsg[1];
-            } else if (foundInMsg.length === 1 && wasWaitingForSecond) {
-                const match = lastBotMsg.match(/\[\[(.*?)\]\]/);
-                if (match) {
-                    const firstName = match[1];
-                    p1 = SHIZUKU_PRODUCTS.find(p => p.title === firstName || p.title_jp === firstName);
-                    p2 = foundInMsg[0];
-                }
-            }
-
-            if (p1 && p2 && p1.title !== p2.title) {
-                const name1 = isJp ? (p1.title_jp || p1.title) : p1.title;
-                const name2 = isJp ? (p2.title_jp || p2.title) : p2.title;
-                const desc1 = isJp ? (p1.desc_jp || p1.desc) : p1.desc;
-                const desc2 = isJp ? (p2.desc_jp || p2.desc) : p2.desc;
-
-                if (isJp) {
-                    return `お待たせしました！[[${name1}]]と[[${name2}]]を比較しますね！\n\n・焙煎度: ${name1}は${p1.roast}、${name2}は${p2.roast}です。\n・特徴: ${name1}は「${desc1}」、${name2}は「${desc2}」のノートが楽しめます。\n・価格: ${formatPrice(p1.price)} vs ${formatPrice(p2.price)}\n\nどちらが気になりますか？🌸`;
-                } else {
-                    return `Got it! Comparing [[${name1}]] and [[${name2}]] for you.\n\n• Roast: ${name1} is ${p1.roast}, while ${name2} is ${p2.roast}.\n• Profile: ${name1} features ${desc1}, and ${name2} has ${desc2}.\n• Price: ${formatPrice(p1.price)} vs ${formatPrice(p2.price)}\n\nWhich one sounds better to you? ☕`;
-                }
-            } else if (foundInMsg.length === 1) {
-                const foundName = isJp ? (foundInMsg[0].title_jp || foundInMsg[0].title) : foundInMsg[0].title;
-                return isJp ? `[[${foundName}]]ともう一つ、どの商品を比較したいですか？` : `I found [[${foundName}]], but what was the second coffee you wanted to compare it with?`;
-            }
+    // ---- Miko Memory helpers ----
+    saveMikoMemory: function() {
+        try {
+            localStorage.setItem(this.mikoMemoryKey, JSON.stringify(this.mikoMemory));
+        } catch (e) {
+            console.warn('Miko memory save failed', e);
         }
-
-        const wasWaitingForChoice = lastBotMsg.includes('sounds better to you?') || lastBotMsg.includes('どちらが気になりますか？');
-        if (wasWaitingForChoice) {
-            let selectedProduct = foundInMsg[0];
-            
-            if (!selectedProduct) {
-                const matches = [...lastBotMsg.matchAll(/\[\[(.*?)\]\]/g)].map(m => m[1]);
-                if (matches.length >= 2) {
-                    if (/(first|former|1st|最初|1番目|一つ目|前者)/i.test(msg)) {
-                        selectedProduct = SHIZUKU_PRODUCTS.find(p => p.title === matches[0] || p.title_jp === matches[0]);
-                    } else if (/(second|latter|2nd|2番目|二つ目|最後|後者)/i.test(msg)) {
-                        selectedProduct = SHIZUKU_PRODUCTS.find(p => p.title === matches[1] || p.title_jp === matches[1]);
-                    }
-                }
-            }
-
-            if (selectedProduct) {
-                const name = isJp ? (selectedProduct.title_jp || selectedProduct.title) : selectedProduct.title;
-                return isJp 
-                    ? `[[${name}]]ですね！素晴らしい選択です。詳細をチェックしたり、カートに追加しますか？ 🌸`
-                    : `[[${name}]] is a great choice! Would you like to see more details or add it to your cart? ☕`;
-            }
-        }
-
-        if (/(can't decide|cannot decide|too many|help me choose|迷う|決められない|決まらない|選べない)/i.test(msg)) {
-            const randomProduct = SHIZUKU_PRODUCTS[Math.floor(Math.random() * SHIZUKU_PRODUCTS.length)];
-            const name = isJp ? (randomProduct.title_jp || randomProduct.title) : randomProduct.title;
-            
-            this.triggerMikoLuckEffect();
-            
-            return isJp 
-                ? `運命に任せてみましょう... Miko's Luck! ✨\n私のおすすめは [[${name}]] です。この一杯が、あなたの今日を特別なものにしてくれるはずですよ。🌸`
-                : `Let's leave it to fate... Miko's Luck! ✨\nI've chosen [[${name}]] for you. I have a feeling this is exactly what you need today! ☕`;
-        }
-
-        if (msg === "sakura" || msg === "桜" || msg.includes("magic") || msg.includes("魔法")) {
-            this.triggerSakuraStorm();
-            return isJp ? "桜の魔法をお見せしましょう！🌸" : "Let me show you some sakura magic! 🌸";
-        }
-        
-        if (msg === "midnight" || msg === "ミッドナイト") {
-            this.triggerMidnightEffect();
-            return isJp ? "真夜中の静寂をお楽しみください... 🌙" : "Enjoy the silence of midnight... 🌙";
-        }
-
-        if (/(scroll to top|top of page|上に戻る|一番上)/i.test(msg)) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return isJp ? "ページの一番上へ戻りますね。 🌸" : "Scrolling you back to the top! 🌸";
-        }
-        if (/(menu|shop|products|メニュー|ショップ|商品)/i.test(msg) && !/(recommend|suggest)/.test(msg)) {
-            const el = document.querySelector('.shop-container');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-            return isJp ? "ショップコーナーへどうぞ！ ☕" : "Let's head over to our coffee collection. ☕";
-        }
-
-        if (/(how are you|how's it going|元気|調子)/i.test(msg)) {
-            return isJp 
-                ? "絶好調です！焙煎したての豆の香りに包まれて幸せですよ。あなたはいかがですか？ ☕" 
-                : "I'm doing wonderful! The smell of freshly roasted beans always keeps me in a good mood. How about you? ☕";
-        }
-
-        if (/(who are you|what are you|何者|誰)/i.test(msg)) {
-            return isJp 
-                ? "私は雫コーヒーの専属バリスタ、Mikoです！あなたにぴったりの豆を見つけるお手伝いをします。 🌸" 
-                : "I'm Miko, your personal Shizuku Coffee barista! I'm here to help you find your next favorite roast. 🌸";
-        }
-        
-        if (/(good|great|fine|wonderful|okay|ok|well|bad|tired|sleepy|良い|元気|絶好調|最高|まあまあ|普通|疲れ|眠い)/i.test(msg)) {
-            if (/(how about you|how are you|いかがですか|あなたは|元気ですか)/i.test(lastBotMsg.toLowerCase())) {
-                if (/(tired|sleepy|疲れ|眠い)/i.test(msg)) {
-                    const strong = SHIZUKU_PRODUCTS.filter(p => p.roast === 'dark')[0];
-                    return isJp 
-                        ? `お疲れ様です。[[${getName(strong)}]] でエネルギーをチャージしませんか？ ⚡`
-                        : `Sounds like you could use a lift! Our [[${getName(strong)}]] is perfect for waking up. ⚡`;
-                }
-                return isJp 
-                    ? "それは良かったです！今日はどのようなコーヒーをお探しですか？ 🌸" 
-                    : "That's lovely to hear! What kind of coffee are you in the mood for today? ☕";
-            }
-        }
-
-        if (/(yes|yeah|sure|yep|please|お願いします|はい|そうですね|うん)/i.test(msg)) {
-            const lastBotMsgObj = [...this.chatHistory].reverse().find(m => m.role === 'assistant');
-            if (lastBotMsgObj && /(help|recommend|blend|cup|find|search|brew|お探し|お手伝い|選ぶ|いかが|一杯)/i.test(lastBotMsgObj.content.toLowerCase())) {
-                const p = SHIZUKU_PRODUCTS[Math.floor(Math.random() * SHIZUKU_PRODUCTS.length)];
-                return isJp 
-                    ? `承知いたしました！それなら [[${getName(p)}]] はいかがでしょうか？ 🌸`
-                    : `Great! In that case, I'd suggest our [[${getName(p)}]]. ☕`;
-            }
-        }
-
-        if (/(hello|hi|hey|morning|こんにちは|おはよ|ハロー)/i.test(msg)) {
-            return isJp ? "こんにちは！雫コーヒーへようこそ。🌸" : "Hello! Welcome to Shizuku Coffee. 🌸";
-        }
-
-        if (/(tired|sleepy|wake up|眠い|疲れ|元気)/i.test(msg)) {
-            const strong = SHIZUKU_PRODUCTS.filter(p => p.roast === 'dark')[0];
-            return isJp 
-                ? `お疲れ様です！[[${getName(strong)}]] でシャキッとしませんか？ ⚡`
-                : `Sounds like you need a boost! Try the [[${getName(strong)}]]. ⚡`;
-        }
-        
-        if (/(gift|present|プレゼント|ギフト|贈り物)/i.test(msg)) {
-            const pinSet = SHIZUKU_PRODUCTS.find(p => p.title === "Tranquil Blends Pin Set");
-            if (pinSet) {
-                return isJp 
-                    ? `贈り物をお探しですか？新商品の [[${getName(pinSet)}]] は、穏やかなカフェの雰囲気を楽しめるデザインでギフトに最適ですよ。🌸`
-                    : `Looking for a gift? Our new [[${getName(pinSet)}]] is a beautiful choice, capturing serene cafe vibes in elegant gold-framed designs. 🎁`;
-            }
-        }
-
-        if (/(shipping|ship|配達|発送)/i.test(msg)) {
-            return isJp 
-                ? "私たちは実際に製品を配送しているわけではありません。これはシミュレーションのポートフォリオページです。"
-                : "We don't actually deliver products. This is a simulation portfolio page.";
-        }
-
-        if (/(origin|from|source|起源|出所)/i.test(msg)) {
-            return isJp 
-                ? "私たちの豆は日本全土の最高のコーヒー生産地域から調達されています。"
-                : "Our beans are sourced from the finest coffee-growing regions around the whole Japan.";
-        }
-
-        let bestMatch = null;
-        let highestScore = 0;
-        const tokens = msg.split(/\s+/).filter(t => t.length > 2);
-
-        for (const p of SHIZUKU_PRODUCTS) { 
-            let score = 0;
-            const searchable = [p.title, p.title_jp, p.desc, p.desc_jp, p.tagline, p.tagline_jp, p.roast].join(" ").toLowerCase();
-            
-            tokens.forEach(token => {
-                if (searchable.includes(token)) score += 10;
-            });
-
-            if (score > highestScore) {
-                highestScore = score;
-                bestMatch = p;
-            }
-        }
-
-        if (bestMatch && highestScore > 0) {
-            const matchResponses = isJp ? [
-                `「${getName(bestMatch)}」のことですね！${getTag(bestMatch)} とても人気の商品ですよ。`,
-                `${getName(bestMatch)}ですね。${getTag(bestMatch)} ぜひチェックしてみてください！`,
-                `お目が高い！[[${getName(bestMatch)}]] は私のお気に入りの一つです。`
-            ] : [
-                `Ah, you're asking about the [[${getName(bestMatch)}]]. ${getTag(bestMatch)} It's one of our most loved blends!`,
-                `The [[${getName(bestMatch)}]] is a fantastic choice. ${getTag(bestMatch)}`,
-                `I see you're interested in our [[${getName(bestMatch)}]]. It's really special!`
-            ];
-            const finalResp = pick(matchResponses);
-            return (finalResp === lastBotMsg) ? pick(matchResponses) : finalResp;
-        }
-
-        if (/(recommend|suggest|surprise|help|choose|おすすめ|おまかせ|選んで|相談)/i.test(msg)) {
-            const popular = SHIZUKU_PRODUCTS.filter(p => p.popular && p.popular <= 5);
-            const p = pick(popular.length > 0 ? popular : SHIZUKU_PRODUCTS);
-
-            return isJp 
-                ? `雫の一押しは [[${getName(p)}]] です！${getDesc(p)}の香りが素晴らしいですよ。 🌸`
-                : `I highly recommend trying our [[${getName(p)}]]. It has beautiful notes of ${getDesc(p)}. ☕`;
-        }
-
-        const fallbacks = isJp ? [
-            `すみません、もう少し詳しく教えていただけますか？例えば「浅煎り」や「フルーティー」など...`,
-            `その質問にはまだお答えできないかもしれません。コーヒーの味や香りについて聞いてみてください！`,
-            `迷ってしまいますね。まずは [[${getName(pick(SHIZUKU_PRODUCTS))}]] から試してみるのはいかがでしょう？`
-        ] : [
-            `I didn't quite catch that. Could you tell me more about what you like? Maybe a specific flavor?`,
-            `I'm still learning! Try asking me about our dark roasts or fruity blends.`,
-            `Not sure? Why not take a look at the [[${getName(pick(SHIZUKU_PRODUCTS))}]]? It's quite popular!`
-        ];
-
-        return pick(fallbacks);
     },
 
-    addChatMessage: function(sender, text, render = true) {
+    loadMikoMemory: function() {
+        try {
+            const raw = localStorage.getItem(this.mikoMemoryKey);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+
+            // shallow merge to keep defaults
+            if (parsed && typeof parsed === 'object') {
+                if (Array.isArray(parsed.lastMentionedProducts)) {
+                    this.mikoMemory.lastMentionedProducts = parsed.lastMentionedProducts;
+                }
+                if (parsed.lastMissingPref) this.mikoMemory.lastMissingPref = parsed.lastMissingPref;
+
+                if (parsed.compare && typeof parsed.compare === 'object') {
+                    this.mikoMemory.compare.waitingSecond = !!parsed.compare.waitingSecond;
+                    this.mikoMemory.compare.product1 = parsed.compare.product1 || null;
+                    this.mikoMemory.compare.product2 = parsed.compare.product2 || null;
+                }
+            }
+        } catch (e) {
+            console.warn('Miko memory load failed', e);
+        }
+    },
+
+    clearMikoMemory: function() {
+        this.mikoMemory = {
+            lastMentionedProducts: [],
+            lastMissingPref: null,
+            compare: { waitingSecond: false, product1: null, product2: null }
+        };
+        try { localStorage.removeItem(this.mikoMemoryKey); } catch (e) {}
+    },
+
+    rememberProduct: function(p) {
+        if (!p) return;
+        const title = p.title || (typeof p === 'string' ? p : null);
+        if (!title) return;
+
+        // keep unique-ish but preserve order
+        const titles = this.mikoMemory.lastMentionedProducts || [];
+        const existingIdx = titles.indexOf(title);
+        if (existingIdx !== -1) titles.splice(existingIdx, 1);
+        titles.push(title);
+        this.mikoMemory.lastMentionedProducts = titles.slice(-4);
+        this.saveMikoMemory();
+    },
+
+    resolveProductByTitle: function(title) {
+        if (!title) return null;
+        const products = window.SHIZUKU_PRODUCTS || (typeof SHIZUKU_PRODUCTS !== 'undefined' ? SHIZUKU_PRODUCTS : []);
+        if (!Array.isArray(products)) return null;
+
+        const clean = String(title).replace(/\u00a0/g, ' ').trim();
+        return products.find(p =>
+            p.title === clean ||
+            p.title_jp === clean ||
+            p.title.toLowerCase() === clean.toLowerCase() ||
+            (p.title_jp && p.title_jp.toLowerCase() === clean.toLowerCase())
+        ) || null;
+    },
+
+    mikoLastResponse: '',
+    mikoRepatCount: 0,
+    mikoLastPicked: null, // Track last picked for pick() dedup
+    mikoLastRespText: '', // Ultimate duplicate prevention - track actual response text
+generateLocalResponse: async function(input, lang, context) {
+        const msg = (input == null ? '' : String(input)).toLowerCase().trim();
+        const isJp = lang === 'jp';
+        const getName = (p) => isJp ? (p.title_jp || p.title) : p.title;
+        const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        // Check for AI API key
+        const apiKey = window.MIKO_GEMINI_KEY || this.MIKO_GEMINI_KEY || localStorage.getItem('miko_gemini_key');
+        // Skip placeholder - not a real key
+        if (apiKey === 'MIKO_PLACEHOLDER_KEY' || !apiKey) apiKey = null;
+
+        if (apiKey) {
+            try {
+                const aiResponse = await this.callGeminiAPI(msg, isJp, apiKey);
+                if (aiResponse) return aiResponse;
+            } catch(e) {
+                console.error('Miko AI error:', e);
+            }
+        }
+
+        // Simple keyword responses
+        if (/who are you|what are you|何者|誰/.test(msg)) {
+            return isJp ? "私は雫コーヒーの専属バリスタ、Mikoです！🌸" : "I'm Miko, your Shizuku Coffee barista! ☕";
+        }
+        if (/hello|hi|hey|こんにちは|おはよ/.test(msg)) {
+            return isJp ? "こんにちは！雫コーヒーへようこそ🌸" : "Hello! Welcome to Shizuku Coffee! 🌸";
+        }
+        if (/dark|deep|深煎り/.test(msg)) {
+            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'dark'));
+            return isJp ? `深煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - dark roast! ☕`;
+        }
+        if (/light|浅煎り/.test(msg)) {
+            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'light'));
+            return isJp ? `浅煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - light roast! ☕`;
+        }
+        if (/medium|中煎り/.test(msg)) {
+            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'medium'));
+            return isJp ? `中煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - medium roast! ☕`;
+        }
+        if (/recommend|suggest|おすすめ/.test(msg)) {
+            const p = pick(SHIZUKU_PRODUCTS);
+            return isJp ? `おすすめは [[${getName(p)}]] です！` : `I recommend [[${getName(p)}]]! ☕`;
+        }
+        if (/price|いくら下水道/.test(msg)) {
+            const min = Math.min(...SHIZUKU_PRODUCTS.map(p => p.price));
+            const max = Math.max(...SHIZUKU_PRODUCTS.map(p => p.price));
+            return isJp ? `価格は €${min} 〜 €${max} です。` : `Prices range from €${min} to €${max}. ☕`;
+        }
+        if (/bye|see you|さようなら/.test(msg)) {
+            return isJp ? "また来ててくださいね！☕" : "Take care! See you again! ☕";
+        }
+        if (/thanks|thank|ありがとう/.test(msg)) {
+            return isJp ? "どういたしまして！🌸" : "You're welcome! ☕";
+        }
+        return pick(isJp ? [
+            "すみません、もう少し詳しく教えていただけますか？",
+            "どんなコーヒーをお探しですか？",
+            "浅煎りか深煎りか、お好みはありますか？"
+        ] : [
+            "Could you tell me more about what you like?",
+            "What kind of coffee are you looking for?",
+            "Do you prefer light or dark roast?"
+        ]);
+    },
+
+    callGeminiAPI: async function(userMsg, isJp, apiKey) {
+        const systemPrompt = isJp 
+            ? "You are Miko, a friendly barista at Shizuku Coffee. Keep responses short (1-2 sentences), friendly. End with an emoji."
+            : "You are Miko, a friendly barista at Shizuku Coffee. Keep responses short (1-2 sentences), friendly. End with an emoji.";
+        
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        
+        const body = {
+            contents: [{ parts: [{ text: userMsg }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 150 }
+        };
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    },
+
+    addChatMessage: function(sender, text, shouldRender) {
+        if (typeof shouldRender === 'undefined') shouldRender = true;
+
         const msgContainer = document.getElementById('chatMessages');
 
-        if (render) {
+        if (shouldRender) {
             const div = document.createElement('div');
             div.className = `chat-msg ${sender}`;
             if (sender === 'bot') {
@@ -1346,39 +1357,38 @@ const QuickView = {
         container.style.opacity = '0.4';
     },
 
-    handleNewsletterSubmit: function(e) {
+    handleNewsletterSubmit: async function(e) {
+        e.preventDefault();
+        const form = document.getElementById("newsletterForm");
         const btn = document.getElementById("newsletterBtn");
         const emailInput = document.getElementById("newsletterEmail");
-        if (!emailInput || !btn) return;
+        const nameInput = document.getElementById("newsletterName");
+        if (!form || !emailInput || !btn) return;
+
         const email = emailInput.value;
+        const name = nameInput.value;
         const lang = localStorage.getItem("language") || "en";
         const t = this.footerTranslations[lang];
 
         btn.disabled = true;
-        const originalText = btn.innerText;
-        btn.innerText = "...";
-        
+
         let subscribers = JSON.parse(localStorage.getItem("subscribers") || "[]");
+        if (!subscribers.includes(email)) {
+            subscribers.push(email);
+            localStorage.setItem("subscribers", JSON.stringify(subscribers));
+            window.showSakuraToast(t.newsSuccess, "💌");
+            btn.innerText = "✓";
+            btn.style.background = "#28a745";
+            form.reset();
+        } else {
+            window.showSakuraToast(t.newsError, "⚠️");
+        }
 
         setTimeout(() => {
-            if (subscribers.includes(email)) {
-                window.showSakuraToast(t.newsError, "⚠️");
-                btn.disabled = false;
-                btn.innerText = originalText;
-            } else {
-                subscribers.push(email); 
-                localStorage.setItem("subscribers", JSON.stringify(subscribers));
-                window.showSakuraToast(t.newsSuccess, "💌");
-                btn.innerText = "✓";
-                btn.style.background = "#28a745"; 
-                e.target.reset();
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.style.background = "";
-                }, 3000);
-            }
-        }, 800);
+            btn.disabled = false;
+            btn.innerText = "Join";
+            btn.style.background = "";
+        }, 3000);
     },
 
     updateFooterUI: function() {
@@ -1566,6 +1576,78 @@ const QuickView = {
         if (lifetimePoints >= 1500) return { name: "Petal", icon: "✨", color: "#ff65a3" };
         if (lifetimePoints >= 500) return { name: "Blossom", icon: "🌿", color: "#ff9ecb" };
         return { name: "Sprout", icon: "🌱", color: "#8b6f63" };
+    },
+
+    originsData: {
+        Kyoto: { jp: "京都" },
+        Tokyo: { jp: "東京" },
+        Osaka: { jp: "大阪" },
+        Hokkaido: { jp: "北海道" },
+        Uji: { jp: "宇治" }
+    },
+
+    openOriginMap: function(highlightOrigin) {
+        const lang = localStorage.getItem("language") || "en";
+        const modal = document.getElementById('originMapModal');
+        const container = document.getElementById('originMapBody');
+        const title = document.getElementById('originMapTitle');
+
+        title.innerText = lang === 'jp' ? '日本のコーヒー産地' : 'Coffee Origins in Japan';
+
+        const originProducts = {};
+        SHIZUKU_PRODUCTS.forEach(p => {
+            if (p.origin) {
+                if (!originProducts[p.origin]) originProducts[p.origin] = [];
+                originProducts[p.origin].push(p);
+            }
+        });
+
+        const cityCoords = {
+            Kyoto: { lat: 35.0116, lon: 135.7681 },
+            Tokyo: { lat: 35.6762, lon: 139.6503 },
+            Osaka: { lat: 34.6937, lon: 135.5023 },
+            Hokkaido: { lat: 43.0642, lon: 141.3469 },
+            Uji: { lat: 34.8911, lon: 135.8017 }
+        };
+
+        const mapUrl = highlightOrigin && cityCoords[highlightOrigin]
+            ? `https://www.openstreetmap.org/export/embed.html?bbox=${cityCoords[highlightOrigin].lon-0.1}%2C${cityCoords[highlightOrigin].lat-0.1}%2C${cityCoords[highlightOrigin].lon+0.1}%2C${cityCoords[highlightOrigin].lat+0.1}&layer=mapnik&marker=${cityCoords[highlightOrigin].lat}%2C${cityCoords[highlightOrigin].lon}`
+            : `https://www.openstreetmap.org/export/embed.html?bbox=129.0%2C33.0%2C146.0%2C46.0&layer=mapnik`;
+
+        const mapContainer = `
+            <div class="origin-map-container" style="width: 100%; aspect-ratio: 16/10; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+                <iframe src="${mapUrl}" style="width: 100%; height: 100%; border: none; filter: saturate(0.8) sepia(0.2);"></iframe>
+            </div>
+            <div class="origin-buttons mt-3 d-flex flex-wrap justify-content-center gap-2">
+                ${Object.entries(this.originsData).map(([name, data]) => {
+                    const hasProducts = originProducts[name] && originProducts[name].length > 0;
+                    const isActive = name === highlightOrigin;
+                    if (!hasProducts) return '';
+                    return `
+                        <button class="btn btn-sm ${isActive ? 'sakura-btn' : ''}" style="${isActive ? '' : 'background: #f8e8e8; color: #8b6f63;'}" onclick="QuickView.openOriginMap('${name}')">${lang === 'jp' ? data.jp : name}</button>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        let productsList = '';
+        if (highlightOrigin && originProducts[highlightOrigin]) {
+            const products = originProducts[highlightOrigin];
+            const originName = lang === 'jp' ? (products[0].origin_jp || highlightOrigin) : highlightOrigin;
+            productsList = `<h6 class="mt-3 mb-2" style="color: var(--sakura-pink-dark);">${originName} ${lang === 'jp' ? 'のコーヒー' : 'coffees'}</h6>`;
+            productsList += `<div class="d-flex flex-wrap justify-content-center gap-2">`;
+            products.forEach(p => {
+                const name = lang === 'jp' ? (p.title_jp || p.title) : p.title;
+                productsList += `<span class="badge" style="background: var(--sakura-pink-light); color: var(--sakura-pink-dark); cursor: pointer;" onclick="QuickView.showByName('${p.title}')">${name}</span>`;
+            });
+            productsList += `</div>`;
+        } else {
+            productsList = `<p class="small opacity-75 mt-3">${lang === 'jp' ? '下のボタンから城市をクリック' : 'Select a city below to see coffees'}</p>`;
+        }
+
+        container.innerHTML = mapContainer + productsList;
+
+        bootstrap.Modal.getOrCreateInstance(modal).show();
     },
 
     initProfileRank: function(userOverride) {
@@ -1804,42 +1886,67 @@ const QuickView = {
         }
 
         const lang = localStorage.getItem("language") || "en";
-        const setDefaults = () => {
-            this.userCountryFlag = lang === 'jp' ? "🇯🇵" : "🇬🇧";
-            this.userCountryName = lang === 'jp' ? "日本" : "United Kingdom";
+
+        const countryCodeToFlag = (code) => {
+            if (!code || code.length !== 2) return '🌸';
+            const base = 127397; 
+            const codeUpper = code.toUpperCase();
+            try {
+                const code1 = codeUpper.charCodeAt(0) - 65;
+                const code2 = codeUpper.charCodeAt(1) - 65;
+                if (code1 < 0 || code1 > 25 || code2 < 0 || code2 > 25) return '🌸';
+                return String.fromCodePoint(base + code1) + String.fromCodePoint(base + code2);
+            } catch (e) {
+                return '🌸';
+            }
         };
-
-        if (window.location.protocol === 'file:' || window.location.hostname === 'localhost') {
-             setDefaults();
-             return;
-         }
-
 
         const updateLocation = (code, countryName) => {
-            const flag = code.toUpperCase().replace(/./g, char => 
-                String.fromCodePoint(char.charCodeAt(0) + 127397)
-            );
+            const codeUpper = (code || "").toUpperCase();
+            const flag = countryCodeToFlag(codeUpper);
             this.userCountryFlag = flag;
-            this.userCountryName = countryName || "Unknown";
+            this.userCountryName = countryName || (lang === 'jp' ? "日本" : "United Kingdom");
             localStorage.setItem("userCountryFlag", this.userCountryFlag);
             localStorage.setItem("userCountryName", this.userCountryName);
+            console.log("[Geo] Detected:", codeUpper, this.userCountryName, "Flag:", flag);
         };
-        
+
+        const setDefaults = () => {
+            updateLocation(lang === 'jp' ? 'JP' : 'GB', lang === 'jp' ? "日本" : "United Kingdom");
+        };
+
         try {
-            let res = await fetch("https://ipapi.co/json/", { mode: 'cors' });
+            let res = await fetch("https://cloudflare.com/cdn-cgi/trace");
             if (res.ok) {
-                let data = await res.json();
-                if (data.country_code && !data.error) return updateLocation(data.country_code, data.country_name);
+                let text = await res.text();
+                let lines = text.split("\n");
+                let countryCode = "";
+                for (let line of lines) {
+                    if (line.startsWith("loc=")) {
+                        countryCode = line.split("=")[1].trim().toUpperCase();
+                        break;
+                    }
+                }
+                console.log("[Geo] Cloudflare loc:", countryCode);
+                if (countryCode && countryCode.length === 2) {
+                    const countryNames = { SK: "Slovakia", JP: "Japan", US: "United States", GB: "United Kingdom", DE: "Germany" };
+                    return updateLocation(countryCode, countryNames[countryCode] || countryCode);
+                }
             }
 
-            res = await fetch(`https://ipinfo.io/json`);
+            res = await fetch("https://ipapi.co/json/");
             if (res.ok) {
                 let data = await res.json();
-                if (data.country) return updateLocation(data.country, data.country_name || data.country);
+                console.log("[Geo] ipapi response:", data);
+                if (data.country_code && !data.error) {
+                    return updateLocation(data.country_code, data.country_name);
+                }
             }
-            
+
+            console.warn("[Geo] APIs failed, using default");
             setDefaults();
         } catch (err) {
+            console.error("[Geo] Error:", err);
             setDefaults();
         }
     },
@@ -1873,6 +1980,7 @@ const QuickView = {
         const isBlossomPlus = user && userTier.name !== "Sprout";
         const isSeasonal = product.title.includes("Sakura") || product.roast === "flavored" || product.title.includes("桜");
         const isAccessory = product.roast === 'accessory';
+        const isGiftCard = product.roast === 'giftcard';
 
         let disc = 0;
         if (userTier.name === "Sakura") {
@@ -1899,12 +2007,66 @@ const QuickView = {
         document.getElementById('modalDesc').innerText = descText;
 
         const priceEl = document.getElementById('modalPrice');
+        let currentPrice = product.price;
         if (disc > 0) {
-            priceEl.innerHTML = `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.7em;">${formatPrice(product.price)}</span><span style="color: var(--sakura-pink-dark);">${formatPrice(product.price * (1 - disc/100))}</span>`;
+            currentPrice = product.price * (1 - disc/100);
+            priceEl.innerHTML = `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.7em;">${formatPrice(product.price)}</span><span style="color: var(--sakura-pink-dark);">${formatPrice(currentPrice)}</span>`;
         } else {
-            priceEl.innerText = formatPrice(product.price);
+            priceEl.innerText = formatPrice(currentPrice);
         }
-        
+
+        const addCartBtn = document.getElementById('modalAddCart');
+        const existingToggle = document.getElementById('giftCardTypeToggle');
+        if (existingToggle) existingToggle.remove();
+
+        if (isGiftCard && product.digitalDiscount) {
+            const digitalLabel = lang === 'jp' ? 'デジタル版 (10%割引)' : 'Digital (10% off)';
+            const physicalLabel = lang === 'jp' ? 'Physical' : 'Physical';
+            const toggleHtml = `
+                <div id="giftCardTypeToggle" class="d-flex gap-2 mb-3" style="justify-content: center;">
+                    <button id="btnDigital" class="type-toggle-btn active" style="background: var(--sakura-pink-main); color: white; border: 2px solid var(--sakura-pink-main);">${digitalLabel}</button>
+                    <button id="btnPhysical" class="type-toggle-btn" style="background: transparent; color: var(--sakura-pink-main); border: 2px solid var(--sakura-pink-light);">${physicalLabel}</button>
+                </div>
+            `;
+            addCartBtn.insertAdjacentHTML('beforebegin', toggleHtml);
+
+            const basePrice = parseFloat(product.price);
+            currentPrice = basePrice * 0.9;
+            priceEl.innerHTML = `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.7em;">${formatPrice(basePrice)}</span><span style="color: var(--sakura-pink-dark); font-size: 1.4em;">${formatPrice(currentPrice)}</span>`;
+
+            setTimeout(() => {
+                const btnDigital = document.getElementById('btnDigital');
+                const btnPhysical = document.getElementById('btnPhysical');
+                if (btnDigital && btnPhysical) {
+                    window.currentGiftCardIsDigital = true;
+                    window.currentGiftCardPrice = currentPrice;
+
+                    btnDigital.addEventListener('click', () => {
+                        window.currentGiftCardIsDigital = true;
+                        const baseP = parseFloat(product.price);
+                        currentPrice = baseP * 0.9;
+                        window.currentGiftCardPrice = currentPrice;
+                        btnDigital.style.background = 'var(--sakura-pink-main)';
+                        btnDigital.style.color = 'white';
+                        btnPhysical.style.background = 'transparent';
+                        btnPhysical.style.color = 'var(--sakura-pink-main)';
+                        priceEl.innerHTML = `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.7em;">${formatPrice(baseP)}</span><span style="color: var(--sakura-pink-dark); font-size: 1.4em;">${formatPrice(currentPrice)}</span>`;
+                    });
+
+                    btnPhysical.addEventListener('click', () => {
+                        window.currentGiftCardIsDigital = false;
+                        currentPrice = parseFloat(product.price);
+                        window.currentGiftCardPrice = currentPrice;
+                        btnPhysical.style.background = 'var(--sakura-pink-main)';
+                        btnPhysical.style.color = 'white';
+                        btnDigital.style.background = 'transparent';
+                        btnDigital.style.color = 'var(--sakura-pink-main)';
+                        priceEl.innerText = formatPrice(currentPrice);
+                    });
+                }
+            }, 100);
+        }
+
         document.getElementById('modalAddCart').innerText = lang === 'jp' ? "カートに入れる" : "Add to Cart";
 
         this.currentQty = 1;
@@ -1914,7 +2076,7 @@ const QuickView = {
         const roastTitle = document.getElementById('modalRoastTitle');
         
         if (roastMeter && roastTitle) {
-            roastTitle.parentElement.style.display = isAccessory ? 'none' : 'block';
+            roastTitle.parentElement.style.display = (isAccessory || isGiftCard) ? 'none' : 'block';
             const roastMap = { light: 1, medium: 3, dark: 5, flavored: 2 };
             const filled = roastMap[product.roast] || 1;
             let dotsHtml = '';
@@ -1923,12 +2085,14 @@ const QuickView = {
             }
             roastMeter.innerHTML = dotsHtml;
         }
-        
+
         const tagsContainer = document.getElementById('modalFlavorTags');
         const fullDesc = lang === 'jp' ? (product.desc_jp || "") : (product.desc || "");
         const taglineLower = descText.toLowerCase();
 
-        if (isAccessory) {
+        if (isGiftCard) {
+            tagsContainer.style.display = 'none';
+        } else if (isAccessory) {
             let specsHtml = '';
             if (product.material) {
                 const label = lang === 'jp' ? '素材' : 'Material'; 
@@ -1954,7 +2118,7 @@ const QuickView = {
         if (roastTitle) roastTitle.innerText = lang === 'jp' ? "焙煎度" : "Roast Intensity";
         const flavorTitle = document.getElementById('modalFlavorTitle');
         if (flavorTitle) {
-            flavorTitle.parentElement.style.display = 'block';
+            flavorTitle.parentElement.style.display = (isAccessory || isGiftCard) ? 'none' : 'block';
             flavorTitle.innerText = isAccessory ? (lang === 'jp' ? "製品仕様" : "Specifications") : (lang === 'jp' ? "風味プロファイル" : "Flavor Profile");
         }
         
@@ -2265,7 +2429,7 @@ const QuickView = {
     },
 
     updatePetals: function(enabled) {
-        if (enabled) { 
+        if (enabled) {
             if (this.petalInterval) return;
             this.petalInterval = setInterval(() => {
                 const petal = document.createElement('div');
@@ -2283,6 +2447,13 @@ const QuickView = {
                 this.petalInterval = null;
             }
             document.querySelectorAll('.petal').forEach(p => p.remove());
+        }
+    },
+
+    updateTree: function(enabled) {
+        const tree = document.querySelector('.sakura-tree-top');
+        if (tree) {
+            tree.style.display = enabled ? 'block' : 'none';
         }
     },
 
