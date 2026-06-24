@@ -70,6 +70,7 @@
         <button class="filter-btn" data-filter="medium">Medium Roast</button>
         <button class="filter-btn" data-filter="dark">Dark Roast</button>
         <button class="filter-btn" data-filter="flavored">Flavored</button>
+        <button class="filter-btn" data-filter="giftcard">Gift Cards</button>
         <button class="filter-btn" data-filter="accessory">Accessories</button>
 
         <select class="sort-dropdown" id="sortSelect" aria-label="Sort products">
@@ -301,7 +302,7 @@ function renderShop() {
     grid.innerHTML = SHIZUKU_PRODUCTS.map(p => {
         const avgRating = calculateAverageRating(p.title);
         const reviewCount = getReviewsForProduct(p.title).length + QuickView.reviewsPool.filter(r => r.productTitle === p.title).length;
-        
+
         const isSeasonal = p.title.includes("Sakura") || p.roast === "flavored" || p.title.includes("桜");
         const isAccessory = p.roast === 'accessory';
 
@@ -314,6 +315,8 @@ function renderShop() {
         }
 
         const badge = disc > 0 ? ` <span class="badge bg-success ms-1" style="font-size: 10px; vertical-align: middle;">${disc}% OFF</span>` : '';
+        const originLabel = p.origin ? (lang === 'jp' ? (p.origin_jp || p.origin) : p.origin) : '';
+        const originBadge = p.origin ? `<span class="origin-badge" data-origin="${p.origin}" onclick="event.stopPropagation(); QuickView.openOriginMap('${p.origin}')" title="${originLabel}">📍 ${originLabel}</span>` : '';
         const priceHtml = disc > 0
             ? `<div class="d-flex flex-column"><span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.75em; line-height: 1;">${formatPrice(p.price)}</span><span class="price" style="color: var(--sakura-pink-dark);">${formatPrice(parseFloat(p.price) * (1 - disc/100))}</span></div>`
             : `<span class="price">${formatPrice(p.price)}</span>`;
@@ -323,7 +326,7 @@ function renderShop() {
             <span class="wishlist-heart" data-title="${p.title}">♡</span>
             <img src="${p.img}" alt="${p.title}">
             <h3>${lang === 'jp' ? (p.title_jp || p.title) : p.title}${badge}</h3>
-            <p class="desc">${lang === 'jp' ? (p.tagline_jp || p.tagline) : p.tagline}</p>
+            <p class="desc">${lang === 'jp' ? (p.tagline_jp || p.tagline) : p.tagline}${originBadge}</p>
             <div class="mb-2">
                 <div class="product-rating-summary">
                     ${renderStars(avgRating)}
