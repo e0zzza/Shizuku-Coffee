@@ -86,6 +86,11 @@
         <div id="rewardsGrid" class="d-flex flex-column gap-2"></div>
     </section>
 
+    <section id="giftCardsSection" class="profile-section-card text-start" style="display: none;">
+        <h6 style="font-size: 11px; font-weight: 700; color: var(--sakura-pink-main); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px;">My Gift Cards</h6>
+        <div id="giftCardsList"></div>
+    </section>
+
     <button class="sakura-btn btn-edit w-100 mb-2" onclick="location.href='editprofile.html'">Edit Profile</button>
     <button class="sakura-btn secondary btn-signout" onclick="signOut()">Sign Out</button>
     <div class="mt-4">
@@ -172,6 +177,24 @@ const translations = {
         pointsHistoryTitle: "Points History",
         noPoints: "You haven't earned any points yet.",
         vouchersTitle: "My Vouchers",
+        giftCardsTitle: "My Gift Cards",
+        noGiftCards: "You haven't purchased any gift cards yet",
+        copyCode: "Copy Code",
+        copied: "Copied!",
+        sendGiftCard: "Send Gift Card",
+        sendTo: "Send to",
+        confirmEmail: "Confirm Email",
+        messageOptional: "Message (optional)",
+        char300: "0/300",
+        sendFee: "Send fee: ¥900 (5 EUR)",
+        sendConfirm: "Send",
+        cancel: "Cancel",
+        sendSuccess: "Gift card sent successfully!",
+        selectGiftCard: "Select a gift card to send",
+        emailMismatch: "Emails do not match",
+        invalidEmail: "Please enter a valid email",
+        giftSentTo: "Sent to",
+        inventory: "Inventory",
         rewardsTitle: "Rewards Shop",
         redeemBtn: "Redeem",
         tier1: "Sakura Sprout",
@@ -214,6 +237,25 @@ const translations = {
         pointsHistoryTitle: "ポイント履歴",
         noPoints: "まだポイント履歴がありません。",
         vouchersTitle: "獲得済みクーポン",
+        giftCardsTitle: "マイギフトカード",
+        noGiftCards: "まだギフトカードを購入していません",
+        copyCode: "コードをコピー",
+        copied: "コピーしました！",
+        sendGiftCard: "ギフトカードを送る",
+        sendTo: "送信先",
+        confirmEmail: "確認メール",
+        messageOptional: "メッセージ（任意）",
+        char300: "0/300",
+        sendFee: "送信料: ¥900 (5 EUR)",
+        sendFeeJp: "送信料: ¥900 (5 EUR)",
+        sendConfirm: "送信する",
+        cancel: "キャンセル",
+        sendSuccess: "ギフトカードを送りました！",
+        selectGiftCard: "送るギフトカードを選択",
+        emailMismatch: "メールアドレスが一致しません",
+        invalidEmail: "有効なメールアドレスを入力してください",
+        giftSentTo: "送信先",
+        inventory: "在庫",
         rewardsTitle: "特典ショップ",
         redeemBtn: "交換する",
         tier1: "サクラスプラウト",
@@ -233,6 +275,191 @@ function saveOrder(order) {
     const orders = JSON.parse(localStorage.getItem("orders") || "[]");
     orders.push(order);
     localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+function loadGiftCards() {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const giftCardsSection = document.getElementById("giftCardsSection");
+    const giftCardsList = document.getElementById("giftCardsList");
+    const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const lang = localStorage.getItem("language") || "en";
+    const t = translations[lang];
+
+    if (!giftCardsSection || !loggedInUser) return;
+
+    const userOrders = allOrders.filter(o => o.userEmail === loggedInUser.email);
+    const allGiftCards = [];
+
+    userOrders.forEach(order => {
+        if (order.giftCardCodes && order.giftCardCodes.length > 0) {
+            order.giftCardCodes.forEach(gc => {
+                allGiftCards.push({
+                    code: gc.code,
+                    value: gc.value,
+                    used: gc.used || false,
+                    orderId: order.orderId,
+                    orderDate: order.date,
+                    keepForSelf: gc.keepForSelf !== false,
+                    recipientEmail: gc.recipientEmail || '',
+                    sentAt: gc.sentAt || null
+                });
+            });
+        }
+    });
+
+    if (allGiftCards.length === 0) {
+        giftCardsList.innerHTML = '<p class="no-orders">' + t.noGiftCards + '</p>';
+    } else {
+        giftCardsList.innerHTML = allGiftCards.map((gc, index) => {
+            const isAvailable = !gc.used;
+            const isInInventory = isAvailable && gc.keepForSelf && !gc.recipientEmail;
+            const isSent = gc.recipientEmail && gc.sentAt;
+
+            let statusLabel = gc.used ? (lang === 'jp' ? '使用済み' : 'Used') : (lang === 'jp' ? '利用可能' : 'Available');
+            let statusColor = gc.used ? '#999' : 'var(--sakura-pink-main)';
+
+            if (isInInventory) {
+                statusLabel = lang === 'jp' ? '在庫あり' : 'In inventory';
+                statusColor = 'var(--sakura-pink-main)';
+            } else if (isSent) {
+                statusLabel = (lang === 'jp' ? '送信済み' : 'Sent to') + ' ' + gc.recipientEmail;
+                statusColor = '#8b6f63';
+            }
+
+            return `
+            <div class="gift-card-display" style="background: var(--sakura-cream); border: 1px solid rgba(255, 182, 193, 0.3); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--sakura-brown-dark);">¥${gc.value.toLocaleString()}</div>
+                        <div style="font-size: 11px; color: ${statusColor}; font-weight: 500;">${statusLabel}</div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--sakura-brown-light);">${gc.orderDate}</div>
+                </div>
+                <div style="margin-top: 10px; padding: 8px 10px; background: white; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-family: monospace; font-size: 13px; letter-spacing: 1px; color: var(--sakura-brown-dark);">${gc.code}</span>
+                    <div class="d-flex gap-2">
+                        ${isInInventory ? `
+                        <button class="send-gift-btn" data-index="${index}" style="background: var(--sakura-pink-main); color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer;">
+                            ${t.sendGiftCard}
+                        </button>` : ''}
+                        <button class="copy-code-btn" data-code="${gc.code}" style="background: transparent; color: var(--sakura-pink-main); border: 1px solid var(--sakura-pink-light); border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer;">
+                            ${t.copyCode}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `}).join('');
+
+        giftCardsList.querySelectorAll('.copy-code-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const code = btn.dataset.code;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = btn.innerText;
+                    btn.innerText = t.copied;
+                    btn.style.background = 'var(--sakura-pink-main)';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = 'var(--sakura-pink-main)';
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                    }, 1500);
+                });
+            });
+        });
+
+        giftCardsList.querySelectorAll('.send-gift-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                openSendGiftModal(allGiftCards[index]);
+            });
+        });
+    }
+
+    giftCardsSection.style.display = "block";
+}
+
+let currentGiftCardToSend = null;
+
+function openSendGiftModal(giftCard) {
+    currentGiftCardToSend = giftCard;
+    const modal = document.getElementById('sendGiftModal');
+    const lang = localStorage.getItem("language") || "en";
+    const t = translations[lang];
+
+    document.getElementById('sendGiftCard').innerText = '¥' + giftCard.value.toLocaleString();
+    document.getElementById('sendFeeLabel').innerText = lang === 'jp' ? t.sendFeeJp : t.sendFee;
+    document.getElementById('sendModalTitle').innerText = t.sendGiftCard;
+    document.getElementById('sendCancelBtn').innerText = t.cancel;
+    document.getElementById('sendConfirmBtn').innerText = t.sendConfirm;
+
+    document.getElementById('sendRecipientEmail').value = '';
+    document.getElementById('sendRecipientEmailConfirm').value = '';
+    document.getElementById('sendMessage').value = '';
+    document.getElementById('sendCharCount').innerText = '0/300';
+
+    new bootstrap.Modal(modal).show();
+}
+
+if (document.getElementById('sendMessage')) {
+    document.getElementById('sendMessage').addEventListener('input', function() {
+        const len = this.value.length;
+        document.getElementById('sendCharCount').innerText = len + '/300';
+    });
+}
+
+if (document.getElementById('sendConfirmBtn')) {
+    document.getElementById('sendConfirmBtn').addEventListener('click', function() {
+        const lang = localStorage.getItem("language") || "en";
+        const t = translations[lang];
+        const email = document.getElementById('sendRecipientEmail').value.trim();
+        const emailConfirm = document.getElementById('sendRecipientEmailConfirm').value.trim();
+        const message = document.getElementById('sendMessage').value.trim();
+
+        if (!email) {
+            window.showSakuraToast(t.invalidEmail, '⚠️');
+            return;
+        }
+        if (email !== emailConfirm) {
+            window.showSakuraToast(t.emailMismatch, '⚠️');
+            return;
+        }
+
+        const orderId = currentGiftCardToSend.orderId;
+        const code = currentGiftCardToSend.code;
+        const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+        const order = allOrders.find(o => o.orderId === orderId);
+
+        if (order && order.giftCardCodes) {
+            const gc = order.giftCardCodes.find(g => g.code === code);
+            if (gc) {
+                gc.recipientEmail = email;
+                gc.message = message;
+                gc.sentAt = Date.now();
+                localStorage.setItem("orders", JSON.stringify(allOrders));
+            }
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('sendGiftModal')).hide();
+
+        sessionStorage.setItem("pendingSendFee", JSON.stringify({
+            giftCardCode: code,
+            recipientEmail: email,
+            message: message,
+            fee: 900,
+            orderId: orderId,
+            giftValue: currentGiftCardToSend.value
+        }));
+
+        window.showSakuraToast(lang === 'jp' ?
+            "ギフトカード送信へ移動します..." :
+            "Redirecting to complete gift card send...", '📧');
+
+        setTimeout(() => {
+            window.location.href = "checkout.html?sendFee=1";
+        }, 1500);
+    });
 }
 
 function loadOrders() {
@@ -313,6 +540,7 @@ function loadOrders() {
     }
     
     orderHistory.style.display = "block";
+    orderHistory.classList.add("reveal-visible");
 
     document.querySelectorAll(".reorder-btn").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -708,7 +936,14 @@ function updateLanguage() {
     document.getElementById("labelOrders").innerText = t.statOrders;
     document.getElementById("labelWishlist").innerText = t.statWishlist;
     document.getElementById("labelPoints").innerText = t.labelPoints;
+
+    if (document.getElementById("sendModalTitle")) document.getElementById("sendModalTitle").innerText = t.sendGiftCard;
+    if (document.getElementById("sendCancelBtn")) document.getElementById("sendCancelBtn").innerText = t.cancel;
+    if (document.getElementById("sendConfirmBtn")) document.getElementById("sendConfirmBtn").innerText = t.sendConfirm;
+    if (document.getElementById("sendFeeLabel")) document.getElementById("sendFeeLabel").innerText = currentLang === 'jp' ? t.sendFeeJp : t.sendFee;
+
     loadOrders();
+    loadGiftCards();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -783,7 +1018,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "en" ? "jp" : "en";
-    localStorage.setItem("language", currentLang);
+    localStorage.setItem("language", curreng);
     updateLanguage();
 });
 
@@ -824,3 +1059,5 @@ function executeDelete() {
     window.location.href = "signup.html";
 }
 </script>
+</body>
+</html>
