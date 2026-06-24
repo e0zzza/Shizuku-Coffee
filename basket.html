@@ -275,12 +275,23 @@ function renderCart() {
             else if (roast !== 'accessory' && tier.name !== 'Sprout' && isSeasonal) d = 5;
         }
 
+        let displayPrice = item.price;
+        let originalPrice = item.price;
+        let isDigital = item.isDigital;
+
+        if (roast === 'giftcard' && isDigital && item.priceDigital) {
+            originalPrice = parseFloat(item.price);
+            displayPrice = parseFloat(item.priceDigital);
+        }
+
         const priceHtml = d > 0
-            ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(item.price)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(item.price * (1 - d/100))}</span>`
-            : formatPrice(item.price);
+            ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(originalPrice)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(displayPrice * (1 - d/100))}</span>`
+            : (isDigital && roast === 'giftcard' && item.priceDigital
+                ? `<span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.85em;">${formatPrice(originalPrice)}</span><span class="fw-bold" style="color: var(--sakura-pink-dark);">${formatPrice(displayPrice)}</span>`
+                : formatPrice(displayPrice));
 
         return `
-        <div class="cart-card">
+        <div class="cart-card" data-title="${item.title}">
             <img src="${item.img}">
             <div class="cart-info">
                 <h3>${lang === 'jp' ? (item.title_jp || item.title) : item.title} ${d > 0 ? `<span class="badge bg-success ms-1" style="font-size: 10px;">${d}% OFF</span>` : ''}</h3>
@@ -365,6 +376,16 @@ function quickAdd(title) {
 }
 
 function attachCartEvents() {
+    document.querySelectorAll(".cart-card").forEach(card => {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest(".cart-actions")) return; 
+            const title = card.getAttribute("data-title");
+            if (title && typeof QuickView !== 'undefined') {
+                QuickView.showByName(title);
+            }
+        });
+    });
+
     document.querySelectorAll(".increase").forEach(btn => {
         btn.addEventListener("click", () => {
             let cart = getCart();
