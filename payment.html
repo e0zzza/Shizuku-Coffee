@@ -42,8 +42,8 @@
             
             <div id="processingOverlay" class="processing-overlay">
                 <div class="spinner"></div>
-                <h3 id="authTitle" style="color: var(--sakura-brown-dark);">Authorizing...</h3>
-                <p id="authText" style="color: var(--sakura-brown-light);">Securely processing your payment</p>
+                <h3 id="authTitle" style="color: var(--sakura-brown-dark);">Authorizing<span class="loading-dots"></span></h3>
+                <p id="authText" class="load-message">Brewing your order...</p>
             </div>
 
             <h1 class="page-title" id="paymentTitle" style="font-size: 28px; margin-bottom: 10px;">Payment Details</h1>
@@ -114,8 +114,10 @@
 
                 <button type="submit" id="payBtn" class="sakura-btn" style="width: 100%; margin-top: 10px; padding: 15px;">Complete Purchase</button>
 
-                <div id="secureLabel" style="text-align: center; margin-top: 25px; opacity: 0.5; font-size: 12px; letter-spacing: 0.5px;">
-                    &#x1F512; ENCRYPTED SECURE PAYMENT
+                <div id="secureLabel" style="text-align: center; margin-top: 25px; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(255, 182, 193, 0.15), rgba(255, 105, 180, 0.08)); border: 1px dashed rgba(255, 101, 163, 0.3);">
+                    <div style="font-size: 22px; margin-bottom: 6px;">&#x1F512;</div>
+                    <div style="font-size: 13px; font-weight: 600; color: var(--sakura-brown-light); letter-spacing: 1px;">ENCRYPTED SECURE PAYMENT</div>
+                    <div style="font-size: 10px; color: var(--sakura-pink-main); margin-top: 4px; opacity: 0.8;">Your data is protected with bank-level security</div>
                 </div>
             </form>
         </div>
@@ -579,10 +581,22 @@
 
 
                 document.getElementById("processingOverlay").style.display = "flex";
-    
+
+                const authText = document.getElementById("authText");
+                const lang = localStorage.getItem("language") || "en";
+                const finalMsg = lang === 'jp' ? 'Almost done!' : 'Almost done!';
+
+                setTimeout(() => {
+                    authText.style.opacity = 0;
+                    setTimeout(() => {
+                        authText.innerText = finalMsg;
+                        authText.style.opacity = 1;
+                    }, 200);
+                }, 1200);
+
                 setTimeout(() => {
                     finalizeOrder();
-                }, 2500);
+                }, 2200);
             });
 
             function finalizeOrder() {
@@ -590,9 +604,9 @@
                 const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
                 const orders = JSON.parse(localStorage.getItem("orders") || "[]");
                 const shippingInfo = JSON.parse(sessionStorage.getItem("pendingShipping") || "{}");
-                
+
                 const currentSubtotal = cart.reduce((sum, item) => sum + (item.qty || 1) * parseFloat(item.price), 0);
-    
+
                 let orderDiscount = 0;
                 if (localStorage.getItem("couponApplied") === "true") {
                     orderDiscount = currentSubtotal * 0.20;
@@ -601,14 +615,94 @@
                 const actualShipping = (tier.name === "Sakura" && shippingCost === 5.99) ? 0 : shippingCost;
                 const finalVoucherDiscount = appliedVoucher ? QuickView.calculateDiscount(appliedVoucher, currentSubtotal, actualShipping).amount : 0;
 
+                // Calculate rank discount for this order
+                const tierObj = QuickView.getCurrentTier(QuickView.getLifetimePoints(loggedInUser));
+                let rankDiscount = 0;
+                cart.forEach(item => {
+                    const itemTotal = (item.qty || 1) * (parseFloat(item.price) || 0);
+                    const productRef = SHIZUKU_PRODUCTS.find(p => p.title === item.title);
+                    const roast = item.roast || productRef?.roast;
+                    const isSeasonal = item.title.includes("Sakura") || roast === "flavored" || item.title.includes("桜");
+
+                    let d = 0;
+                    if (roast === 'accessory') {
+                        if (tierObj.name === 'Sakura') d = 0.20;
+                        else if (tierObj.name === 'Petal') d = 0.10;
+                    } else {
+                        if (tierObj.name === 'Sakura') d = 0.10;
+                        else if (tierObj.name !== 'Sprout' && isSeasonal) d = 0.05;
+                    }
+                    rankDiscount += itemTotal * d;
+                });
+
+                // Calculate gift card discount applied at checkout
+                const appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
+                let giftCardDiscount = 0;
+                if (appliedGiftCard && appliedGiftCard.value) {
+                    const exchangeRate = 160;
+                    const giftCardValueEur = appliedGiftCard.value / exchangeRate;
+                    const subtotalBeforeDiscount = currentSubtotal - orderDiscount - rankDiscount - finalVoucherDiscount;
+                    giftCardDiscount = Math.min(giftCardValueEur, Math.max(subtotalBeforeDiscount, 0));
+                }
+
+                
+                let digitalGiftInfo = { recipientEmail: '', message: '', keepForSelf: true };
+                try {
+                    digitalGiftInfo = JSON.parse(sessionStorage.getItem("digitalGiftInfo") || "null") || digitalGiftInfo;
+                } catch (e) {}
+
+                const giftCardCodes = [];
+                const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+                cart.forEach((item, idx) => {
+                    if (item.isSendFee && item.sendFeeData) {
+                        const sendData = item.sendFeeData;
+                        const existingOrder = allOrders.find(o => o.orderId === sendData.orderId);
+
+                        if (existingOrder && existingOrder.giftCardCodes) {
+                            const existingGc = existingOrder.giftCardCodes.find(gc => gc.code === sendData.giftCardCode);
+                            if (existingGc) {
+                                existingGc.recipientEmail = sendData.recipientEmail;
+                                existingGc.message = sendData.message;
+                                existingGc.sentAt = Date.now();
+                            }
+                        }
+                        return;
+                    }
+
+                    if (item.giftValue) {
+                        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                        let code = 'GC-';
+                        for (let i = 0; i < 12; i++) {
+                            if (i > 0 && i % 4 === 0) code += '-';
+                            code += chars[Math.floor(Math.random() * chars.length)];
+                        }
+
+                        const isKeepForSelf = digitalGiftInfo.keepForSelf === true || digitalGiftInfo.keepForSelf === 'true';
+                        const recipient = !isKeepForSelf ? digitalGiftInfo.recipientEmail : '';
+
+                        giftCardCodes.push({
+                            code,
+                            value: item.giftValue,
+                            used: false,
+                            recipientEmail: recipient,
+                            message: digitalGiftInfo.message || '',
+                            sentAt: recipient ? Date.now() : null,
+                            keepForSelf: isKeepForSelf
+                        });
+                    }
+                });
+
                 const newOrder = {
-                    orderId: Date.now().toString(), 
+                    orderId: Date.now().toString(),
                     items: cart.map(item => ({
                         name: item.title,
                         price: item.price,
                         image: item.img,
-                        qty: item.qty || 1
+                        qty: item.qty || 1,
+                        giftValue: item.giftValue || null
                     })),
+                    giftCardCodes: giftCardCodes,
                     userEmail: loggedInUser.email,
                     subtotal: currentSubtotal,
                     discount: orderDiscount,
@@ -619,9 +713,10 @@
                         zip: shippingInfo.zip || "",
                         phone: shippingInfo.phone || ""
                     },
-                    total: (orderDiscount > 0 ? (currentSubtotal - orderDiscount) : (currentSubtotal - rankDiscount)) - finalVoucherDiscount + actualShipping,
+                    total: (orderDiscount > 0 ? (currentSubtotal - orderDiscount) : (currentSubtotal - rankDiscount)) - finalVoucherDiscount - giftCardDiscount + actualShipping,
                     rankDiscount: (orderDiscount > 0) ? 0 : rankDiscount,
                     voucherDiscount: finalVoucherDiscount,
+                    giftCardDiscount: giftCardDiscount,
                     timestamp: Date.now(),
                     date: new Date().toLocaleDateString(),
                     status: "Paid & Preparing"
@@ -630,18 +725,13 @@
                 if (appliedVoucher) {
                     const userVouchers = Array.isArray(loggedInUser.vouchers) ? loggedInUser.vouchers : [];
                     const voucherInStore = userVouchers.find(v => v.code === appliedVoucher.code);
-                    
-                    if (voucherInStore && !voucherInStore.used) {
+
+                    // Only mark as used if discount was actually applied
+                    if (voucherInStore && !voucherInStore.used && finalVoucherDiscount > 0) {
                         voucherInStore.used = true;
                         loggedInUser.vouchers = userVouchers;
-                        sessionStorage.removeItem("appliedVoucher");
-                    } else {
-                        document.getElementById("processingOverlay").style.display = "none";
-                        window.showSakuraToast(translations[currentLang].voucherError, '⚠️');
-                        sessionStorage.removeItem("appliedVoucher");
-                        setTimeout(() => window.location.reload(), 2000);
-                        return;
                     }
+                    sessionStorage.removeItem("appliedVoucher");
                 }
     
                 const pointsEarned = Math.max(0, Math.floor(newOrder.total - newOrder.shippingCost));
@@ -652,26 +742,66 @@
                     reason_jp: `商品購入 (注文番号 #${newOrder.orderId})`
                 };
 
-                const updatedUser = { 
-                    ...loggedInUser, 
+                const updatedUser = {
+                    ...loggedInUser,
                     points: (loggedInUser.points || 0) + pointsEarned,
                     pointsHistory: [...(Array.isArray(loggedInUser.pointsHistory) ? loggedInUser.pointsHistory : []), pointTransaction]
                 };
 
-                orders.push(newOrder); 
+                const oldTotalPoints = QuickView.getLifetimePoints(loggedInUser);
+                const newTotalPoints = QuickView.getLifetimePoints(updatedUser);
+                const oldTier = QuickView.getCurrentTier(oldTotalPoints);
+                const newTier = QuickView.getCurrentTier(newTotalPoints);
+
+                orders.push(newOrder);
 
                 let users = JSON.parse(localStorage.getItem("users")) || [];
                 users = users.map(u => u.email === updatedUser.email ? updatedUser : u);
                 localStorage.setItem("users", JSON.stringify(users));
                 localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-                localStorage.setItem("orders", JSON.stringify(orders));
+                localStorage.setItem("orders", JSON.stringify(allOrders));
+
+                // Show rank up toast if user upgraded tier
+                if (newTier.name !== oldTier.name) {
+                    const lang = localStorage.getItem("language") || "en";
+                    const rankUpMsg = lang === 'jp'
+                        ? `おめでとうございます！${newTier.name}ランクが上がりました！🎉`
+                        : `Congratulations! You upgraded to ${newTier.name} rank! 🎉`;
+                    if (window.showSakuraToast) {
+                        window.showSakuraToast(rankUpMsg, '⭐');
+                    }
+                }
 
                 localStorage.removeItem("cart");
 
                 localStorage.removeItem("couponApplied");
                 sessionStorage.removeItem("pendingShipping");
 
-                window.location.href = "success.html";
+                (async () => {
+                    const appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
+                    if (appliedGiftCard && appliedGiftCard.code) {
+                        try {
+                            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
+                            await fetch('/api/giftcard/redeem', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    code: appliedGiftCard.code,
+                                    email: loggedInUser.email || ''
+                                })
+                            });
+                        } catch (e) {
+                            console.log('Gift card redemption skipped');
+                        }
+                    }
+                    sessionStorage.removeItem("appliedGiftCard");
+                })();
+
+                if (newTier.name !== oldTier.name) {
+                    setTimeout(() => window.location.href = "success.html", 1500);
+                } else {
+                    window.location.href = "success.html";
+                }
             }
         });
     </script>
