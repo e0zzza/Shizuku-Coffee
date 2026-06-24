@@ -1212,7 +1212,7 @@ generateLocalResponse: async function(input, lang, context) {
         const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
         // Check for AI API key
-        const apiKey = window.MIKO_GEMINI_KEY || this.MIKO_GEMINI_KEY || localStorage.getItem('miko_gemini_key');
+        let apiKey = window.MIKO_GEMINI_KEY || this.MIKO_GEMINI_KEY || localStorage.getItem('miko_gemini_key');
         // Skip placeholder - not a real key
         if (apiKey === 'MIKO_PLACEHOLDER_KEY' || !apiKey) apiKey = null;
 

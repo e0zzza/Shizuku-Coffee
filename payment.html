@@ -759,7 +759,7 @@
                 users = users.map(u => u.email === updatedUser.email ? updatedUser : u);
                 localStorage.setItem("users", JSON.stringify(users));
                 localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-                localStorage.setItem("orders", JSON.stringify(allOrders));
+                localStorage.setItem("orders", JSON.stringify(orders));
 
                 // Show rank up toast if user upgraded tier
                 if (newTier.name !== oldTier.name) {
