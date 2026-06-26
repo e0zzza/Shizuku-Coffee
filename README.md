@@ -3,130 +3,226 @@
 
 ![Status](https://img.shields.io/badge/status-maintained%20and%20developing-brightgreen)
 
-v2.0.0 in progress
+> A frontend e-commerce simulation inspired by Japanese cafés, cozy aesthetics and modern web interactions.
 
-Shizuku Coffee is a frontend-only e-commerce simulation inspired by Japanese cafés, seasonal aesthetics, and cozy online storefronts. The project is built with Vanilla JavaScript and Bootstrap 5, focusing on atmosphere and interaction rather than real commerce.
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+![Platform](https://img.shields.io/badge/platform-Web-blue)
+![JavaScript](https://img.shields.io/badge/Vanilla-JavaScript-yellow)
 
-It includes features like the Miko AI assistant, loyalty tiers, localization, and persistent browser storage while running entirely on the client side without any backend.
+## About
 
-> This is a simulation project.  
-> Products are not actually sold and no real transactions happen.
+Shizuku Coffee is a frontend-focused e-commerce simulation created as a portfolio and educational project. The goal of the project is not to build a production-ready online store, but to demonstrate modern frontend development, UI/UX design, state management and interactive user experiences using Vanilla JavaScript.
 
-> This website is currently optimized for macOS and Safari. Experience on other platforms may vary.
+The project recreates the experience of browsing a premium coffee shop inspired by Japanese cafés while remaining completely fictional.
 
----
-
-## Features
-
-- Seasonal Japanese-inspired design
-- Miko AI assistant
-- Simulated shopping cart and checkout flow
-- Loyalty rank system
-- IP-based localization
-- Persistent data using LocalStorage
-- Responsive Bootstrap 5 layout
-- Fully frontend / zero-backend architecture
+Every product, transaction, payment and order exists only inside the application and is simulated locally.
 
 ---
 
-## Built With
+## Important Notice
 
-- Vanilla JavaScript
-- Bootstrap 5
-- HTML5 / CSS3
-- LocalStorage API
+This project **does not sell real products**.
 
----
+The following systems are simulations created solely for demonstration purposes:
 
-## How Data Is Stored
+* shopping cart
+* checkout
+* payments
+* orders
+* invoices
+* loyalty points
+* gift cards
+* shipping
+* transaction history
 
-Shizuku Coffee does not use a database or backend server.
+No real payment gateway is connected.
 
-Everything is stored locally in the browser using `LocalStorage`. 
-This includes things like:
+No personal or financial information is processed.
 
-- cart contents
-- loyalty progress
-- user preferences
-- selected region/currency
-- simulated order history
-
-Because of this:
-
-- data stays on the user's device
-- nothing is uploaded to a server
-- clearing browser storage resets the site data
-- each browser/device has separate saved data
+All data is stored locally inside the browser (LocalStorage) unless otherwise specified.
 
 ---
 
-## Are The Products Real?
+# Features
 
-No. Shizuku Coffee is only a simulated storefront made for frontend development practice and design experimentation.
+## Product Catalog
 
-The shopping experience is designed to feel real, but:
+Users can browse a complete coffee catalog including:
 
-* products cannot actually be purchased
-* payments are not processed
-* orders are not created
-* nothing is shipped
+* specialty coffees
+* accessories
+* gift cards
+* product images
+* ratings
+* reviews
+* detailed product information
 
-The goal of the project is to recreate the feel of a modern online coffee shop while staying fully client-side.
-
----
-
-## Miko AI Assistant
-
-Miko is the built-in assistant that helps make the storefront feel more interactive and alive.
-
-Depending on the implementation, Miko can:
-
-* recommend products
-* react to loyalty tiers
-* guide users around the site
-* display seasonal dialogue
-* Miko is still developing - she may occasionally provide incorrect information or misunderstand complex requests
-
-Miko also runs entirely on the frontend.
+Each product contains its own metadata such as origin, roast level, tasting notes and price.
 
 ---
 
-## Localization
+## Shopping Cart
 
-The site uses approximate IP-based localization to personalize parts of the experience.
+The cart system supports:
 
-This may affect things like:
-
-* greetings
-* currency symbols
-* featured products
-* language presentation
-
-Localization is only used for immersion and presentation purposes.
+* adding and removing products
+* quantity management
+* subtotal calculation
+* shipping calculation
+* persistent cart using LocalStorage
 
 ---
 
-## Performance
+## Checkout Simulation
 
-Since there is no backend or database, the project stays lightweight and fast.
+The checkout flow simulates a complete purchasing experience including:
 
----
+* shipping information
+* payment method selection
+* order confirmation
+* receipt generation
+* order history
 
-## Purpose
-
-Shizuku Coffee was created as a learning project focused on:
-
-* frontend architecture
-* UI/UX design
-* browser storage systems
-* e-commerce simulation
-* responsive layouts
-* lightweight JavaScript applications
+No real payment is processed.
 
 ---
 
-## Disclaimer
+# Miko — AI Shopping Assistant
 
-Shizuku Coffee is a fictional storefront and educational project.
+One of the core features of the project is **Miko**, an integrated shopping assistant designed specifically for the Shizuku Coffee experience.
 
-No real commercial transactions take place through this application.
+Unlike a simple chatbot, Miko is aware of the products available in the store and is capable of assisting users throughout their shopping journey.
+
+Miko can:
+
+* recommend coffees based on customer preferences
+* explain roast levels
+* compare products
+* answer questions about flavor profiles
+* recommend coffees based on origin
+* suggest products according to budget
+* remember parts of the current conversation
+* guide users through the catalog
+* help discover new coffees
+
+To make conversations feel more natural, Miko maintains lightweight conversation memory inside the browser, allowing follow-up questions without constantly repeating context.
+
+The assistant is intended to improve the overall shopping experience while remaining fully client-side.
+
+---
+
+# Loyalty Program
+
+Shizuku Coffee includes a complete loyalty system.
+
+Customers earn loyalty points through simulated purchases and progress through several membership tiers.
+
+Current tiers:
+
+| Tier    | Required Lifetime Points | Benefits                                                          |
+| ------- | -----------------------: | ----------------------------------------------------------------- |
+| Sprout  |                        0 | Welcome tier                                                      |
+| Blossom |                      500 | Seasonal coffee bonuses                                           |
+| Petal   |                     1500 | Accessory discounts and priority support                          |
+| Sakura  |                     5000 | VIP benefits including coffee discounts and free express shipping |
+
+Lifetime points determine the membership tier.
+
+Redeeming points for rewards **does not reduce the customer's tier**, since progression is based on lifetime points earned rather than the current balance.
+
+---
+
+# User Account
+
+The profile system includes features such as:
+
+* editable profile
+* saved addresses
+* loyalty information
+* order history
+* purchase statistics
+* transaction history
+* rewards overview
+
+All account information is simulated and stored locally.
+
+---
+
+# Gift Cards
+
+Users can purchase fictional gift cards in multiple values.
+
+Gift cards function entirely inside the simulated store environment and cannot be redeemed outside of the application.
+
+---
+
+# Reviews & Ratings
+
+Products support customer reviews and ratings, allowing users to simulate a realistic shopping environment.
+
+These reviews exist only within the application.
+
+---
+
+# Localization
+
+The project contains multilingual elements, including English and Japanese-inspired interface components that reinforce the café atmosphere.
+
+---
+
+# Technologies
+
+* HTML5
+* CSS3
+* Vanilla JavaScript (ES6+)
+* Bootstrap 5
+* LocalStorage
+* Express (lightweight backend for AI integration)
+
+---
+
+# Design Goals
+
+The project focuses on:
+
+* clean UI
+* responsive layout
+* smooth user interactions
+* immersive shopping experience
+* reusable JavaScript components
+* realistic e-commerce workflows
+
+Rather than emphasizing backend infrastructure, the project demonstrates how a rich shopping experience can be built almost entirely on the frontend.
+
+---
+
+# Disclaimer
+
+Shizuku Coffee is a fictional project created for educational and portfolio purposes.
+
+The application is **not affiliated with any real coffee company or retailer.**
+
+Products, prices, customers, transactions, payments, gift cards, loyalty points and purchase history are entirely fictional and exist only inside the application.
+
+No real purchases can be made through this project.
+
+---
+
+# Future Improvements
+
+Some planned improvements include:
+
+* enhanced AI conversations
+* better recommendation engine
+* additional coffee collections
+* improved accessibility
+* more account customization
+* expanded loyalty rewards
+* animations and micro-interactions
+* optional backend synchronization
+
+---
+
+## Author
+
+Created as a portfolio project demonstrating modern frontend development, UI/UX design and interactive web application architecture.
