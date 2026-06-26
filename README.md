@@ -208,21 +208,6 @@ No real purchases can be made through this project.
 
 ---
 
-# Future Improvements
-
-Some planned improvements include:
-
-* enhanced AI conversations
-* better recommendation engine
-* additional coffee collections
-* improved accessibility
-* more account customization
-* expanded loyalty rewards
-* animations and micro-interactions
-* optional backend synchronization
-
----
-
 ## Author
 
 Created as a portfolio project demonstrating modern frontend development, UI/UX design and interactive web application architecture.
