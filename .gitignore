@@ -59,9 +59,6 @@ web_modules/
 .env.*
 !.env.example
 
-# Miko API Configuration (NEVER commit this!)
-config.js
-
 # (https://parceljs.org/)
 .cache
 .parcel-cache
