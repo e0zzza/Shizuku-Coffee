@@ -1210,7 +1210,7 @@ generateLocalResponse: async function(input, lang, context) {
             .trim();
         const msg = normalizeText(raw);
         const msgTokens = msg.split(' ').filter(Boolean);
-        const stopWords = new Set(['a', 'an', 'and', 'are', 'be', 'can', 'do', 'for', 'from', 'get', 'give', 'i', 'im', 'in', 'is', 'it', 'me', 'my', 'of', 'on', 'or', 'please', 'some', 'something', 'the', 'to', 'want', 'with', 'you']);
+        const stopWords = new Set(['a', 'an', 'and', 'are', 'be', 'can', 'could', 'do', 'does', 'for', 'from', 'get', 'give', 'got', 'have', 'how', 'i', 'id', 'im', 'in', 'is', 'it', 'me', 'my', 'of', 'on', 'or', 'please', 'some', 'something', 'tell', 'the', 'to', 'want', 'what', 'when', 'where', 'which', 'who', 'why', 'with', 'would', 'you', 'your']);
         const importantTokens = msgTokens.filter(token => token.length > 2 && !stopWords.has(token));
         const typoAliases = {
             recomend: 'recommend',
@@ -1303,6 +1303,29 @@ generateLocalResponse: async function(input, lang, context) {
             return parts.every(part => tokenMatches(part));
         };
         const has = (...words) => words.some(phraseMatches);
+        const rawTrim = raw.trim();
+        const hasAnyMeaningfulText = /[a-z0-9\u3040-\u30ff\u3400-\u9fff]/i.test(rawTrim);
+        const asksQuestion = /[?？]/.test(rawTrim) || has('what', 'how', 'why', 'where', 'when', 'which', 'can you', 'do you');
+        const unclearReply = () => isJp
+            ? 'うまく読み取れませんでした。商品選びなら「甘い」「深煎り」「安め」「ギフト」みたいに一言だけでも大丈夫です。注文・配送・返品・淹れ方の質問にも答えられます。'
+            : 'I did not quite catch the request. You can send one simple clue like "sweet", "dark", "budget", "gift", or ask about shipping, returns, brewing, cart, payment, or rewards.';
+        const capabilitiesReply = () => isJp
+            ? 'できます。商品おすすめ、風味の比較、ギフト選び、予算別の候補、配送・返品・淹れ方・ポイント案内が得意です。今はどれを手伝いましょう？'
+            : 'I can help with product picks, flavor comparisons, gift ideas, budget choices, shipping, returns, brewing, rewards, cart, checkout, and product details. What should we tackle first?';
+        const frustratedReply = () => isJp
+            ? 'ごめんなさい、今の返答は外していました。もう一度だけ、探しているものを短く教えてください。例: 「甘くないギフト」「15ユーロ以下」「酸味少なめ」「注文の追跡」。'
+            : 'You are right, I missed that. Give me the goal in a short phrase and I will reset around it: "not-sweet gift", "under 15", "low acidity", "track my order", or "compare two coffees".';
+        const safeUnknownReply = () => {
+            if (catalogSuggestion) {
+                return describe(catalogSuggestion, isJp ? '近い言葉から選びました。違っていたら、風味・予算・用途を一つ教えてください。' : 'I matched the closest catalog clues. If that is not what you meant, give me one anchor: flavor, budget, roast, or occasion.');
+            }
+            if (asksQuestion) {
+                return isJp
+                    ? 'その質問は少し広いかもしれません。Mikoが確実に答えられるのは、商品、ギフト、配送、返品、支払い、カート、ポイント、淹れ方です。どれについてですか？'
+                    : 'That is a little broad for me. I am strongest with products, gifts, shipping, returns, payment, cart, rewards, and brewing. Which one did you mean?';
+            }
+            return unclearReply();
+        };
         const productScore = (p) => {
             const haystack = normalizeText([p.title, p.title_jp, p.desc, p.desc_jp, p.tagline, p.tagline_jp, p.roast].filter(Boolean).join(' '));
             const hayTokens = haystack.split(' ').filter(Boolean);
@@ -1324,8 +1347,12 @@ generateLocalResponse: async function(input, lang, context) {
             .sort((a, b) => b.score - a.score)[0]?.p || null;
         const catalogSuggestion = coffeeProducts
             .map(p => ({ p, score: productScore(p) }))
-            .filter(item => item.score >= 3)
+            .filter(item => item.score >= 5)
             .sort((a, b) => b.score - a.score)[0]?.p || null;
+
+        if (!rawTrim || !hasAnyMeaningfulText) {
+            return unclearReply();
+        }
 
         const intentResponses = [
             {
@@ -1335,10 +1362,66 @@ generateLocalResponse: async function(input, lang, context) {
                     : 'Hi, I am Miko. Tell me a mood, roast, flavor, or budget and I will match you with something from Shizuku.'
             },
             {
+                match: () => has('help', 'what can you do', 'commands', 'options', 'menu', 'start over', 'reset', 'anything', 'whatever'),
+                reply: capabilitiesReply
+            },
+            {
+                match: () => has('you dont understand', 'you do not understand', 'nonsense', 'wrong', 'that makes no sense', 'not what i meant', 'bad answer', 'stupid', 'dumb', 'hate this'),
+                reply: frustratedReply
+            },
+            {
+                match: () => has('how are you', 'whats up', 'what is up', 'lol', 'haha', 'hehe', 'funny', 'nice', 'cool'),
+                reply: () => isJp
+                    ? '元気です。少しだけバリスタ修行中ですが、商品選びは任せてください。今の気分は、軽め・濃いめ・甘め・ギフトのどれに近いですか？'
+                    : 'I am doing well, still in barista training but ready to help. Are you in the mood for something light, bold, sweet, budget-friendly, or giftable?'
+            },
+            {
                 match: () => has('who are you', 'what are you', 'miko', 'assistant', '何者', '誰'),
                 reply: () => isJp
                     ? '私はShizuku Coffeeのデジタルバリスタ、Mikoです。商品選び、ギフト、注文案内、抽出の相談ができます。'
                     : 'I am Miko, Shizuku Coffee\'s digital barista. I can help with recommendations, gifts, brewing, orders, and product details.'
+            },
+            {
+                match: () => has('cart', 'basket', 'bag', 'add to cart', 'remove from cart', 'checkout problem'),
+                reply: () => {
+                    const count = Array.isArray(context?.cart) ? context.cart.length : 0;
+                    return isJp
+                        ? `カートには現在 ${count} 件の商品があります。数量変更はカートページで、購入手続きはCheckoutから進められます。`
+                        : `You currently have ${count} item${count === 1 ? '' : 's'} in your cart. You can change quantities on the cart page and continue through Checkout when ready.`;
+                }
+            },
+            {
+                match: () => has('wishlist', 'my favorites', 'my favourites', 'saved item', 'saved items', 'heart'),
+                reply: () => {
+                    const count = Array.isArray(context?.wishlist) ? context.wishlist.length : 0;
+                    return isJp
+                        ? `ウィッシュリストには ${count} 件あります。気になる商品を比較したり、後でカートに追加できます。`
+                        : `You have ${count} saved item${count === 1 ? '' : 's'} in your wishlist. Open the wishlist when you want to compare or move favorites into the cart.`;
+                }
+            },
+            {
+                match: () => has('login', 'sign in', 'signup', 'sign up', 'account', 'profile', 'password', 'email'),
+                reply: () => isJp
+                    ? 'アカウント関連はログイン・プロフィールページから確認できます。ポイント、注文履歴、プロフィール情報もそこにあります。'
+                    : 'For account tasks, use Login/Profile. That is where your points, order history, saved profile details, and account info live.'
+            },
+            {
+                match: () => !has('gift card', 'giftcard') && has('pay', 'payment', 'card', 'visa', 'mastercard', 'paypal', 'cash', 'coupon', 'voucher'),
+                reply: () => isJp
+                    ? '支払いはチェックアウト画面で選べます。クーポンやバウチャーがある場合は、注文確定前に適用してください。'
+                    : 'Payment options are handled during checkout. If you have a coupon or voucher, apply it before placing the order.'
+            },
+            {
+                match: () => has('hours', 'open', 'opening', 'location', 'address', 'visit', 'store', 'phone', 'email support', 'contact'),
+                reply: () => isJp
+                    ? '店舗・連絡先情報はフッターのVisit UsやContact Supportから確認できます。注文の相談なら注文番号もあると便利です。'
+                    : 'Store and contact details are in the footer under Visit Us and Contact Support. If it is about an order, include the order number when you write in.'
+            },
+            {
+                match: () => has('privacy', 'data', 'cookies', 'security', 'safe', 'personal information'),
+                reply: () => isJp
+                    ? 'プライバシー関連はフッターの案内を確認してください。このサイト内のチャット内容はブラウザ保存を使う場合があります。'
+                    : 'For privacy details, check the footer notice. This demo chat may use browser storage so the site can remember recent conversation context.'
             },
             {
                 match: () => has('surprise', 'random', 'pick for me', 'your pick', 'おまかせ'),
@@ -1455,15 +1538,7 @@ generateLocalResponse: async function(input, lang, context) {
         }
 
         const matched = intentResponses.find(intent => intent.match());
-        const response = matched ? matched.reply() : (catalogSuggestion ? describe(catalogSuggestion, isJp ? '入力から近い風味を選びました。' : 'I matched that to the closest flavor cues in the catalog.') : pick(isJp ? [
-            'もう少しだけ好みを教えてください。軽い、濃い、甘い、予算、ギフト用などで選べます。',
-            '今の気分に近い言葉を送ってください。例: さっぱり、甘い、深煎り、ギフト、安め。',
-            '商品選びなら任せてください。焙煎度・風味・予算のどれかを教えてください。'
-        ] : [
-            'Give me one clue: light, bold, sweet, budget, gift, decaf, or brewing help. I can work from that.',
-            'I can help, but I need one anchor. Are you shopping by flavor, roast, price, or occasion?',
-            'Try asking for something like "smooth daily coffee", "sweet gift", "under 15", or "dark espresso".'
-        ], []));
+        const response = matched ? matched.reply() : safeUnknownReply();
 
         if (response === this.mikoLastRespText) {
             const backup = isJp
