@@ -129,14 +129,12 @@ const QuickView = {
     chatHistory: [],
     reviewFilter: null,
 
-    // Lightweight persisted context for Miko (so she can answer follow-ups after refresh)
     mikoMemoryKey: 'miko_memory_v1',
     mikoMemory: {
-        lastMentionedProducts: [], // product titles (EN titles) in order of discovery
-        lastMissingPref: null, // one of: roast|flavor|origin|budget|taste
+        lastMentionedProducts: [], 
+        lastMissingPref: null, 
         compare: {
             waitingSecond: false,
-            // resolved product objects (optional)
             product1: null,
             product2: null
         }
@@ -548,13 +546,11 @@ const QuickView = {
         this.initBokehBackground();
         this.startCommunitySimulation();
         this.updateFooterUI();
-        // Always start fresh on page refresh (no persisted chat state)
         this.chatHistory = [];
         try { localStorage.removeItem('miko_chat_history'); } catch (e) {}
-        // Also reset persisted Miko memory so the greeting/options are shown again
+        try { localStorage.removeItem('miko_gemini_key'); } catch (e) {}
         this.clearMikoMemory();
 
-        // this.loadChatHistory();
         this.renderRecentlyViewed();
         this.initScrollReveal();
         this.initProfileFlagSelector();
@@ -958,7 +954,6 @@ const QuickView = {
         const input = document.getElementById('chatInput');
         const chatMsgContainer = document.getElementById('chatMessages');
 
-        // Ensure persisted memory is loaded before routing logic runs
         this.loadMikoMemory();
 
         toggle?.addEventListener('click', () => {
@@ -967,23 +962,17 @@ const QuickView = {
             
             if (isOpening && chatMsgContainer.querySelectorAll('.chat-msg').length === 0) {
                 this.renderPickOfTheDay();
-                // Show start options on first open (taste buttons)
                 const opts = document.getElementById('mikoStartOptions');
                 if (opts) opts.style.display = 'block';
 
-                handleSend(localStorage.getItem("language") === 'jp' ? 'hello' : 'hello', true);
-                // Ensure the first bot message is a personalized greeting (avoid repeating the same pick prompt)
-                // by directly greeting through generateLocalResponse.
                 const firstGreeting = (localStorage.getItem("language") === 'jp')
                     ? 'こんにちは！雫コーヒーへようこそ 🌸 あなたの気分に合う一杯を一緒に見つけましょう。'
                     : 'Hello! Welcome to Shizuku Coffee 🌸 Let’s find a perfect cup for your mood.';
                 this.addChatMessage('bot', firstGreeting);
             }
 
-            // Hide options as soon as user starts sending real input
             const opts = document.getElementById('mikoStartOptions');
             if (opts && opts.style.display !== 'none') {
-                // do not hide immediately on toggle open; hide on actual send
             }
         });
 
@@ -1072,7 +1061,7 @@ const QuickView = {
                 if (typing) typing.style.display = 'none';
                 this.addChatMessage('bot', response);
             } catch (err) {
-                console.error("Miko API call failed:", err);
+                console.error("Miko response failed:", err);
                 if (typing) typing.style.display = 'none';
                 const defaultMsg = lang === 'jp' ? 'すみません、今は少し休憩中です。後でまた話しかけてくださいね！' : 'Miko is resting right now. Please try again later!';
                 this.addChatMessage('bot', defaultMsg);
@@ -1094,10 +1083,8 @@ const QuickView = {
             localStorage.removeItem('miko_chat_history');
             chatMsgContainer.innerHTML = '<div id="mikoTyping" class="typing-indicator">Miko is typing...</div>';
 
-            // also clear persisted memory so the next convo starts fresh
             this.clearMikoMemory();
 
-            // show start options again
 
         });
 
@@ -1131,7 +1118,6 @@ const QuickView = {
         container.insertAdjacentHTML('afterbegin', html);
     },
 
-    // ---- Miko Memory helpers ----
     saveMikoMemory: function() {
         try {
             localStorage.setItem(this.mikoMemoryKey, JSON.stringify(this.mikoMemory));
@@ -1146,7 +1132,6 @@ const QuickView = {
             if (!raw) return;
             const parsed = JSON.parse(raw);
 
-            // shallow merge to keep defaults
             if (parsed && typeof parsed === 'object') {
                 if (Array.isArray(parsed.lastMentionedProducts)) {
                     this.mikoMemory.lastMentionedProducts = parsed.lastMentionedProducts;
@@ -1178,13 +1163,16 @@ const QuickView = {
         const title = p.title || (typeof p === 'string' ? p : null);
         if (!title) return;
 
-        // keep unique-ish but preserve order
         const titles = this.mikoMemory.lastMentionedProducts || [];
         const existingIdx = titles.indexOf(title);
         if (existingIdx !== -1) titles.splice(existingIdx, 1);
         titles.push(title);
         this.mikoMemory.lastMentionedProducts = titles.slice(-4);
         this.saveMikoMemory();
+    },
+
+    rememberMentionedProduct: function(p) {
+        this.rememberProduct(p);
     },
 
     resolveProductByTitle: function(title) {
@@ -1203,95 +1191,283 @@ const QuickView = {
 
     mikoLastResponse: '',
     mikoRepatCount: 0,
-    mikoLastPicked: null, // Track last picked for pick() dedup
-    mikoLastRespText: '', // Ultimate duplicate prevention - track actual response text
+    mikoLastPicked: null, 
+    mikoLastRespText: '', 
 generateLocalResponse: async function(input, lang, context) {
-        const msg = (input == null ? '' : String(input)).toLowerCase().trim();
-        const isJp = lang === 'jp';
-        const getName = (p) => isJp ? (p.title_jp || p.title) : p.title;
-        const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-        // Check for AI API key
-        let apiKey = window.MIKO_GEMINI_KEY || this.MIKO_GEMINI_KEY || localStorage.getItem('miko_gemini_key');
-        // Skip placeholder - not a real key
-        if (apiKey === 'MIKO_PLACEHOLDER_KEY' || !apiKey) apiKey = null;
-
-        if (apiKey) {
-            try {
-                const aiResponse = await this.callGeminiAPI(msg, isJp, apiKey);
-                if (aiResponse) return aiResponse;
-            } catch(e) {
-                console.error('Miko AI error:', e);
-            }
-        }
-
-        // Simple keyword responses
-        if (/who are you|what are you|何者|誰/.test(msg)) {
-            return isJp ? "私は雫コーヒーの専属バリスタ、Mikoです！🌸" : "I'm Miko, your Shizuku Coffee barista! ☕";
-        }
-        if (/hello|hi|hey|こんにちは|おはよ/.test(msg)) {
-            return isJp ? "こんにちは！雫コーヒーへようこそ🌸" : "Hello! Welcome to Shizuku Coffee! 🌸";
-        }
-        if (/dark|deep|深煎り/.test(msg)) {
-            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'dark'));
-            return isJp ? `深煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - dark roast! ☕`;
-        }
-        if (/light|浅煎り/.test(msg)) {
-            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'light'));
-            return isJp ? `浅煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - light roast! ☕`;
-        }
-        if (/medium|中煎り/.test(msg)) {
-            const p = pick(SHIZUKU_PRODUCTS.filter(p => p.roast === 'medium'));
-            return isJp ? `中煎りなら [[${getName(p)}]] はいかがですか？` : `Try [[${getName(p)}]] - medium roast! ☕`;
-        }
-        if (/recommend|suggest|おすすめ/.test(msg)) {
-            const p = pick(SHIZUKU_PRODUCTS);
-            return isJp ? `おすすめは [[${getName(p)}]] です！` : `I recommend [[${getName(p)}]]! ☕`;
-        }
-        if (/price|いくら下水道/.test(msg)) {
-            const min = Math.min(...SHIZUKU_PRODUCTS.map(p => p.price));
-            const max = Math.max(...SHIZUKU_PRODUCTS.map(p => p.price));
-            return isJp ? `価格は €${min} 〜 €${max} です。` : `Prices range from €${min} to €${max}. ☕`;
-        }
-        if (/bye|see you|さようなら/.test(msg)) {
-            return isJp ? "また来ててくださいね！☕" : "Take care! See you again! ☕";
-        }
-        if (/thanks|thank|ありがとう/.test(msg)) {
-            return isJp ? "どういたしまして！🌸" : "You're welcome! ☕";
-        }
-        return pick(isJp ? [
-            "すみません、もう少し詳しく教えていただけますか？",
-            "どんなコーヒーをお探しですか？",
-            "浅煎りか深煎りか、お好みはありますか？"
-        ] : [
-            "Could you tell me more about what you like?",
-            "What kind of coffee are you looking for?",
-            "Do you prefer light or dark roast?"
-        ]);
-    },
-
-    callGeminiAPI: async function(userMsg, isJp, apiKey) {
-        const systemPrompt = isJp 
-            ? "You are Miko, a friendly barista at Shizuku Coffee. Keep responses short (1-2 sentences), friendly. End with an emoji."
-            : "You are Miko, a friendly barista at Shizuku Coffee. Keep responses short (1-2 sentences), friendly. End with an emoji.";
-        
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        
-        const body = {
-            contents: [{ parts: [{ text: userMsg }] }],
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            generationConfig: { temperature: 0.7, maxOutputTokens: 150 }
+        const raw = input == null ? '' : String(input);
+        const normalizeText = (value) => String(value || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        const msg = normalizeText(raw);
+        const msgTokens = msg.split(' ').filter(Boolean);
+        const stopWords = new Set(['a', 'an', 'and', 'are', 'be', 'can', 'do', 'for', 'from', 'get', 'give', 'i', 'im', 'in', 'is', 'it', 'me', 'my', 'of', 'on', 'or', 'please', 'some', 'something', 'the', 'to', 'want', 'with', 'you']);
+        const importantTokens = msgTokens.filter(token => token.length > 2 && !stopWords.has(token));
+        const typoAliases = {
+            recomend: 'recommend',
+            reccomend: 'recommend',
+            reccomendation: 'recommendation',
+            sugest: 'suggest',
+            sugget: 'suggest',
+            expresso: 'espresso',
+            esspresso: 'espresso',
+            coffe: 'coffee',
+            caffee: 'coffee',
+            caffine: 'caffeine',
+            cafeine: 'caffeine',
+            decafe: 'decaf',
+            vanila: 'vanilla',
+            carmel: 'caramel',
+            choclate: 'chocolate',
+            strawbery: 'strawberry',
+            citris: 'citrus',
+            delivry: 'delivery',
+            shippng: 'shipping',
+            refnd: 'refund',
+            retrn: 'return',
+            cheep: 'cheap',
+            buget: 'budget',
+            populer: 'popular',
+            favrite: 'favorite'
         };
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        const singularize = (token) => token.length > 4 && token.endsWith('s') ? token.slice(0, -1) : token;
+        const canonical = (token) => typoAliases[singularize(token)] || singularize(token);
+        const distance = (a, b) => {
+            a = canonical(normalizeText(a));
+            b = canonical(normalizeText(b));
+            if (!a || !b) return Math.max(a.length, b.length);
+            if (a === b) return 0;
+            if (Math.abs(a.length - b.length) > 2) return 99;
+            const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+            for (let i = 1; i <= a.length; i++) {
+                let last = prev[0];
+                prev[0] = i;
+                for (let j = 1; j <= b.length; j++) {
+                    const old = prev[j];
+                    prev[j] = Math.min(
+                        prev[j] + 1,
+                        prev[j - 1] + 1,
+                        last + (a[i - 1] === b[j - 1] ? 0 : 1)
+                    );
+                    last = old;
+                }
+            }
+            return prev[b.length];
+        };
+        const tokenMatches = (wanted) => {
+            const clean = canonical(wanted);
+            if (!clean) return false;
+            if (msgTokens.some(token => canonical(token) === clean)) return true;
+            if (clean.length < 4) return false;
+            const allowed = clean.length > 7 ? 2 : 1;
+            return msgTokens.some(token => distance(token, clean) <= allowed);
+        };
+        const isJp = lang === 'jp';
+        const products = window.SHIZUKU_PRODUCTS || (typeof SHIZUKU_PRODUCTS !== 'undefined' ? SHIZUKU_PRODUCTS : []);
+        const coffeeProducts = products.filter(p => !['accessory', 'giftcard'].includes(p.roast));
+        const getName = (p) => isJp ? (p.title_jp || p.title) : p.title;
+        const money = (price) => typeof formatPrice === 'function' ? formatPrice(price) : `€${Number(price).toFixed(2)}`;
+        const pick = (arr, fallback = coffeeProducts) => {
+            const pool = (Array.isArray(arr) && arr.length ? arr : fallback).filter(Boolean);
+            if (!pool.length) return null;
+            let chosen = pool[Math.floor(Math.random() * pool.length)];
+            if (pool.length > 1 && this.mikoLastPicked && chosen.title === this.mikoLastPicked) {
+                chosen = pool.find(p => p.title !== this.mikoLastPicked) || chosen;
+            }
+            this.mikoLastPicked = chosen.title;
+            return chosen;
+        };
+        const describe = (p, reason) => {
+            if (!p) return isJp ? '今はおすすめを選べませんでした。好みを少し教えてください。' : 'I could not pick a product just now. Tell me a flavor or roast you like and I will narrow it down.';
+            this.rememberMentionedProduct(p.title);
+            const desc = isJp ? (p.desc_jp || p.desc) : p.desc;
+            const tagline = isJp ? (p.tagline_jp || p.tagline) : p.tagline;
+            if (isJp) return `[[${getName(p)}]] がおすすめです。${reason || tagline} 風味は ${desc}、価格は ${money(p.price)} です。`;
+            return `I would point you to [[${getName(p)}]]. ${reason || tagline} Notes: ${desc}. Price: ${money(p.price)}.`;
+        };
+        const phraseMatches = (phrase) => {
+            const clean = normalizeText(phrase);
+            if (!clean) return false;
+            if (clean.length > 2 && msg.includes(clean)) return true;
+            const parts = clean.split(' ').filter(part => part.length > 1);
+            if (!parts.length) return false;
+            return parts.every(part => tokenMatches(part));
+        };
+        const has = (...words) => words.some(phraseMatches);
+        const productScore = (p) => {
+            const haystack = normalizeText([p.title, p.title_jp, p.desc, p.desc_jp, p.tagline, p.tagline_jp, p.roast].filter(Boolean).join(' '));
+            const hayTokens = haystack.split(' ').filter(Boolean);
+            let score = 0;
+            importantTokens.forEach(token => {
+                const clean = canonical(token);
+                if (haystack.includes(clean)) score += 3;
+                else if (clean.length >= 4 && hayTokens.some(hay => distance(hay, clean) <= (clean.length > 7 ? 2 : 1))) score += 2;
+            });
+            const titleGroups = [p.title, p.title_jp]
+                .map(title => normalizeText(title).split(' ').filter(Boolean))
+                .filter(tokens => tokens.length);
+            if (titleGroups.some(tokens => tokens.every(token => tokenMatches(token)))) score += 8;
+            return score;
+        };
+        const namedProduct = products
+            .map(p => ({ p, score: productScore(p) }))
+            .filter(item => item.score >= 8)
+            .sort((a, b) => b.score - a.score)[0]?.p || null;
+        const catalogSuggestion = coffeeProducts
+            .map(p => ({ p, score: productScore(p) }))
+            .filter(item => item.score >= 3)
+            .sort((a, b) => b.score - a.score)[0]?.p || null;
+
+        const intentResponses = [
+            {
+                match: () => /^(hi|hello|hey|yo|hiya|good morning|good afternoon|good evening)\b/.test(msg) || has('こんにちは', 'おはよう'),
+                reply: () => isJp
+                    ? 'こんにちは、Mikoです。今日は気分・焙煎度・予算から一杯を一緒に選べます。'
+                    : 'Hi, I am Miko. Tell me a mood, roast, flavor, or budget and I will match you with something from Shizuku.'
+            },
+            {
+                match: () => has('who are you', 'what are you', 'miko', 'assistant', '何者', '誰'),
+                reply: () => isJp
+                    ? '私はShizuku Coffeeのデジタルバリスタ、Mikoです。商品選び、ギフト、注文案内、抽出の相談ができます。'
+                    : 'I am Miko, Shizuku Coffee\'s digital barista. I can help with recommendations, gifts, brewing, orders, and product details.'
+            },
+            {
+                match: () => has('surprise', 'random', 'pick for me', 'your pick', 'おまかせ'),
+                reply: () => describe(pick(coffeeProducts.sort((a, b) => (a.popular || 99) - (b.popular || 99)).slice(0, 12)), isJp ? '迷った時に選びやすい人気の一杯です。' : 'It is an easy crowd-pleaser when you want a safe but lovely pick.')
+            },
+            {
+                match: () => has('recommend', 'suggest', 'best', 'favorite', 'popular', 'what should i get', 'what should i buy', 'おすすめ'),
+                reply: () => describe(pick(coffeeProducts.sort((a, b) => (a.popular || 99) - (b.popular || 99)).slice(0, 10)), isJp ? 'はじめてでも選びやすい人気商品です。' : 'It is one of the easiest recommendations from the catalog.')
+            },
+            {
+                match: () => has('light', 'bright', 'citrus', 'tea-like', 'tea like', 'refreshing', '浅煎り'),
+                reply: () => describe(pick(coffeeProducts.filter(p => p.roast === 'light' || /citrus|lemon|apple|yuzu|jasmine|floral|refreshing/i.test(`${p.desc} ${p.tagline}`))), isJp ? '軽くて明るい味が好きな方に合います。' : 'It keeps things bright, clean, and lighter on the palate.')
+            },
+            {
+                match: () => has('medium', 'balanced', 'daily', 'everyday', 'latte', 'smooth', '中煎り'),
+                reply: () => describe(pick(coffeeProducts.filter(p => p.roast === 'medium')), isJp ? '毎日飲みやすいバランス型です。' : 'It is balanced enough for everyday brewing and friendly with milk.')
+            },
+            {
+                match: () => has('dark', 'deep', 'bold', 'strong', 'espresso', 'bitter', 'intense', '深煎り'),
+                reply: () => describe(pick(coffeeProducts.filter(p => p.roast === 'dark' || /espresso|dark|bold|cocoa|intense|smoke/i.test(`${p.desc} ${p.tagline}`))), isJp ? '濃くて力強い味わいを探している時に向いています。' : 'It leans bold, deep, and espresso-friendly without feeling flat.')
+            },
+            {
+                match: () => has('sweet', 'dessert', 'vanilla', 'strawberry', 'caramel', 'honey', 'mocha', 'chocolate', 'flavored', '甘い'),
+                reply: () => describe(pick(coffeeProducts.filter(p => p.roast === 'flavored' || /vanilla|strawberry|caramel|honey|mocha|chocolate|sweet|red bean/i.test(`${p.desc} ${p.tagline}`))), isJp ? '甘さや香りを楽しみたい時の候補です。' : 'It has a softer dessert-like personality while still feeling like coffee.')
+            },
+            {
+                match: () => has('decaf', 'caffeine free', 'no caffeine', 'night coffee', 'デカフェ'),
+                reply: () => describe(products.find(p => /decaf/i.test(p.title)), isJp ? 'カフェインを控えたい夜に合います。' : 'It is the calm option when you want flavor without the caffeine kick.')
+            },
+            {
+                match: () => has('cheap', 'budget', 'affordable', 'under', 'lowest', 'less than', '安い'),
+                reply: () => {
+                    const limit = Number((msg.match(/(?:under|below|less than|<)\s*€?\s*(\d+)/) || [])[1]);
+                    const pool = coffeeProducts.filter(p => !limit || Number(p.price) <= limit).sort((a, b) => Number(a.price) - Number(b.price));
+                    return describe(pool[0], limit ? (isJp ? `予算 ${money(limit)} 以内で選びました。` : `This fits your ${money(limit)} budget.`) : (isJp ? '価格を抑えたい時の候補です。' : 'This is one of the friendliest picks on price.'));
+                }
+            },
+            {
+                match: () => has('premium', 'luxury', 'fancy', 'special occasion', 'expensive', 'gift-worthy'),
+                reply: () => describe(pick(coffeeProducts.filter(p => Number(p.price) >= 45)), isJp ? '特別な日のための上質な一杯です。' : 'It feels more special-occasion than everyday shelf coffee.')
+            },
+            {
+                match: () => has('gift card', 'giftcard', 'voucher', 'present', 'gift', 'birthday', 'ギフト'),
+                reply: () => {
+                    const card = products.find(p => p.roast === 'giftcard' && /2500|2,500/.test(p.title)) || products.find(p => p.roast === 'giftcard');
+                    if (has('gift card', 'giftcard', 'voucher')) return describe(card, isJp ? '相手が好きなタイミングで選べるギフトです。' : 'It lets the recipient choose their own roast, which is the safest gift move.');
+                    return describe(pick(coffeeProducts.filter(p => /sakura|vanilla|honey|jasmine|house/i.test(`${p.title} ${p.desc}`))), isJp ? '贈り物として選びやすい香りの良い一杯です。' : 'It is friendly, pretty, and giftable without being too polarizing.');
+                }
+            },
+            {
+                match: () => has('accessory', 'keychain', 'pin', 'merch', 'charm', 'sticker', 'badge'),
+                reply: () => describe(pick(products.filter(p => p.roast === 'accessory')), isJp ? 'コーヒー以外の小さなギフトにぴったりです。' : 'It is a nice little add-on when coffee alone feels too expected.')
+            },
+            {
+                match: () => has('price', 'cost', 'how much', 'range', 'expensive', 'いくら', '価格'),
+                reply: () => {
+                    const pool = coffeeProducts.length ? coffeeProducts : products;
+                    const min = Math.min(...pool.map(p => Number(p.price)));
+                    const max = Math.max(...pool.map(p => Number(p.price)));
+                    return isJp
+                        ? `コーヒーはだいたい ${money(min)} から ${money(max)} までです。予算を教えてくれたら絞り込みます。`
+                        : `Coffee prices run from ${money(min)} to ${money(max)}. Give me a budget and I can narrow it to one or two picks.`;
+                }
+            },
+            {
+                match: () => has('shipping', 'delivery', 'arrive', 'track', 'order status', 'where is my order', '配送', '発送'),
+                reply: () => isJp
+                    ? '商品ページでは48時間以内に焙煎・発送の案内をしています。注文状況はフッターのTrack Orderから確認できます。'
+                    : 'Product pages note roasting and shipping within 48 hours. You can check an order from Track Order in the footer.'
+            },
+            {
+                match: () => has('return', 'refund', 'exchange', 'damaged', 'opened', '返品', '返金'),
+                reply: () => isJp
+                    ? '未開封品は到着後30日以内、品質問題は開封後7日以内の交換案内があります。詳しくはReturns Policyを見てください。'
+                    : 'Unopened items are covered for 30 days, and quality issues within 7 days of opening can be replaced. The Returns Policy has the full note.'
+            },
+            {
+                match: () => has('brew', 'brewing', 'grind', 'ratio', 'v60', 'pour over', 'espresso machine', '淹れ方'),
+                reply: () => isJp
+                    ? '基本は中粗挽き、92C前後、15gに対して250ml、30秒蒸らしです。軽い豆は少しゆっくり、深煎りはやや短めが合います。'
+                    : 'A good baseline is medium-coarse grind, about 92C water, 15g coffee to 250ml water, and a 30-second bloom. Go slower for light roasts and a little shorter for dark.'
+            },
+            {
+                match: () => has('loyalty', 'points', 'reward', 'tier', 'discount', 'coupon', 'promo', 'code'),
+                reply: () => isJp
+                    ? '初回チャットでポイントが入り、ランクに応じて季節商品やアクセサリーの割引が使えます。プロモコードはトップのバナーも確認してみてください。'
+                    : 'Your first chat with Miko can earn points, and higher tiers unlock seasonal or accessory discounts. Check the promo banner for active codes too.'
+            },
+            {
+                match: () => has('compare', 'versus', ' vs ', 'difference', 'which is better'),
+                reply: () => {
+                    const recent = (this.mikoMemory.lastMentionedProducts || []).map(title => this.resolveProductByTitle(title)).filter(Boolean).slice(-2);
+                    if (recent.length >= 2) {
+                        const [a, b] = recent;
+                        return isJp
+                            ? `[[${getName(a)}]] は ${a.desc} で ${a.roast}、[[${getName(b)}]] は ${b.desc} で ${b.roast} です。軽さなら前者、違う個性なら後者を選びます。`
+                            : `[[${getName(a)}]] is ${a.roast} with ${a.desc}; [[${getName(b)}]] is ${b.roast} with ${b.desc}. Pick the first for familiarity, the second when you want a different mood.`;
+                    }
+                    return isJp ? '比べたい商品名を2つ送ってください。違いを短くまとめます。' : 'Send me two product names and I will compare roast, notes, and best use.';
+                }
+            },
+            {
+                match: () => has('thanks', 'thank you', 'ty', 'ありがとう'),
+                reply: () => isJp ? 'どういたしまして。次は気分だけでも言ってくれたら選びます。' : 'You are welcome. Give me a mood anytime and I will pick from there.'
+            },
+            {
+                match: () => has('bye', 'goodbye', 'see you', 'さようなら'),
+                reply: () => isJp ? 'また来てくださいね。次の一杯も一緒に選びましょう。' : 'See you next time. I will keep the counter warm.'
+            }
+        ];
+
+        if (namedProduct) {
+            return describe(namedProduct, isJp ? 'その商品についてならこちらです。' : 'Here is the quick read on that one.');
+        }
+
+        const matched = intentResponses.find(intent => intent.match());
+        const response = matched ? matched.reply() : (catalogSuggestion ? describe(catalogSuggestion, isJp ? '入力から近い風味を選びました。' : 'I matched that to the closest flavor cues in the catalog.') : pick(isJp ? [
+            'もう少しだけ好みを教えてください。軽い、濃い、甘い、予算、ギフト用などで選べます。',
+            '今の気分に近い言葉を送ってください。例: さっぱり、甘い、深煎り、ギフト、安め。',
+            '商品選びなら任せてください。焙煎度・風味・予算のどれかを教えてください。'
+        ] : [
+            'Give me one clue: light, bold, sweet, budget, gift, decaf, or brewing help. I can work from that.',
+            'I can help, but I need one anchor. Are you shopping by flavor, roast, price, or occasion?',
+            'Try asking for something like "smooth daily coffee", "sweet gift", "under 15", or "dark espresso".'
+        ], []));
+
+        if (response === this.mikoLastRespText) {
+            const backup = isJp
+                ? '別の角度で選びましょう。飲みたい時間帯や気分を教えてください。'
+                : 'Let us come at it another way: tell me when you will drink it or what mood you want.';
+            this.mikoLastRespText = backup;
+            return backup;
+        }
+        this.mikoLastRespText = response;
+        return response;
     },
 
     addChatMessage: function(sender, text, shouldRender) {
