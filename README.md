@@ -177,8 +177,6 @@ The project contains multilingual elements, including English and Japanese-inspi
 * Vanilla JavaScript (ES6+)
 * Bootstrap 5
 * LocalStorage
-* Express (lightweight backend for AI integration)
-
 ---
 
 # Design Goals
