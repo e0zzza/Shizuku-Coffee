@@ -244,42 +244,9 @@ const QuickView = {
             newsNamePlh: "First Name", newsEmailPlh: "Email Address", newsBtn: "Join",
             newsSuccess: "You have successfully joined our newsletter!",
             newsError: "This email is already subscribed!",
-            aboutT: "Our Story", 
-aboutB: `
-  <div class="shizuku-about">
-    <div class="shizuku-about-hero">
-      <div class="shizuku-about-icon">☕</div>
-      <div>
-        <div class="shizuku-about-kicker">雫 coffee experience</div>
-        <h4>A quiet seasonal café, built in code.</h4>
-      </div>
-    </div>
-
-    <div class="shizuku-about-grid">
-      <div class="shizuku-about-card big">
-        <span>🌸</span>
-        <h6>Seasonal feeling</h6>
-        <p><b>Shizuku Coffee (雫コーヒー)</b> was founded in the heart of Kyoto with a simple mission: to capture the transient beauty of Japan's seasons in every cup.</p>
-      </div>
-
-      <div class="shizuku-about-card">
-        <span>🍵</span>
-        <h6>Sakura Roast</h6>
-        <p>Our signature process uses high-altitude specialty beans, roasted daily in small batches.</p>
-      </div>
-
-      <div class="shizuku-about-card">
-        <span>🌿</span>
-        <h6>Sustainable</h6>
-        <p>We partner directly with small-scale farmers around the world to support sustainable coffee growing.</p>
-      </div>
-    </div>
-
-    <div class="shizuku-about-quote">
-      “From spring’s first bloom to winter’s quiet hush, experience coffee as an art form.”
-    </div>
-  </div>
-`,            contactT: "Customer Support", 
+            aboutT: "The Shizuku Story",
+            aboutB: "<div class='about-brand'><div class='about-brand-hero'><div class='about-brand-icon'>☕</div><div class='about-brand-kicker'>SHIZUKU COFFEE</div><h3>A quiet café inspired by Japan.</h3><p>A fictional coffee experience built around slow mornings, seasonal rituals and soft sakura-inspired details.</p></div><div class='about-brand-grid'><div><span>🌸</span><b>Four Seasons</b><small>Inspired by Japan’s changing moods.</small></div><div><span>🍵</span><b>Small Batch</b><small>Designed around calm, crafted coffee moments.</small></div><div><span>🌿</span><b>Sustainable</b><small>A gentle fictional brand with mindful values.</small></div><div><span>💻</span><b>Portfolio Project</b><small>Built with HTML, CSS and JavaScript.</small></div></div><div class='about-brand-note'><p>Shizuku Coffee is a frontend-only café simulation where every interaction is made to feel warm, polished and believable.</p></div><div class='about-brand-footer'>雫コーヒー · Designed with passion</div></div>",
+           contactT: "Customer Support", 
             contactB: "<p class='small mb-3'>Need help with an order or brewing advice? Our team typically responds within <b>24 hours</b>.</p><form id='footerContactForm' class='d-flex flex-column gap-2'><input type='text' class='form-control form-control-sm' placeholder='Order Number (Optional)'><textarea class='form-control form-control-sm' rows='3' placeholder='How can we help?'></textarea><button type='button' class='sakura-btn' style='font-size: 13px; padding: 8px;' onclick='window.showSakuraToast(\"Message sent!\", \"✉️\")'>Send Message</button></form><div class='mt-3 small'><b>Email:</b> hello@shizuku.coffee<br><b>Phone:</b> +81 03-1234-5678</div>",
             guideT: "Brewing the Perfect Sakura Cup ☕",
             guideB: "<div class='modal-content-card'><span class='modal-section-title'>The Ritual</span><ul class='list-unstyled mb-0'><li class='mb-2'>🌸 <b>Grind:</b> Medium-Coarse (like sea salt).</li><li class='mb-2'>🌡️ <b>Water:</b> 92°C (just off boil).</li><li class='mb-2'>⚖️ <b>Ratio:</b> 15g coffee to 250ml water.</li><li>⏱️ <b>Bloom:</b> Pour 30ml and wait 30s.</li></ul></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><i>Pro Tip: Use a transparent glass to appreciate the tea-like clarity!</i></small></div>",
@@ -301,8 +268,8 @@ aboutB: `
             newsNamePlh: "お名前", newsEmailPlh: "メールアドレス", newsBtn: "登録",
             newsSuccess: "ニュースレターへの登録が完了しました！",
             newsError: "このメールアドレスは既に登録されています。",
-            aboutT: "私たちの物語", 
-            aboutB: "<div class='about-experience'><section class='about-hero'><div class='about-hero-copy'><span class='about-kicker'>雫コーヒー</span><h3>コードから生まれた、静かな季節のカフェ。</h3><p><b>Shizuku Coffee（雫コーヒー）</b>は、日本の四季や静かな朝、ゆったりとした時間からインスピレーションを受けた架空のカフェです。一杯のコーヒーを通して、心が落ち着くようなひとときを届けたいという想いから生まれました。</p></div><div class='about-cup-scene'><div class='about-sun'></div><div class='about-steam about-steam-one'></div><div class='about-steam about-steam-two'></div><div class='about-steam about-steam-three'></div><div class='about-cup'><span></span></div></div></section><div class='about-stats'><div><strong>四季</strong><span>季節の雰囲気</span></div><div><strong>100%</strong><span>架空のカフェ</span></div><div><strong>0</strong><span>実際の決済なし</span></div><div><strong>∞</strong><span>やさしい時間</span></div></div><div class='about-ritual'><span>豆</span><b></b><span>焙煎</span><b></b><span>抽出</span><b></b><span>ひととき</span></div><div class='about-grid'><div class='about-panel'><p>小さな幸せは、丁寧に淹れた一杯のコーヒーから始まります。</p></div><div class='about-panel'><p>自然や季節を大切にし、落ち着いた空間づくりを目指しています。</p></div><div class='about-panel about-panel-wide'><p>春の桜から冬の静けさまで、一杯のコーヒーとともに。</p><div class='about-flavor-row'><span>桜</span><span>抹茶</span><span>季節限定</span><span>静かな時間</span></div></div></div><div class='about-quote'><p>「小さな一杯に、やさしい日本のひとときを。」</p></div></div>",
+           aboutT: "雫の物語",
+            aboutB: "<div class='about-brand'><div class='about-brand-hero'><div class='about-brand-icon'>☕</div><div class='about-brand-kicker'>雫コーヒー</div><h3>日本にインスパイアされた、静かなカフェ。</h3><p>静かな朝、季節の移ろい、桜のやわらかな雰囲気から生まれた架空のコーヒー体験です。</p></div><div class='about-brand-grid'><div><span>🌸</span><b>四季</b><small>日本の季節の美しさから着想。</small></div><div><span>🍵</span><b>丁寧な一杯</b><small>落ち着いたコーヒー時間をイメージ。</small></div><div><span>🌿</span><b>やさしい世界</b><small>自然と心地よさを大切にしたブランド。</small></div><div><span>💻</span><b>制作プロジェクト</b><small>HTML・CSS・JavaScriptで制作。</small></div></div><div class='about-brand-note'><p>雫コーヒーは、温かく本物らしい体験を目指して作られたフロントエンド専用のカフェシミュレーションです。</p></div><div class='about-brand-footer'>Shizuku Coffee · 心を込めてデザイン</div></div>",
             mikoT: "Mikoについて：あなたの専属バリスタ",
             mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Mikoとは？</span><p class='small mb-0'>Mikoは雫コーヒーのデジタルコンシェルジュであり、見習いバリスタです。あなたにぴったりの一杯を見つけるお手伝いをします。</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>仕組み</span><p class='small mb-0'>会話の意図を分析し、カタログ全体からあなたの気分に合った風味や焙煎度をスキャンして提案します。</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ ベータ版：</b>Mikoは現在学習中のため、時々間違った情報を伝えたり、複雑なリクエストを誤解したりすることがあります。成長を見守っていただければ幸いです！ ✨</small></div>",
             contactT: "カスタマーサポート", 

@@ -3813,3 +3813,121 @@ body.lang-jp {
     }
     .invoice-table th { background-color: #fff0f5 !important; }
 }
+
+.about-brand {
+    text-align: center;
+    color: var(--sakura-brown-dark);
+}
+
+.about-brand-hero {
+    padding: 34px 24px 26px;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top, rgba(255, 158, 203, 0.22), transparent 45%),
+        rgba(255, 255, 255, 0.48);
+    border: 1px solid var(--glass-border);
+}
+
+.about-brand-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 24px;
+    background: white;
+    font-size: 34px;
+    box-shadow: 0 14px 30px rgba(90, 70, 58, 0.12);
+}
+
+.about-brand-kicker {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--sakura-pink-main);
+    margin-bottom: 10px;
+}
+
+.about-brand h3 {
+    margin: 0 auto 12px;
+    max-width: 520px;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.about-brand p {
+    margin: 0 auto;
+    max-width: 620px;
+    color: var(--sakura-brown-light);
+    line-height: 1.7;
+}
+
+.about-brand-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 18px 0;
+}
+
+.about-brand-grid div {
+    padding: 18px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 182, 193, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-brand-grid div:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(255, 101, 163, 0.12);
+}
+
+.about-brand-grid span {
+    display: block;
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.about-brand-grid b {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.about-brand-grid small {
+    display: block;
+    color: var(--sakura-brown-light);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.about-brand-note {
+    padding: 20px;
+    border-radius: 22px;
+    background: rgba(255, 101, 163, 0.07);
+    border-left: 4px solid var(--sakura-pink-main);
+}
+
+.about-brand-footer {
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--sakura-pink-main);
+}
+
+@media (max-width: 768px) {
+    .about-brand-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .about-brand h3 {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-brand-grid {
+        grid-template-columns: 1fr;
+    }
+}
