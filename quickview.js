@@ -92,10 +92,16 @@ window.showSakuraToast = function(message, icon = '🌸', action = null) {
 window.alert = (msg) => window.showSakuraToast(msg);
 
 function renderStars(rating) {
-    const percentage = (rating / 5) * 100;
+    const value = Number(rating) || 0;
+    const clamped = Math.max(0, Math.min(5, value));
+    const stars = Array.from({ length: 5 }, (_, index) => {
+        const fill = Math.max(0, Math.min(100, (clamped - index) * 100));
+        return `<span class="star-cell" style="--star-fill: ${fill}%;"></span>`;
+    }).join('');
+
     return `
-        <div class="star-display" style="--rating-width: ${percentage}%;">
-            <span></span>
+        <div class="star-display" aria-label="${clamped.toFixed(1)} out of 5 stars">
+            ${stars}
         </div>
     `;
 }
