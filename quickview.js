@@ -302,25 +302,7 @@ aboutB: `
             newsSuccess: "ニュースレターへの登録が完了しました！",
             newsError: "このメールアドレスは既に登録されています。",
             aboutT: "私たちの物語", 
-            aboutB: <><div class="shizuku-about-hero">
-                <div class="shizuku-about-icon">☕</div>
-                <div>
-                    <div class="shizuku-about-kicker">雫コーヒー</div>
-                    <h4>静かな季節のカフェ、コードから生まれました。</h4>
-                </div>
-            </div><div class="shizuku-about-card big">
-                    <span>🌸</span>
-                    <h6>四季のぬくもり</h6>
-                    <p><b>Shizuku Coffee（雫コーヒー）</b>は、日本の四季や静かな朝、ゆったりとした時間からインスピレーションを受けた架空のカフェです。一杯のコーヒーを通して、心が落ち着くようなひとときを届けたいという想いから生まれました。</p>
-                </div><div class="shizuku-about-card">
-                    <span>🍵</span>
-                    <h6>こだわりの一杯</h6>
-                    <p>小さな幸せは、丁寧に淹れた一杯のコーヒーから始まります。</p>
-                </div><div class="shizuku-about-card">
-                    <span>🌿</span>
-                    <h6>やさしい世界</h6>
-                    <p>自然や季節を大切にし、落ち着いた空間づくりを目指しています。</p>
-                </div></>,
+            aboutB: "<div class='about-experience'><section class='about-hero'><div class='about-hero-copy'><span class='about-kicker'>雫コーヒー</span><h3>コードから生まれた、静かな季節のカフェ。</h3><p><b>Shizuku Coffee（雫コーヒー）</b>は、日本の四季や静かな朝、ゆったりとした時間からインスピレーションを受けた架空のカフェです。一杯のコーヒーを通して、心が落ち着くようなひとときを届けたいという想いから生まれました。</p></div><div class='about-cup-scene'><div class='about-sun'></div><div class='about-steam about-steam-one'></div><div class='about-steam about-steam-two'></div><div class='about-steam about-steam-three'></div><div class='about-cup'><span></span></div></div></section><div class='about-stats'><div><strong>四季</strong><span>季節の雰囲気</span></div><div><strong>100%</strong><span>架空のカフェ</span></div><div><strong>0</strong><span>実際の決済なし</span></div><div><strong>∞</strong><span>やさしい時間</span></div></div><div class='about-ritual'><span>豆</span><b></b><span>焙煎</span><b></b><span>抽出</span><b></b><span>ひととき</span></div><div class='about-grid'><div class='about-panel'><p>小さな幸せは、丁寧に淹れた一杯のコーヒーから始まります。</p></div><div class='about-panel'><p>自然や季節を大切にし、落ち着いた空間づくりを目指しています。</p></div><div class='about-panel about-panel-wide'><p>春の桜から冬の静けさまで、一杯のコーヒーとともに。</p><div class='about-flavor-row'><span>桜</span><span>抹茶</span><span>季節限定</span><span>静かな時間</span></div></div></div><div class='about-quote'><p>「小さな一杯に、やさしい日本のひとときを。」</p></div></div>",
             mikoT: "Mikoについて：あなたの専属バリスタ",
             mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Mikoとは？</span><p class='small mb-0'>Mikoは雫コーヒーのデジタルコンシェルジュであり、見習いバリスタです。あなたにぴったりの一杯を見つけるお手伝いをします。</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>仕組み</span><p class='small mb-0'>会話の意図を分析し、カタログ全体からあなたの気分に合った風味や焙煎度をスキャンして提案します。</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ ベータ版：</b>Mikoは現在学習中のため、時々間違った情報を伝えたり、複雑なリクエストを誤解したりすることがあります。成長を見守っていただければ幸いです！ ✨</small></div>",
             contactT: "カスタマーサポート", 
