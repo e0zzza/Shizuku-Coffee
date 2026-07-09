@@ -1237,7 +1237,25 @@ generateLocalResponse: async function(input, lang, context) {
             cheep: 'cheap',
             buget: 'budget',
             populer: 'popular',
-            favrite: 'favorite'
+            favrite: 'favorite',
+            fav: 'favorite',
+            pls: 'please',
+            plz: 'please',
+            thx: 'thanks',
+            thanx: 'thanks',
+            tysm: 'thanks',
+            u: 'you',
+            ur: 'your',
+            r: 'are',
+            wat: 'what',
+            wut: 'what',
+            dunno: 'unsure',
+            idk: 'unsure',
+            rn: 'now',
+            gud: 'good',
+            asap: 'fast',
+            wanna: 'want',
+            kinda: 'kind'
         };
         const singularize = (token) => token.length > 4 && token.endsWith('s') ? token.slice(0, -1) : token;
         const canonical = (token) => typoAliases[singularize(token)] || singularize(token);
@@ -1370,12 +1388,116 @@ generateLocalResponse: async function(input, lang, context) {
             .map(p => ({ p, score: productScore(p) }))
             .filter(item => item.score >= 5)
             .sort((a, b) => b.score - a.score)[0]?.p || null;
+        const recentProducts = (this.mikoMemory.lastMentionedProducts || [])
+            .map(title => this.resolveProductByTitle(title))
+            .filter(Boolean);
+        const recentProduct = recentProducts[recentProducts.length - 1] || null;
+        const alphaChars = (rawTrim.match(/[a-z\u3040-\u30ff\u3400-\u9fff]/gi) || []).length;
+        const repeatedCharRun = /(.)\1{5,}/.test(compactMsg);
+        const compactLettersOnly = compactMsg.replace(/\s+/g, '');
+        const vowelRatio = (compactLettersOnly.match(/[aeiou]/g) || []).length / Math.max(compactLettersOnly.length, 1);
+        const keyboardSmash = msgTokens.length <= 2 &&
+            compactLettersOnly.length >= 5 &&
+            (/asdf|qwer|zxcv|hjkl|dfgh|sdf|wer|ert|tyu|yui|uio|iop/.test(compactLettersOnly) || vowelRatio < 0.22) &&
+            !msgTokens.some(token => ['coffee', 'sweet', 'dark', 'light', 'gift', 'cart', 'order', 'thanks', 'hello'].includes(canonical(token)));
+        const isGibberish = () => rawTrim.length > 3 && (alphaChars / Math.max(rawTrim.length, 1) < 0.35 || repeatedCharRun || keyboardSmash);
+        const firstNumber = Number((msg.match(/\b(\d+(?:\.\d+)?)\b/) || [])[1]);
+        const budgetLimit = Number((msg.match(/(?:under|below|less than|less|<|max|maximum|budget)\s*(?:eur|euro|euros)?\s*(\d+(?:\.\d+)?)/) || [])[1]) || (has('cheap', 'budget', 'affordable') ? firstNumber : 0);
+        const timeOfDay = (() => {
+            const hour = Number(context?.currentHour ?? new Date().getHours());
+            if (hour < 6) return 'late';
+            if (hour < 11) return 'morning';
+            if (hour < 17) return 'day';
+            if (hour < 21) return 'evening';
+            return 'night';
+        })();
+        const bestFrom = (pool, fallback = coffeeProducts) => pick(pool.filter(Boolean), fallback);
+        const productWithNotes = (pattern) => coffeeProducts.filter(p => pattern.test(`${p.title} ${p.desc} ${p.tagline} ${p.roast}`));
+        const moodPick = (mood) => {
+            if (mood === 'tired') {
+                if (timeOfDay === 'night' || timeOfDay === 'late') return describe(products.find(p => /decaf/i.test(p.title)), 'Since it is late, I would keep the comfort and skip the caffeine hit.');
+                return describe(bestFrom(coffeeProducts.filter(p => p.roast === 'dark' || /espresso|bold|cocoa|intense/i.test(`${p.desc} ${p.tagline}`))), 'For tired energy, I would go bold and steady.');
+            }
+            if (mood === 'stressed') return describe(bestFrom(productWithNotes(/vanilla|honey|caramel|chocolate|sweet|smooth|house/i)), 'For a stressed mood, I would choose something round, easy, and comforting.');
+            if (mood === 'sad') return describe(bestFrom(productWithNotes(/sakura|vanilla|strawberry|honey|sweet|floral/i)), 'For a softer day, I would pick something gentle and a little mood-lifting.');
+            if (mood === 'happy') return describe(bestFrom(productWithNotes(/citrus|yuzu|apple|floral|jasmine|bright|refreshing/i)), 'For a good mood, I would match it with something bright and lively.');
+            if (mood === 'focus') return describe(bestFrom(coffeeProducts.filter(p => p.roast === 'medium' || p.roast === 'dark')), 'For study or work, I would choose a clean daily cup that stays out of your way.');
+            if (mood === 'cozy') return describe(bestFrom(productWithNotes(/cocoa|chocolate|caramel|vanilla|smooth|warm|house/i)), 'For cozy mode, I would lean warm, smooth, and low-drama.');
+            if (mood === 'summer') return describe(bestFrom(productWithNotes(/citrus|yuzu|lemon|apple|refreshing|bright|jasmine/i)), 'For iced or warm-weather drinking, I would choose something crisp and refreshing.');
+            return null;
+        };
+        const vagueNextStep = () => {
+            const popular = pick(coffeeProducts.sort((a, b) => (a.popular || 99) - (b.popular || 99)).slice(0, 8));
+            return isJp
+                ? capabilitiesReply()
+                : `I can work with vague. We can go by mood, flavor, budget, gift, roast, or support question. If you want me to choose, my safe first pick is [[${getName(popular)}]].`;
+        };
+        const recentDetails = () => {
+            if (!recentProduct) return isJp ? 'どの商品についてか、商品名を送ってください。' : 'Which product do you mean? Send the name or tap a product link and I can explain it.';
+            return describe(recentProduct, 'A little more context: this is the last product we were talking about.');
+        };
+        const anotherPick = () => {
+            const excluded = new Set(recentProducts.map(p => p.title));
+            const pool = coffeeProducts.filter(p => !excluded.has(p.title));
+            return describe(pick(pool), 'Here is a different direction so you are not stuck on the same idea.');
+        };
+        const compareRecent = () => {
+            const recent = recentProducts.slice(-2);
+            if (recent.length < 2) return null;
+            const [a, b] = recent;
+            return `[[${getName(a)}]] is ${a.roast} with ${a.desc}; [[${getName(b)}]] is ${b.roast} with ${b.desc}. I would pick ${getName(a)} for a familiar cup and ${getName(b)} when you want a different mood.`;
+        };
+        const followUpReply = () => {
+            if (has('tell me more', 'more details', 'details', 'what about it', 'that one', 'this one', 'it', 'explain', 'why that', 'why')) return recentDetails();
+            if (has('another', 'something else', 'different one', 'else', 'more options', 'other option')) return anotherPick();
+            if (has('compare them', 'difference between them', 'which one')) return compareRecent();
+            if (recentProduct && has('add it', 'add this', 'buy it', 'get it')) {
+                return `Good choice. Open [[${getName(recentProduct)}]] and use Add to Cart there so the quantity and product page stay correct.`;
+            }
+            return null;
+        };
+        const topicShiftReply = () => {
+            if (has('weather', 'rain', 'snow', 'temperature', 'forecast')) return 'I cannot check live weather from here, but I can match the vibe: iced and bright for hot days, cozy and chocolatey for cold ones.';
+            if (has('math', 'calculate', 'homework', 'essay', 'code this', 'programming', 'python', 'javascript')) return 'I am best as Shizuku Coffee help inside this site. I can still help turn that into a coffee choice: focus fuel, late-night decaf, or a small reward cup.';
+            if (has('news', 'politics', 'stock', 'crypto', 'sports score')) return 'I do not have live outside-world updates here. For Shizuku Coffee, though, I can help with products, orders, gifts, brewing, and checkout.';
+            if (has('recipe', 'cook', 'dinner', 'food')) return 'I am not a full recipe assistant, but I can pair the mood: dessert-like coffee, bright coffee after food, or a giftable bag.';
+            return null;
+        };
+        const moodReply = () => {
+            if (has('tired', 'sleepy', 'exhausted', 'need energy', 'wake me up', 'wakeup')) return moodPick('tired');
+            if (has('stressed', 'anxious', 'overwhelmed', 'bad day', 'rough day')) return moodPick('stressed');
+            if (has('sad', 'lonely', 'down', 'upset')) return moodPick('sad');
+            if (has('happy', 'excited', 'celebrate', 'celebrating')) return moodPick('happy');
+            if (has('study', 'studying', 'work', 'working', 'focus', 'coding', 'deadline')) return moodPick('focus');
+            if (has('cozy', 'rainy', 'cold', 'winter', 'comfort')) return moodPick('cozy');
+            if (has('iced', 'ice coffee', 'summer', 'hot day', 'refreshing')) return moodPick('summer');
+            return null;
+        };
 
         if (!rawTrim) {
             return unclearReply();
         }
         if (!hasAnyMeaningfulText || isBackchannel()) {
             return backchannelReply();
+        }
+        if (isGibberish()) {
+            return isJp ? unclearReply() : 'That looks like a keyboard-smash kind of message, which is valid. I can reset: say sweet, bold, light, gift, budget, shipping, returns, or surprise me.';
+        }
+        if (namedProduct) {
+            return describe(namedProduct, isJp ? 'その商品についてならこちらです。' : 'Here is the quick read on that one.');
+        }
+        const directFollowUp = followUpReply();
+        if (directFollowUp) return directFollowUp;
+        const directTopicShift = topicShiftReply();
+        if (directTopicShift) return directTopicShift;
+        const directMood = moodReply();
+        if (directMood) return directMood;
+        if (has('unsure', 'i dont know', 'i do not know', 'not sure', 'maybe', 'whatever', 'anything is fine', 'you choose', 'choose for me')) {
+            return vagueNextStep();
+        }
+        if (budgetLimit) {
+            const pool = coffeeProducts.filter(p => Number(p.price) <= budgetLimit).sort((a, b) => Number(a.price) - Number(b.price));
+            return describe(pool[0] || coffeeProducts.sort((a, b) => Number(a.price) - Number(b.price))[0], pool.length ? `This fits your ${money(budgetLimit)} budget.` : `I could not fit under ${money(budgetLimit)}, so this is the closest budget-friendly option.`);
         }
 
         const intentResponses = [
@@ -1592,10 +1714,6 @@ generateLocalResponse: async function(input, lang, context) {
                 reply: () => isJp ? 'また来てくださいね。次の一杯も一緒に選びましょう。' : 'See you next time. I will keep the counter warm.'
             }
         ];
-
-        if (namedProduct) {
-            return describe(namedProduct, isJp ? 'その商品についてならこちらです。' : 'Here is the quick read on that one.');
-        }
 
         const matched = intentResponses.find(intent => intent.match());
         const response = matched ? matched.reply() : safeUnknownReply();
