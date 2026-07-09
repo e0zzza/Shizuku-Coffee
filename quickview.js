@@ -1362,6 +1362,12 @@ generateLocalResponse: async function(input, lang, context) {
                     : 'Hi, I am Miko. Tell me a mood, roast, flavor, or budget and I will match you with something from Shizuku.'
             },
             {
+                match: () => has('whats your name', 'what is your name', 'whats ur name', 'your name', 'ur name'),
+                reply: () => isJp
+                    ? '私はMikoです。Shizuku Coffeeのデジタルバリスタです。短く呼ぶなら、Mikoで大丈夫です。'
+                    : 'My name is Miko, Shizuku Coffee\'s digital barista. Miko is perfect, short and easy.'
+            },
+            {
                 match: () => has('help', 'what can you do', 'commands', 'options', 'menu', 'start over', 'reset', 'anything', 'whatever'),
                 reply: capabilitiesReply
             },
@@ -1370,10 +1376,40 @@ generateLocalResponse: async function(input, lang, context) {
                 reply: frustratedReply
             },
             {
-                match: () => has('how are you', 'whats up', 'what is up', 'lol', 'haha', 'hehe', 'funny', 'nice', 'cool'),
+                match: () => has('how are you', 'whats up', 'what is up', 'lol', 'haha', 'hehe', 'funny'),
                 reply: () => isJp
                     ? '元気です。少しだけバリスタ修行中ですが、商品選びは任せてください。今の気分は、軽め・濃いめ・甘め・ギフトのどれに近いですか？'
                     : 'I am doing well, still in barista training but ready to help. Are you in the mood for something light, bold, sweet, budget-friendly, or giftable?'
+            },
+            {
+                match: () => has('i love you', 'love you', 'ily', 'luv u', 'luv you', 'i like you', 'marry me'),
+                reply: () => isJp
+                    ? 'うれしいです。Mikoの心は小さなコーヒーカップくらいですが、ちゃんと温まりました。今日はあなたに合う一杯も選べますよ。'
+                    : 'That is very sweet. My little digital coffee-cup heart is warmed. I can repay the kindness by finding you a very good cup.'
+            },
+            {
+                match: () => has('youre cool', 'you are cool', 'ur cool', 'youre cute', 'you are cute', 'youre nice', 'you are nice', 'youre awesome', 'you are awesome', 'good bot', 'smart bot'),
+                reply: () => isJp
+                    ? 'ありがとうございます。調子に乗りすぎないように、豆を挽く音で落ち着きます。何か探しましょうか？'
+                    : 'Thank you. I will try not to let it go to my circuits. Want me to help pick a coffee while I am feeling confident?'
+            },
+            {
+                match: () => has('are you real', 'are you ai', 'are you human', 'real person', 'human', 'robot', 'bot'),
+                reply: () => isJp
+                    ? '私は人間ではなく、Shizuku Coffeeのブラウザ内アシスタントです。商品案内や注文まわりの質問を手伝えます。'
+                    : 'I am not a human; I am Shizuku Coffee\'s in-browser assistant. I can still help with products, gifts, orders, brewing, and checkout questions.'
+            },
+            {
+                match: () => has('im bored', 'i am bored', 'bored', 'entertain me', 'tell me a joke', 'joke'),
+                reply: () => isJp
+                    ? '小話を一つ。浅煎りの豆は朝が得意、深煎りの豆は夜更かしが得意です。さて、あなたは今日どちら側ですか？'
+                    : 'Tiny coffee joke: espresso never has commitment issues; it always shows up intense. Are you in an intense-coffee mood or a gentle one today?'
+            },
+            {
+                match: () => has('sorry', 'my bad', 'oops', 'nevermind', 'never mind'),
+                reply: () => isJp
+                    ? '大丈夫です。Mikoはリセットが得意です。商品、配送、返品、淹れ方、どこから始めましょう？'
+                    : 'No worries. I reset quickly. We can start from products, shipping, returns, brewing, gifts, or whatever you meant next.'
             },
             {
                 match: () => has('who are you', 'what are you', 'miko', 'assistant', '何者', '誰'),
