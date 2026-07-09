@@ -2420,6 +2420,7 @@ body.lang-jp {
     justify-content: center;
     direction: rtl; 
     margin-bottom: 15px;
+    gap: 2px;
 }
 
 .star-rating-input input[type="radio"] {
@@ -2427,17 +2428,37 @@ body.lang-jp {
 }
 
 .star-rating-input label {
-    font-size: 28px;
-    color: #ccc; 
+    width: 32px;
+    height: 32px;
+    font-size: 0;
     cursor: pointer;
-    padding: 0 2px;
-    transition: color 0.2s ease;
+    padding: 0;
+    position: relative;
+}
+
+.star-rating-input label::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: #ccc;
+    clip-path: polygon(50% 4%, 61% 36%, 95% 36%, 67% 56%, 78% 90%, 50% 69%, 22% 90%, 33% 56%, 5% 36%, 39% 36%);
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .star-rating-input label:hover,
 .star-rating-input label:hover ~ label,
 .star-rating-input input[type="radio"]:checked ~ label {
-    color: #ffc107; 
+    color: inherit;
+}
+
+.star-rating-input label:hover::before,
+.star-rating-input label:hover ~ label::before,
+.star-rating-input input[type="radio"]:checked ~ label::before {
+    background: #ffc107;
+}
+
+.star-rating-input label:hover::before {
+    transform: scale(1.08);
 }
 
 .star-display {
@@ -2484,6 +2505,51 @@ body.lang-jp {
     text-shadow: none;
 }
 
+
+.star-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    height: 16px;
+    line-height: 0;
+    white-space: nowrap;
+    vertical-align: middle;
+    letter-spacing: 0;
+}
+
+.star-display::before,
+.star-display span::before {
+    content: none;
+}
+
+.star-cell {
+    display: inline-block;
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    position: relative;
+    color: inherit;
+    overflow: hidden;
+}
+
+.star-display .star-cell::before,
+.star-display .star-cell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 4%, 61% 36%, 95% 36%, 67% 56%, 78% 90%, 50% 69%, 22% 90%, 33% 56%, 5% 36%, 39% 36%);
+}
+
+.star-display .star-cell::before {
+    background: #d7d0d0;
+}
+
+.star-display .star-cell::after {
+    background: #ffc107;
+    width: var(--star-fill, 0%);
+    overflow: hidden;
+}
 
 .review-form-container {
     background: rgba(255, 255, 255, 0.5);
