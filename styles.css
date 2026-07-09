@@ -2462,65 +2462,16 @@ body.lang-jp {
 }
 
 .star-display {
-    display: inline-block;
-    font-size: 16px;
-    letter-spacing: 2px; 
-    position: relative;
-    white-space: nowrap;
-    width: 90px; 
-    height: 16px;
-    line-height: 1;
-    text-shadow: none;
-}
-
-.star-display::before {
-    content: '★★★★★'; 
-    color: transparent;
-    -webkit-text-stroke: 1px #ccc;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.star-display span {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    color: #ffc107; 
-    width: var(--rating-width, 0%); 
-    height: 100%;
-    text-shadow: none;
-}
-
-.star-display span::before {
-    content: '★★★★★'; 
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 90px;
-    overflow: hidden;
-    text-shadow: none;
-}
-
-
-.star-display {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 2px;
     width: auto;
     height: 16px;
-    line-height: 0;
+    line-height: 1;
     white-space: nowrap;
     vertical-align: middle;
     letter-spacing: 0;
-}
-
-.star-display::before,
-.star-display span::before {
-    content: none;
 }
 
 .star-cell {
@@ -2529,8 +2480,7 @@ body.lang-jp {
     width: 14px;
     height: 14px;
     position: relative;
-    color: inherit;
-    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .star-display .star-cell::before,
@@ -2546,9 +2496,7 @@ body.lang-jp {
 }
 
 .star-display .star-cell::after {
-    background: #ffc107;
-    width: var(--star-fill, 0%);
-    overflow: hidden;
+    background: linear-gradient(90deg, #ffc107 var(--star-fill, 0%), transparent var(--star-fill, 0%));
 }
 
 .review-form-container {
