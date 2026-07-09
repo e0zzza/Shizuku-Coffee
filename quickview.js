@@ -245,8 +245,41 @@ const QuickView = {
             newsSuccess: "You have successfully joined our newsletter!",
             newsError: "This email is already subscribed!",
             aboutT: "Our Story", 
-            aboutB: "<p><b>Shizuku Coffee (雫コーヒー)</b> was founded in the heart of Kyoto with a simple mission: to capture the transient beauty of Japan's seasons in every cup.</p><p>Our signature 'Sakura-Roast' process uses high-altitude specialty beans, roasted daily in small batches to preserve a delicate, tea-like clarity. We work directly with family-owned farms to ensure every drop supports sustainable cultivation.</p><p><i>From the bloom of spring to the frost of winter, we invite you to experience coffee as an art form.</i></p>",
-            contactT: "Customer Support", 
+aboutB: `
+  <div class="shizuku-about">
+    <div class="shizuku-about-hero">
+      <div class="shizuku-about-icon">☕</div>
+      <div>
+        <div class="shizuku-about-kicker">雫 coffee experience</div>
+        <h4>A quiet seasonal café, built in code.</h4>
+      </div>
+    </div>
+
+    <div class="shizuku-about-grid">
+      <div class="shizuku-about-card big">
+        <span>🌸</span>
+        <h6>Seasonal feeling</h6>
+        <p><b>Shizuku Coffee (雫コーヒー)</b> was founded in the heart of Kyoto with a simple mission: to capture the transient beauty of Japan's seasons in every cup.</p>
+      </div>
+
+      <div class="shizuku-about-card">
+        <span>🍵</span>
+        <h6>Sakura Roast</h6>
+        <p>Our signature process uses high-altitude specialty beans, roasted daily in small batches.</p>
+      </div>
+
+      <div class="shizuku-about-card">
+        <span>🌿</span>
+        <h6>Sustainable</h6>
+        <p>We partner directly with small-scale farmers around the world to support sustainable coffee growing.</p>
+      </div>
+    </div>
+
+    <div class="shizuku-about-quote">
+      “From spring’s first bloom to winter’s quiet hush, experience coffee as an art form.”
+    </div>
+  </div>
+`,            contactT: "Customer Support", 
             contactB: "<p class='small mb-3'>Need help with an order or brewing advice? Our team typically responds within <b>24 hours</b>.</p><form id='footerContactForm' class='d-flex flex-column gap-2'><input type='text' class='form-control form-control-sm' placeholder='Order Number (Optional)'><textarea class='form-control form-control-sm' rows='3' placeholder='How can we help?'></textarea><button type='button' class='sakura-btn' style='font-size: 13px; padding: 8px;' onclick='window.showSakuraToast(\"Message sent!\", \"✉️\")'>Send Message</button></form><div class='mt-3 small'><b>Email:</b> hello@shizuku.coffee<br><b>Phone:</b> +81 03-1234-5678</div>",
             guideT: "Brewing the Perfect Sakura Cup ☕",
             guideB: "<div class='modal-content-card'><span class='modal-section-title'>The Ritual</span><ul class='list-unstyled mb-0'><li class='mb-2'>🌸 <b>Grind:</b> Medium-Coarse (like sea salt).</li><li class='mb-2'>🌡️ <b>Water:</b> 92°C (just off boil).</li><li class='mb-2'>⚖️ <b>Ratio:</b> 15g coffee to 250ml water.</li><li>⏱️ <b>Bloom:</b> Pour 30ml and wait 30s.</li></ul></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><i>Pro Tip: Use a transparent glass to appreciate the tea-like clarity!</i></small></div>",
@@ -269,7 +302,25 @@ const QuickView = {
             newsSuccess: "ニュースレターへの登録が完了しました！",
             newsError: "このメールアドレスは既に登録されています。",
             aboutT: "私たちの物語", 
-            aboutB: "<p><b>雫コーヒー</b>は、京都の歴史ある街並みの中で、日本の四季の移ろいを一杯のコーヒーに閉じ込めるために誕生しました。</p><p>独自の『サクラ・ロースト』製法により、お茶のような透明感と繊細な香りを引き出しています。私たちは世界中の小規模農家と直接提携し、持続可能なコーヒー作りを支援しています。</p><p><i>春の芽吹きから冬の静寂まで、芸術としてのコーヒーをご体験ください。</i></p>",
+            aboutB: <><div class="shizuku-about-hero">
+                <div class="shizuku-about-icon">☕</div>
+                <div>
+                    <div class="shizuku-about-kicker">雫コーヒー</div>
+                    <h4>静かな季節のカフェ、コードから生まれました。</h4>
+                </div>
+            </div><div class="shizuku-about-card big">
+                    <span>🌸</span>
+                    <h6>四季のぬくもり</h6>
+                    <p><b>Shizuku Coffee（雫コーヒー）</b>は、日本の四季や静かな朝、ゆったりとした時間からインスピレーションを受けた架空のカフェです。一杯のコーヒーを通して、心が落ち着くようなひとときを届けたいという想いから生まれました。</p>
+                </div><div class="shizuku-about-card">
+                    <span>🍵</span>
+                    <h6>こだわりの一杯</h6>
+                    <p>小さな幸せは、丁寧に淹れた一杯のコーヒーから始まります。</p>
+                </div><div class="shizuku-about-card">
+                    <span>🌿</span>
+                    <h6>やさしい世界</h6>
+                    <p>自然や季節を大切にし、落ち着いた空間づくりを目指しています。</p>
+                </div></>,
             mikoT: "Mikoについて：あなたの専属バリスタ",
             mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Mikoとは？</span><p class='small mb-0'>Mikoは雫コーヒーのデジタルコンシェルジュであり、見習いバリスタです。あなたにぴったりの一杯を見つけるお手伝いをします。</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>仕組み</span><p class='small mb-0'>会話の意図を分析し、カタログ全体からあなたの気分に合った風味や焙煎度をスキャンして提案します。</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ ベータ版：</b>Mikoは現在学習中のため、時々間違った情報を伝えたり、複雑なリクエストを誤解したりすることがあります。成長を見守っていただければ幸いです！ ✨</small></div>",
             contactT: "カスタマーサポート", 
@@ -403,7 +454,7 @@ const QuickView = {
         </footer>`,
 
     modalsHTML: `
-        <div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="aboutTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="aboutBody"></div></div></div></div>
+        <div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content about-modal-content"><div class="modal-header"><h5 class="modal-title" id="aboutTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="aboutBody"></div></div></div></div>
         <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="contactTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="contactBody"></div></div></div></div>
         <div class="modal fade" id="brewingModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="brewingTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="brewingBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="policyTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="policyBody" style="font-size: 15px;"></div></div></div></div>
@@ -2019,6 +2070,24 @@ generateLocalResponse: async function(input, lang, context) {
         Osaka: { jp: "大阪" },
         Hokkaido: { jp: "北海道" },
         Uji: { jp: "宇治" }
+    },
+
+    openAboutOriginMap: function() {
+        const aboutModal = document.getElementById('aboutModal');
+        if (aboutModal) bootstrap.Modal.getInstance(aboutModal)?.hide();
+        setTimeout(() => this.openOriginMap('Kyoto'), 180);
+    },
+
+    openMikoFromAbout: function() {
+        const aboutModal = document.getElementById('aboutModal');
+        if (aboutModal) bootstrap.Modal.getInstance(aboutModal)?.hide();
+        setTimeout(() => {
+            const chatWindow = document.getElementById('chatWindow');
+            if (chatWindow && chatWindow.style.display !== 'flex') {
+                document.getElementById('chatToggle')?.click();
+            }
+            document.getElementById('chatInput')?.focus();
+        }, 180);
     },
 
     openOriginMap: function(highlightOrigin) {
