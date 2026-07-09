@@ -1305,7 +1305,9 @@ generateLocalResponse: async function(input, lang, context) {
         const has = (...words) => words.some(phraseMatches);
         const rawTrim = raw.trim();
         const hasAnyMeaningfulText = /[a-z0-9\u3040-\u30ff\u3400-\u9fff]/i.test(rawTrim);
+        const compactMsg = msg.replace(/\s+/g, ' ');
         const asksQuestion = /[?？]/.test(rawTrim) || has('what', 'how', 'why', 'where', 'when', 'which', 'can you', 'do you');
+        const chooseText = (options) => options[Math.floor(Math.random() * options.length)];
         const unclearReply = () => isJp
             ? 'うまく読み取れませんでした。商品選びなら「甘い」「深煎り」「安め」「ギフト」みたいに一言だけでも大丈夫です。注文・配送・返品・淹れ方の質問にも答えられます。'
             : 'I did not quite catch the request. You can send one simple clue like "sweet", "dark", "budget", "gift", or ask about shipping, returns, brewing, cart, payment, or rewards.';
@@ -1315,6 +1317,25 @@ generateLocalResponse: async function(input, lang, context) {
         const frustratedReply = () => isJp
             ? 'ごめんなさい、今の返答は外していました。もう一度だけ、探しているものを短く教えてください。例: 「甘くないギフト」「15ユーロ以下」「酸味少なめ」「注文の追跡」。'
             : 'You are right, I missed that. Give me the goal in a short phrase and I will reset around it: "not-sweet gift", "under 15", "low acidity", "track my order", or "compare two coffees".';
+        const backchannelPatterns = [
+            /^(oh|ohh|ohhh|ah|ahh|huh|hm|hmm|hmmm|uh|uhh|uhhh|um|umm|ummm)$/,
+            /^(ok|okay|k|alright|sure|yep|yeah|yea|nah|nope)$/,
+            /^(cool|nice|great|awesome|wow|whoa|bruh|lol|lmao|haha|hehe)$/,
+            /^(oh nice|oh cool|ah nice|ah cool|hmm okay|uh okay|wait what|what)$/
+        ];
+        const isBackchannel = () => {
+            if (!compactMsg && /^[^\w\u3040-\u30ff\u3400-\u9fff]+$/.test(rawTrim)) return true;
+            return compactMsg.length <= 24 && backchannelPatterns.some(pattern => pattern.test(compactMsg));
+        };
+        const backchannelReply = () => chooseText(isJp ? [
+            'はい、聞いています。気分だけでも送ってくれたら、そこから一杯を選べます。',
+            'なるほど。ゆっくりで大丈夫です。商品、ギフト、配送、淹れ方のどれに進みましょう？',
+            '了解です。次は「甘め」「濃いめ」「安め」「ギフト」みたいな短い言葉でも大丈夫です。'
+        ] : [
+            'I am with you. Even a tiny clue works here: sweet, bold, light, budget, gift, or brewing.',
+            'Got it. No rush. We can talk products, gifts, shipping, returns, brewing, rewards, or checkout.',
+            'Mm, noted. Send me a vibe, a budget, or a use case and I will turn it into a useful pick.'
+        ]);
         const safeUnknownReply = () => {
             if (catalogSuggestion) {
                 return describe(catalogSuggestion, isJp ? '近い言葉から選びました。違っていたら、風味・予算・用途を一つ教えてください。' : 'I matched the closest catalog clues. If that is not what you meant, give me one anchor: flavor, budget, roast, or occasion.');
@@ -1350,8 +1371,11 @@ generateLocalResponse: async function(input, lang, context) {
             .filter(item => item.score >= 5)
             .sort((a, b) => b.score - a.score)[0]?.p || null;
 
-        if (!rawTrim || !hasAnyMeaningfulText) {
+        if (!rawTrim) {
             return unclearReply();
+        }
+        if (!hasAnyMeaningfulText || isBackchannel()) {
+            return backchannelReply();
         }
 
         const intentResponses = [
