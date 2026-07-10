@@ -362,19 +362,19 @@ const QuickView = {
                     </div>
                     <div class="col-lg-2 col-md-6">
                         <h5 class="fw-bold mb-3 footer-links-title" id="fLinksTitle">Quick Links</h5>
-                        <div class="d-flex flex-column gap-3">
-                            <span class="footer-link" id="linkAbout">
+                        <div class="footer-links-list d-flex flex-column gap-2">
+                            <button type="button" class="footer-link" id="linkAbout">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                                 <span class="link-text"></span>
-                            </span>
-                            <span class="footer-link" id="linkContact">
+                            </button>
+                            <button type="button" class="footer-link" id="linkContact">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                 <span class="link-text"></span>
-                            </span>
-                            <span class="footer-link" id="linkPrivacy">
+                            </button>
+                            <button type="button" class="footer-link" id="linkPrivacy">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                 <span class="link-text"></span>
-                            </span>
+                            </button>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">

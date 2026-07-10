@@ -1117,30 +1117,93 @@ body.lang-jp {
     }
 }
 
+.footer-links-list {
+    align-items: stretch;
+}
+
 .footer-link {
     color: var(--sakura-brown-dark);
     text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
     cursor: pointer;
     font-size: 14px;
-    display: flex;
+    font-weight: 600;
+    line-height: 1.25;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 14px;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    width: 100%;
+    max-width: 250px;
+    min-height: 48px;
+    padding: 7px 10px 7px 7px;
+    text-align: left;
+    border: 1px solid rgba(255, 182, 193, 0.36);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.34);
+    box-shadow: 0 8px 22px rgba(255, 101, 163, 0.08);
+    position: relative;
 }
 
-.footer-link:hover {
-    color: var(--sakura-pink-main);
-    transform: translateX(8px);
+.footer-link::after {
+    content: ">";
+    color: var(--sakura-pink-light);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateX(-2px);
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+    color: var(--sakura-pink-dark);
+    background: rgba(255, 255, 255, 0.72);
+    border-color: rgba(255, 101, 163, 0.48);
+    transform: translateX(6px);
+    box-shadow: 0 12px 28px rgba(255, 101, 163, 0.16);
+}
+
+.footer-link:focus-visible {
+    outline: 3px solid rgba(255, 101, 163, 0.22);
+    outline-offset: 3px;
 }
 
 .footer-link svg {
-    color: var(--sakura-pink-light);
-    transition: transform 0.3s ease, color 0.3s ease;
+    width: 34px;
+    height: 34px;
+    color: var(--sakura-pink-main);
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255, 158, 203, 0.16);
+    transition: transform 0.25s ease, color 0.25s ease, background 0.25s ease;
 }
 
-.footer-link:hover svg {
-    color: var(--sakura-pink-main);
-    transform: rotate(12deg) scale(1.1);
+.footer-link .link-text {
+    min-width: 0;
+}
+
+.footer-link:hover svg,
+.footer-link:focus-visible svg {
+    color: var(--sakura-pink-dark);
+    background: rgba(255, 158, 203, 0.24);
+    transform: rotate(8deg) scale(1.05);
+}
+
+.footer-link:hover::after,
+.footer-link:focus-visible::after {
+    color: var(--sakura-pink-dark);
+    transform: translateX(2px);
+}
+
+@media (max-width: 767.98px) {
+    .footer-links-list {
+        align-items: center;
+    }
+
+    .footer-link {
+        max-width: 320px;
+    }
 }
 
 .footer-socials {
