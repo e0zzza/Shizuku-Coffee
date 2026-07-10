@@ -355,20 +355,36 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch('/api/giftcard/check/' + encodeURIComponent(code));
             const data = await res.json();
+            const storedData = (typeof QuickView !== 'undefined' && QuickView.checkStoredGiftCard)
+                ? QuickView.checkStoredGiftCard(code)
+                : { valid: false };
+            const result = data.valid ? data : storedData;
 
-            if (data.valid) {
-                appliedGiftCard = { code: code, value: data.value };
+            if (result.valid) {
+                appliedGiftCard = { code: code, value: result.value };
                 sessionStorage.setItem("appliedGiftCard", JSON.stringify(appliedGiftCard));
                 renderOrder({});
                 messageEl.style.display = 'none';
                 input.value = '';
             } else {
-                messageEl.innerText = data.message || (currentLang === 'jp' ? '無効なギフトカードコード' : 'Invalid gift card code');
+                messageEl.innerText = result.message || data.message || (currentLang === 'jp' ? '無効なギフトカードコード' : 'Invalid gift card code');
                 messageEl.style.color = '#dc3545';
             }
         } catch (e) {
-            messageEl.innerText = currentLang === 'jp' ? 'エラーが発生しました' : 'An error occurred';
-            messageEl.style.color = '#dc3545';
+            const storedData = (typeof QuickView !== 'undefined' && QuickView.checkStoredGiftCard)
+                ? QuickView.checkStoredGiftCard(code)
+                : { valid: false };
+
+            if (storedData.valid) {
+                appliedGiftCard = { code: code, value: storedData.value };
+                sessionStorage.setItem("appliedGiftCard", JSON.stringify(appliedGiftCard));
+                renderOrder({});
+                messageEl.style.display = 'none';
+                input.value = '';
+            } else {
+                messageEl.innerText = storedData.message || (currentLang === 'jp' ? '無効なギフトカードコード' : 'Invalid gift card code');
+                messageEl.style.color = '#dc3545';
+            }
         }
     }
 
@@ -734,6 +750,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (localStorage.getItem("couponApplied") === "true") {
             const discount = subtotal * 0.20;
             total = subtotal - discount;
+            if (giftCardDiscount > 0 && appliedGiftCard?.value) {
+                const giftCardValueEur = appliedGiftCard.value / 160;
+                giftCardDiscount = Math.min(giftCardValueEur, total);
+                total -= giftCardDiscount;
+                document.getElementById("appliedGiftCardValue").innerText = "−" + formatPrice(giftCardDiscount);
+            }
             document.getElementById("checkoutDiscountRow").style.display = "flex";
             document.getElementById("checkoutDiscount").innerText = "−" + formatPrice(discount);
             hasPromo = true;
@@ -743,7 +765,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("checkoutRankDiscountRow")?.remove();
 
-        if (rankDiscount > 0) {
+        if (rankDiscount > 0 && !hasPromo) {
             document.getElementById("summaryBreakdown").insertAdjacentHTML('beforeend', `
                 <p id="checkoutRankDiscountRow" style="display: flex; justify-content: space-between; color: var(--sakura-pink-main);">
                     <span>${lang === 'jp' ? 'ランク特典割引:' : 'Rank Discount:'}</span> <span>−${formatPrice(rankDiscount)}</span>

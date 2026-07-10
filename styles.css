@@ -124,9 +124,15 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea {
   transition: transform 0.2s ease;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .nav-right img {
   height: 32px;
-  margin-left: 10px;
+  margin-left: 0;
   transition: transform 0.2s ease;
 }
 
@@ -359,25 +365,6 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea {
     font-size: 13px;
     margin-bottom: 14px;
     line-height: 1.5;
-}
-
-.card-roast-mark {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin: -2px 0 12px;
-}
-
-.card-roast-mark span {
-    width: 18px;
-    height: 5px;
-    border-radius: 999px;
-    background: rgba(139, 111, 99, 0.16);
-}
-
-.card-roast-mark span.filled {
-    background: linear-gradient(90deg, var(--sakura-pink-light), var(--sakura-pink-main));
-    box-shadow: 0 3px 8px rgba(255, 101, 163, 0.18);
 }
 
 .price-row {
@@ -3055,10 +3042,10 @@ body.lang-jp {
 }
 
 #languageToggleContainer {
-    position: fixed;
-    bottom: 20px; 
-    left: 20px;  
-    z-index: 1000; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
 }
 
 #languageToggleContainer .sakura-btn {
@@ -3068,14 +3055,15 @@ body.lang-jp {
     border: 1px solid var(--glass-border);
     backdrop-filter: var(--glass-blur);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-radius: 14px;
+    border-radius: 12px;
     transition: all 0.3s ease;
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    min-height: 52px;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
     display: inline-grid;
     place-items: center;
+    margin: 0;
 }
 
 #languageToggleContainer .sakura-btn:hover {
@@ -3084,11 +3072,11 @@ body.lang-jp {
 }
 
 .lang-flag-svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: block;
-    padding: 4px;
-    border-radius: 10px;
+    padding: 3px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.65);
     box-shadow: 0 2px 8px rgba(90, 70, 58, 0.18);
 }

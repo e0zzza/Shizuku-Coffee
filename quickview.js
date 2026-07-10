@@ -3327,6 +3327,58 @@ generateLocalResponse: async function(input, lang, context) {
         return { amount: 0, type: 'none', success: false };
     },
 
+    normalizeGiftCardCode(code) {
+        return String(code || '').trim().toUpperCase().replace(/\s+/g, '-');
+    },
+
+    findStoredGiftCard(code) {
+        const normalizedCode = this.normalizeGiftCardCode(code);
+        if (!normalizedCode) return null;
+
+        const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+        for (const order of orders) {
+            const cards = Array.isArray(order.giftCardCodes) ? order.giftCardCodes : [];
+            const card = cards.find(gc => this.normalizeGiftCardCode(gc.code) === normalizedCode);
+            if (card) {
+                return { order, card };
+            }
+        }
+        return null;
+    },
+
+    checkStoredGiftCard(code) {
+        const found = this.findStoredGiftCard(code);
+        if (!found) return { valid: false, message: 'Invalid gift card code' };
+        if (found.card.used) return { valid: false, message: 'Gift card already used' };
+        return {
+            valid: true,
+            code: this.normalizeGiftCardCode(found.card.code),
+            value: Number(found.card.value) || 0
+        };
+    },
+
+    redeemStoredGiftCard(code, email = '') {
+        const normalizedCode = this.normalizeGiftCardCode(code);
+        const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+        let redeemed = null;
+
+        orders.forEach(order => {
+            const cards = Array.isArray(order.giftCardCodes) ? order.giftCardCodes : [];
+            cards.forEach(card => {
+                if (this.normalizeGiftCardCode(card.code) === normalizedCode && !card.used) {
+                    card.used = true;
+                    card.redeemedAt = Date.now();
+                    card.redeemedBy = email;
+                    redeemed = card;
+                }
+            });
+        });
+
+        if (!redeemed) return { success: false, message: 'Invalid or already used gift card' };
+        localStorage.setItem("orders", JSON.stringify(orders));
+        return { success: true, value: Number(redeemed.value) || 0 };
+    },
+
     getLoggedInUser: function() {
         try {
             return JSON.parse(localStorage.getItem("loggedInUser"));
