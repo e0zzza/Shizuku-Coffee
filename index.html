@@ -360,6 +360,11 @@ function renderShop() {
         const badge = disc > 0 ? ` <span class="badge bg-success ms-1" style="font-size: 10px; vertical-align: middle;">${disc}% OFF</span>` : '';
         const originLabel = p.origin ? (lang === 'jp' ? (p.origin_jp || p.origin) : p.origin) : '';
         const originBadge = p.origin ? `<span class="origin-badge" data-origin="${p.origin}" onclick="event.stopPropagation(); QuickView.openOriginMap('${p.origin}')" title="${originLabel}">📍 ${originLabel}</span>` : '';
+        const roastMap = { light: 1, medium: 3, dark: 5, flavored: 2 };
+        const roastLevel = p.roast === 'accessory' || p.roast === 'giftcard' ? 0 : (roastMap[p.roast] || 1);
+        const roastMark = roastLevel
+            ? `<div class="card-roast-mark" aria-label="${p.roast} roast">${Array.from({ length: 5 }, (_, i) => `<span class="${i < roastLevel ? 'filled' : ''}"></span>`).join('')}</div>`
+            : '';
         const priceHtml = disc > 0
             ? `<div class="d-flex flex-column"><span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.75em; line-height: 1;">${formatPrice(p.price)}</span><span class="price" style="color: var(--sakura-pink-dark);">${formatPrice(parseFloat(p.price) * (1 - disc/100))}</span></div>`
             : `<span class="price">${formatPrice(p.price)}</span>`;
@@ -368,6 +373,7 @@ function renderShop() {
         <div class="product-card" data-title="${p.title}" data-roast="${p.roast}" data-price="${p.price}" data-popular="${p.popular}" data-rating="${avgRating}">
             <span class="wishlist-heart" data-title="${p.title}">♡</span>
             <img src="${p.img}" alt="${p.title}">
+            ${roastMark}
             <h3>${lang === 'jp' ? (p.title_jp || p.title) : p.title}${badge}</h3>
             <p class="desc">${lang === 'jp' ? (p.tagline_jp || p.tagline) : p.tagline}${originBadge}</p>
             <div class="mb-2">
