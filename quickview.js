@@ -240,7 +240,7 @@ const QuickView = {
             fAbout: "About Us", fContact: "Contact Support",
             newsDesc: "Subscribe to get seasonal blend updates and special offers!",
             mikoT: "Meet Miko: Your Shizuku Barista",
-            mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Who is Miko?</span><p class='small mb-0'>Miko is our digital concierge and trainee barista. She's here to help you navigate our collections and find your perfect roast.</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>How She Works</span><p class='small mb-0'>She uses intent-based scoring to scan our entire product catalog for flavor notes and roast profiles that match your mood.</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ Beta Version:</b> As Miko is still in training, she may occasionally provide incorrect information or misunderstand complex requests. Thank you for your patience as she continues to learn! ✨</small></div>",
+            mikoB: "<div class='utility-panel miko-panel'><div class='utility-hero'><span class='utility-hero-icon'>💬</span><div><span class='modal-section-title'>Digital Barista</span><h4>Miko listens for mood, flavor, and intent.</h4><p>A small in-browser assistant built to make the catalog feel easier to explore.</p></div></div><div class='utility-card-grid'><div><span>🌸</span><b>Mood Matching</b><small>Tell Miko sweet, bold, tired, gift, budget, or surprise me.</small></div><div><span>☕</span><b>Catalog Memory</b><small>She can remember recent product mentions during the conversation.</small></div><div><span>✨</span><b>Still Learning</b><small>Beta answers can be imperfect, but the assistant stays local to this demo.</small></div></div><div class='utility-note'><b>Best use:</b> ask for a roast recommendation, compare two coffees, or get help with shipping, returns, brewing, rewards, and checkout.</div></div>",
             newsNamePlh: "First Name", newsEmailPlh: "Email Address", newsBtn: "Join",
             newsSuccess: "You have successfully joined our newsletter!",
             newsError: "This email is already subscribed!",
@@ -249,9 +249,13 @@ const QuickView = {
            contactT: "Customer Support", 
             contactB: "<div class='support-panel'><div class='support-hero'><span class='support-hero-icon'>✉️</span><div><span class='modal-section-title'>Barista Desk</span><h4>We’ll help you find the calm path.</h4><p>Orders, brewing advice, gift help, or a blend question. The Shizuku desk usually replies within <b>24 hours</b>.</p></div></div><div class='support-options'><div><span>📦</span><b>Orders</b><small>Tracking, invoices, and checkout help.</small></div><div><span>☕</span><b>Brewing</b><small>Grind, ratio, roast, and serving notes.</small></div><div><span>🎁</span><b>Gifts</b><small>Gift cards, bundles, and gentle recommendations.</small></div></div><form id='footerContactForm' class='support-form'><input type='text' class='form-control form-control-sm' placeholder='Order Number (Optional)'><textarea class='form-control form-control-sm' rows='3' placeholder='How can we help?'></textarea><button type='button' class='sakura-btn' onclick='window.showSakuraToast(\"Message sent!\", \"✉️\")'>Send Message</button></form><div class='support-meta'><span><b>Email</b> hello@shizuku.coffee</span><span><b>Phone</b> +81 03-1234-5678</span></div></div>",
             guideT: "Brewing the Perfect Sakura Cup ☕",
-            guideB: "<div class='modal-content-card'><span class='modal-section-title'>The Ritual</span><ul class='list-unstyled mb-0'><li class='mb-2'>🌸 <b>Grind:</b> Medium-Coarse (like sea salt).</li><li class='mb-2'>🌡️ <b>Water:</b> 92°C (just off boil).</li><li class='mb-2'>⚖️ <b>Ratio:</b> 15g coffee to 250ml water.</li><li>⏱️ <b>Bloom:</b> Pour 30ml and wait 30s.</li></ul></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><i>Pro Tip: Use a transparent glass to appreciate the tea-like clarity!</i></small></div>",
+            guideB: "<div class='utility-panel ritual-panel'><div class='utility-hero'><span class='utility-hero-icon'>☕</span><div><span class='modal-section-title'>The Sakura Ritual</span><h4>A soft, clear cup in four quiet steps.</h4><p>Built for Shizuku’s lighter floral profile: gentle extraction, clean aromatics, and a tea-like finish.</p></div></div><div class='ritual-steps'><div><span>01</span><b>Grind</b><small>Medium-coarse, close to sea salt.</small></div><div><span>02</span><b>Water</b><small>92°C, just after the boil settles.</small></div><div><span>03</span><b>Ratio</b><small>15g coffee to 250ml water.</small></div><div><span>04</span><b>Bloom</b><small>Pour 30ml, wait 30 seconds, then pour slowly.</small></div></div><div class='utility-note'><b>Pro tip:</b> use a transparent glass to appreciate the sakura roast’s delicate clarity.</div></div>",
             policyT: "Returns & Exchanges", 
-            policyB: "<div class='modal-content-card d-flex align-items-start gap-3 mb-3'><div><span class='fs-4'>📦</span></div><div><b>30-Day Guarantee</b><p class='small mb-0'>Return unopened items within 30 days for a full refund.</p></div></div><div class='modal-content-card d-flex align-items-start gap-3'><div><span class='fs-4'>✨</span></div><div><b>Quality Promise</b><p class='small mb-0'>Not loving the roast? Contact us for a complimentary blend exchange!</p></div></div><p class='small mt-3 text-muted italic'>*This is a student portfolio simulation; no real shipping or returns are processed.</p>",
+            policyB: "<div class='utility-panel returns-panel'><div class='utility-hero'><span class='utility-hero-icon'>📦</span><div><span class='modal-section-title'>Returns & Exchanges</span><h4>A gentle promise for a fictional shop.</h4><p>The policy mirrors a premium café experience, while keeping clear that this portfolio does not process real returns.</p></div></div><div class='utility-card-grid'><div><span>30</span><b>Unopened Items</b><small>Return unopened products within 30 days for a simulated full refund.</small></div><div><span>7</span><b>Quality Window</b><small>Report quality issues within 7 days for a complimentary exchange flow.</small></div><div><span>↺</span><b>Blend Swap</b><small>If the roast feels too light or too deep, exchange for another blend.</small></div></div><div class='utility-note'><b>Portfolio note:</b> no real shipping, refunds, or exchanges are performed by this demo.</div></div>",
+            trackT: "Order Tracking",
+            trackSignedOutB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>👤</span><div><span class='modal-section-title'>Tracking Desk</span><h4>Sign in to see your order trail.</h4><p>Order tracking is connected to the account stored in this browser demo.</p></div></div><div class='utility-card-grid'><div><span>1</span><b>Sign In</b><small>Use your profile account before opening tracking.</small></div><div><span>2</span><b>Place Order</b><small>Checkout creates simulated order history.</small></div><div><span>3</span><b>Track</b><small>Return here to follow the demo status timeline.</small></div></div></div>",
+            trackEmptyB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>📦</span><div><span class='modal-section-title'>Tracking Desk</span><h4>No active orders yet.</h4><p>Once you complete checkout, your simulated shipment will appear in order history.</p></div></div><div class='utility-note'><b>Next step:</b> add a coffee to your basket and complete checkout to create a trackable demo order.</div></div>",
+            trackReadyB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>🚚</span><div><span class='modal-section-title'>Tracking Desk</span><h4>Your order history is ready.</h4><p>We found saved orders for this account. Continue to the tracking page to view the delivery timeline.</p></div></div><button type='button' class='sakura-btn w-100' data-bs-dismiss='modal' onclick='setTimeout(() => window.location.href = \"tracking.html\", 180)'>Open Tracking</button></div>",
             privacyT: "Technical Specification & Privacy",
             privacyB: "<div class='notice-panel'><div class='notice-hero'><span class='notice-seal'>雫</span><div><span class='modal-section-title'>Official Simulation Notice</span><h4>Transparent by design.</h4><p>Shizuku Coffee is a frontend-only portfolio simulation. It does not maintain physical inventory, integrate logistics, or process real payments.</p></div></div><div class='notice-grid'><div><span>🌿</span><b>Local Storage</b><small>Orders, preferences, and profile state stay in this browser.</small></div><div><span>🧾</span><b>Demo Checkout</b><small>Payment screens simulate flow only. No financial settlement occurs.</small></div><div><span>🔒</span><b>No Backend</b><small>The app runs as a client-side experience for demonstration.</small></div></div><div class='notice-flow'><span></span><p><b>Architecture Overview</b><br>By using a client-side zero-backend approach, Shizuku keeps interactions fast while leaving the user’s demo data inside their own browser environment.</p></div><button type='button' class='sakura-btn w-100' data-bs-dismiss='modal'>I Understand</button></div>",
             hoursW: "Mon - Fri: 8am - 7pm", hoursE: "Sat - Sun: 9am - 6pm",
@@ -271,13 +275,17 @@ const QuickView = {
            aboutT: "雫の物語",
             aboutB: "<div class='about-brand'><div class='about-brand-hero'><div class='about-brand-icon'>☕</div><div class='about-brand-kicker'>雫コーヒー</div><h3>日本にインスパイアされた、静かなカフェ。</h3><p>静かな朝、季節の移ろい、桜のやわらかな雰囲気から生まれた架空のコーヒー体験です。</p></div><div class='about-brand-grid'><div><span>🌸</span><b>四季</b><small>日本の季節の美しさから着想。</small></div><div><span>🍵</span><b>丁寧な一杯</b><small>落ち着いたコーヒー時間をイメージ。</small></div><div><span>🌿</span><b>やさしい世界</b><small>自然と心地よさを大切にしたブランド。</small></div><div><span>💻</span><b>制作プロジェクト</b><small>HTML・CSS・JavaScriptで制作。</small></div></div><div class='about-brand-note'><p>雫コーヒーは、温かく本物らしい体験を目指して作られたフロントエンド専用のカフェシミュレーションです。</p></div><div class='about-brand-footer'>Shizuku Coffee · 心を込めてデザイン</div></div>",
             mikoT: "Mikoについて：あなたの専属バリスタ",
-            mikoB: "<div class='modal-content-card mb-3'><span class='modal-section-title'>Mikoとは？</span><p class='small mb-0'>Mikoは雫コーヒーのデジタルコンシェルジュであり、見習いバリスタです。あなたにぴったりの一杯を見つけるお手伝いをします。</p></div><div class='modal-content-card mb-3'><span class='modal-section-title'>仕組み</span><p class='small mb-0'>会話の意図を分析し、カタログ全体からあなたの気分に合った風味や焙煎度をスキャンして提案します。</p></div><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><b>⚠️ ベータ版：</b>Mikoは現在学習中のため、時々間違った情報を伝えたり、複雑なリクエストを誤解したりすることがあります。成長を見守っていただければ幸いです！ ✨</small></div>",
+            mikoB: "<div class='utility-panel miko-panel'><div class='utility-hero'><span class='utility-hero-icon'>💬</span><div><span class='modal-section-title'>デジタルバリスタ</span><h4>Mikoは気分、風味、意図を読み取ります。</h4><p>カタログをもっと探しやすくするための、ブラウザ内アシスタントです。</p></div></div><div class='utility-card-grid'><div><span>🌸</span><b>気分で提案</b><small>甘め、濃いめ、疲れた、ギフト、予算、おまかせなど。</small></div><div><span>☕</span><b>会話の記憶</b><small>会話中に出た商品を短く覚えて比較できます。</small></div><div><span>✨</span><b>学習中</b><small>ベータ版のため完璧ではありませんが、このデモ内で動作します。</small></div></div><div class='utility-note'><b>おすすめの使い方：</b>焙煎の相談、2つの商品の比較、配送・返品・淹れ方・ポイント・決済の質問。</div></div>",
             contactT: "カスタマーサポート", 
             contactB: "<div class='support-panel'><div class='support-hero'><span class='support-hero-icon'>✉️</span><div><span class='modal-section-title'>バリスタデスク</span><h4>落ち着いて、丁寧にお手伝いします。</h4><p>注文、淹れ方、ギフト、ブレンド選びのご相談に、通常<b>24時間以内</b>に返信いたします。</p></div></div><div class='support-options'><div><span>📦</span><b>注文</b><small>追跡、請求書、チェックアウトの相談。</small></div><div><span>☕</span><b>抽出</b><small>挽き方、比率、焙煎度、飲み方。</small></div><div><span>🎁</span><b>ギフト</b><small>ギフトカード、セット、やさしいおすすめ。</small></div></div><form id='footerContactForm' class='support-form'><input type='text' class='form-control form-control-sm' placeholder='注文番号（任意）'><textarea class='form-control form-control-sm' rows='3' placeholder='メッセージをご入力ください'></textarea><button type='button' class='sakura-btn' onclick='window.showSakuraToast(\"送信完了しました。\", \"✉️\")'>メッセージを送信</button></form><div class='support-meta'><span><b>メール</b> hello@shizuku.coffee</span><span><b>電話</b> +81 03-1234-5678</span></div></div>",
             guideT: "究極の桜コーヒーの淹れ方 ☕",
-            guideB: "<p>雫の豆が持つ繊細な香りを引き出すための、バリスタ秘伝の淹れ方です：</p><ul class='list-unstyled mb-3'><li class='mb-2'>🌸 <b>挽き方：</b>中粗挽き（海塩くらいの大きさ）。</li><li class='mb-2'>🌡️ <b>お湯：</b>92℃（沸騰後一呼吸置いた状態）。</li><li class='mb-2'>⚖️ <b>比率：</b>粉15gに対してお湯250ml。</li><li>⏱️ <b>蒸らし：</b>最初に30ml注いで30秒待ち、その後ゆっくり円を描くように。</li></ul><div class='p-2 rounded bg-light border-start border-sakura border-4'><small><i>ポイント：透明なグラスを使うと、お茶のような透明感を楽しめます。</i></small></div>",
+            guideB: "<div class='utility-panel ritual-panel'><div class='utility-hero'><span class='utility-hero-icon'>☕</span><div><span class='modal-section-title'>桜の抽出リチュアル</span><h4>やわらかく澄んだ一杯を、4つの手順で。</h4><p>雫の軽やかな花の香りに合わせた、穏やかな抽出とお茶のような余韻のためのガイドです。</p></div></div><div class='ritual-steps'><div><span>01</span><b>挽き方</b><small>海塩くらいの中粗挽き。</small></div><div><span>02</span><b>お湯</b><small>沸騰後少し置いた92℃前後。</small></div><div><span>03</span><b>比率</b><small>粉15gに対してお湯250ml。</small></div><div><span>04</span><b>蒸らし</b><small>30ml注いで30秒待ち、その後ゆっくり注ぎます。</small></div></div><div class='utility-note'><b>ポイント：</b>透明なグラスを使うと、桜ローストの繊細な透明感を楽しめます。</div></div>",
             policyT: "返品・交換について",
-            policyB: "<p>お客様に最高の一杯を見つけていただきたい。もしお好みに合わなかった場合は、お気軽にご相談ください。</p><ul class='list-unstyled'><li class='mb-2'>📦 <b>未開封の商品：</b>お届けから30日以内であれば全額返金いたします。</li><li class='mb-2'>☕ <b>品質保証：</b>開封後でも、品質に問題がある場合は7日以内にご連絡いただければ無料で交換いたします。</li><li class='mb-2'>🔄 <b>ブレンド交換：</b>「思ったより深かった」など、他の豆への交換も承ります！</li></ul><p class='small mt-3'><i>※このサイトはポートフォリオ用のシミュレーションのため、実際の返品は行われません。</i></p>",
+            policyB: "<div class='utility-panel returns-panel'><div class='utility-hero'><span class='utility-hero-icon'>📦</span><div><span class='modal-section-title'>返品・交換</span><h4>架空のショップのための、やさしい約束。</h4><p>プレミアムなカフェ体験を想定したポリシーですが、このポートフォリオでは実際の返品処理は行われません。</p></div></div><div class='utility-card-grid'><div><span>30</span><b>未開封商品</b><small>お届けから30日以内なら、デモ上の全額返金対象。</small></div><div><span>7</span><b>品質保証</b><small>品質に問題がある場合は7日以内の交換フロー。</small></div><div><span>↺</span><b>ブレンド交換</b><small>浅すぎる・深すぎる場合は別ブレンドへ交換。</small></div></div><div class='utility-note'><b>ポートフォリオ注記：</b>実際の発送、返金、交換はこのデモでは行われません。</div></div>",
+            trackT: "注文追跡",
+            trackSignedOutB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>👤</span><div><span class='modal-section-title'>追跡デスク</span><h4>注文履歴を見るにはログインしてください。</h4><p>注文追跡は、このブラウザデモに保存されたアカウント情報に紐づきます。</p></div></div><div class='utility-card-grid'><div><span>1</span><b>ログイン</b><small>追跡を開く前にプロフィールへログイン。</small></div><div><span>2</span><b>注文作成</b><small>チェックアウトでデモ注文が作成されます。</small></div><div><span>3</span><b>追跡</b><small>注文のステータスをタイムラインで確認。</small></div></div></div>",
+            trackEmptyB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>📦</span><div><span class='modal-section-title'>追跡デスク</span><h4>現在、追跡可能な注文はありません。</h4><p>チェックアウト完了後、デモ配送が注文履歴に表示されます。</p></div></div><div class='utility-note'><b>次の手順：</b>商品をカートに入れてチェックアウトすると、追跡できるデモ注文が作成されます。</div></div>",
+            trackReadyB: "<div class='utility-panel tracking-panel'><div class='utility-hero'><span class='utility-hero-icon'>🚚</span><div><span class='modal-section-title'>追跡デスク</span><h4>注文履歴を開けます。</h4><p>このアカウントに保存された注文が見つかりました。追跡ページで配送タイムラインを確認できます。</p></div></div><button type='button' class='sakura-btn w-100' data-bs-dismiss='modal' onclick='setTimeout(() => window.location.href = \"tracking.html\", 180)'>追跡を開く</button></div>",
             privacyT: "技術仕様およびプライバシー通知",
             privacyB: "<div class='notice-panel'><div class='notice-hero'><span class='notice-seal'>雫</span><div><span class='modal-section-title'>公式シミュレーション通知</span><h4>透明性を大切にした設計です。</h4><p>雫コーヒーは、ポートフォリオ用のフロントエンド専用シミュレーションです。実際の在庫管理、物流連携、金銭決済は行われません。</p></div></div><div class='notice-grid'><div><span>🌿</span><b>ローカル保存</b><small>注文、設定、プロフィール状態はこのブラウザに保存されます。</small></div><div><span>🧾</span><b>デモ決済</b><small>支払い画面は流れの再現のみで、実決済はありません。</small></div><div><span>🔒</span><b>バックエンドなし</b><small>デモ用のクライアントサイド体験として動作します。</small></div></div><div class='notice-flow'><span></span><p><b>アーキテクチャ概要</b><br>クライアントサイドのゼロバックエンド構成により、素早い操作感を保ちながら、デモデータをユーザー自身のブラウザ環境内に留めます。</p></div><button type='button' class='sakura-btn w-100' data-bs-dismiss='modal'>了解しました</button></div>",
             hoursW: "月 - 金：8:00 - 19:00", hoursE: "土 - 日：9:00 - 18:00",
@@ -384,17 +392,29 @@ const QuickView = {
                         <p class="small">1-2-3 Arashiyama, Ukyo Ward<br>Kyoto, 616-0003, Japan</p>
                     </div>
                     <div class="col-lg-4 col-md-6">
-                        <h5 class="fw-bold mb-3 footer-newsletter-title" id="fNewsTitle">Join Our Newsletter</h5>
-                        <p class="small footer-newsletter-desc" id="fNewsDesc"></p>
-                        <form class="newsletter-form mt-3 d-flex flex-column gap-2" id="newsletterForm">
-                            <div class="newsletter-field-group">
-                                <input type="text" class="form-control" id="newsletterName" name="name" required>
+                        <div class="newsletter-card">
+                            <div class="newsletter-card-header">
+                                <span class="newsletter-icon">✉️</span>
+                                <div>
+                                    <h5 class="fw-bold mb-1 footer-newsletter-title" id="fNewsTitle">Join Our Newsletter</h5>
+                                    <p class="small footer-newsletter-desc" id="fNewsDesc"></p>
+                                </div>
                             </div>
-                            <div class="input-group newsletter-field-group">
-                                <input type="email" class="form-control" id="newsletterEmail" name="email" style="font-size: 14px;" required>
-                                <button class="sakura-btn" type="submit" id="newsletterBtn" style="border-radius: 0; margin: 0; width: 80px;">Join</button>
+                            <div class="newsletter-perks">
+                                <span id="newsletterPerkSeasonal">Seasonal drops</span>
+                                <span id="newsletterPerkOffers">Quiet offers</span>
+                                <span id="newsletterPerkNotes">Brew notes</span>
                             </div>
-                        </form>
+                            <form class="newsletter-form" id="newsletterForm">
+                                <div class="newsletter-field-group">
+                                    <input type="text" class="form-control" id="newsletterName" name="name" required>
+                                </div>
+                                <div class="input-group newsletter-field-group">
+                                    <input type="email" class="form-control" id="newsletterEmail" name="email" required>
+                                    <button class="sakura-btn" type="submit" id="newsletterBtn">Join</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <hr class="my-4" style="border-top: 1px solid rgba(255, 182, 193, 0.3);">
@@ -418,6 +438,7 @@ const QuickView = {
         <div class="modal fade" id="brewingModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="brewingTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="brewingBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="policyTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="policyBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="mikoModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="mikoTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="mikoBody" style="font-size: 15px;"></div></div></div></div>
+        <div class="modal fade" id="trackingStatusModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="trackingStatusTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="trackingStatusBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="privacyNoticeModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="privacyNoticeTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="privacyNoticeBody" style="font-size: 15px;"></div></div></div></div>
         <div class="modal fade" id="tierModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="tierModalTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="tierModalBody"></div></div></div></div>
         <div class="modal fade" id="originMapModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="originMapTitle">Coffee Origins in Japan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="originMapBody" style="text-align: center;"></div></div></div></div>
@@ -753,9 +774,6 @@ const QuickView = {
                         return;
                     }
 
-                    let msg = "";
-                    let icon = "🌸";
-                    
                     if (type === 'track') {
                         let user = null;
                         try {
@@ -769,21 +787,17 @@ const QuickView = {
 
                         const userOrders = user ? allOrders.filter(o => o.userEmail === user.email) : [];
 
+                        document.getElementById('trackingStatusTitle').innerText = t.trackT;
                         if (!user) {
-                            msg = t.trackErr;
-                            icon = '👤';
+                            document.getElementById('trackingStatusBody').innerHTML = t.trackSignedOutB;
                         } else if (userOrders.length === 0) {
-                            msg = lang === 'jp' ? "現在、追跡可能な注文はありません。" : "You have no active orders to track.";
-                            icon = '📦';
+                            document.getElementById('trackingStatusBody').innerHTML = t.trackEmptyB;
                         } else {
-                            msg = t.trackMsg;
-                            icon = '🚚';
-                            window.showSakuraToast(msg, icon);
-                            setTimeout(() => window.location.href = "tracking.html", 1200);
-                            return;
+                            document.getElementById('trackingStatusBody').innerHTML = t.trackReadyB;
                         }
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('trackingStatusModal')).show();
+                        return;
                     }
-                    window.showSakuraToast(msg, icon);
                 }
             });
 
@@ -1855,6 +1869,9 @@ generateLocalResponse: async function(input, lang, context) {
         document.getElementById('newsletterName').placeholder = t.newsNamePlh;
         document.getElementById('newsletterEmail').placeholder = t.newsEmailPlh;
         document.getElementById('newsletterBtn').innerText = t.newsBtn;
+        document.getElementById('newsletterPerkSeasonal').innerText = lang === 'jp' ? "季節の新作" : "Seasonal drops";
+        document.getElementById('newsletterPerkOffers').innerText = lang === 'jp' ? "静かな特典" : "Quiet offers";
+        document.getElementById('newsletterPerkNotes').innerText = lang === 'jp' ? "抽出メモ" : "Brew notes";
         const surpriseBtn = document.getElementById('surpriseMeBtn');
         if (surpriseBtn) surpriseBtn.innerText = t.surpriseBtn;
         const clearBtn = document.getElementById('clearChatBtn');
