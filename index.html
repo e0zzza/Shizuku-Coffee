@@ -38,17 +38,26 @@
 </nav>
 
 <div id="languageToggleContainer">
-    <button id="langToggle" class="sakura-btn">🇯🇵</button>
+    <button id="langToggle" class="sakura-btn" type="button" aria-label="Switch language"></button>
   </div>
 
 <div id="mobileMenu" class="mobile-menu-overlay">
     <button class="menu-close">×</button>
+    <div class="mobile-menu-brand">
+        <span>雫</span>
+        <div>
+            <b>Shizuku Coffee</b>
+            <small id="mobileMenuHint">Menu</small>
+        </div>
+    </div>
     <div class="menu-links">
+        <small class="menu-section-label" id="menuShopLabel">Shop</small>
         <a href="index.html" id="menuHome">🏠 Home</a>
         <a href="profile.html" id="menuProfile">👤 Profile</a>
         <a href="wishlist.html" id="menuWishlist">♥ Wishlist</a>
         <a href="basket.html" id="menuCart">🛒 Cart</a>
         <hr style="border-top: 1px solid rgba(255, 182, 193, 0.3);">
+        <small class="menu-section-label" id="menuHelpLabel">Help</small>
         <span data-bs-toggle="modal" data-bs-target="#aboutModal" id="menuAbout"> About Us</span>
         <span data-bs-toggle="modal" data-bs-target="#contactModal" id="menuContact">☕ Contact Support</span>
     </div>
@@ -231,6 +240,37 @@ const searchIcon = document.querySelector(".search-icon");
 const priceFilter = document.getElementById("priceFilter");
 const sortSelect = document.getElementById("sortSelect");
 const filterButtons = document.querySelectorAll(".filter-btn");
+const flagSvgs = {
+    jp: `
+        <svg class="lang-flag-svg" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
+            <rect width="36" height="24" rx="3" fill="#fff"/>
+            <circle cx="18" cy="12" r="6.2" fill="#bc002d"/>
+        </svg>
+    `,
+    en: `
+        <svg class="lang-flag-svg" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
+            <rect width="36" height="24" rx="3" fill="#b22234"/>
+            <path d="M0 2.77h36M0 6.46h36M0 10.15h36M0 13.85h36M0 17.54h36M0 21.23h36" stroke="#fff" stroke-width="1.85"/>
+            <path d="M0 0h15.8v12.9H0z" fill="#3c3b6e"/>
+            <g fill="#fff">
+                <circle cx="2" cy="2" r=".45"/><circle cx="5" cy="2" r=".45"/><circle cx="8" cy="2" r=".45"/><circle cx="11" cy="2" r=".45"/><circle cx="14" cy="2" r=".45"/>
+                <circle cx="3.5" cy="4" r=".45"/><circle cx="6.5" cy="4" r=".45"/><circle cx="9.5" cy="4" r=".45"/><circle cx="12.5" cy="4" r=".45"/>
+                <circle cx="2" cy="6" r=".45"/><circle cx="5" cy="6" r=".45"/><circle cx="8" cy="6" r=".45"/><circle cx="11" cy="6" r=".45"/><circle cx="14" cy="6" r=".45"/>
+                <circle cx="3.5" cy="8" r=".45"/><circle cx="6.5" cy="8" r=".45"/><circle cx="9.5" cy="8" r=".45"/><circle cx="12.5" cy="8" r=".45"/>
+                <circle cx="2" cy="10" r=".45"/><circle cx="5" cy="10" r=".45"/><circle cx="8" cy="10" r=".45"/><circle cx="11" cy="10" r=".45"/><circle cx="14" cy="10" r=".45"/>
+            </g>
+        </svg>
+    `
+};
+
+function updateLanguageToggle() {
+    const toggle = document.getElementById("langToggle");
+    if (!toggle) return;
+    const targetLang = currentLang === "en" ? "jp" : "en";
+    toggle.innerHTML = flagSvgs[targetLang];
+    toggle.title = targetLang === "jp" ? "日本語に切り替え" : "Switch to English";
+    toggle.setAttribute("aria-label", toggle.title);
+}
 
 function renderShop() {
     const lang = currentLang;
@@ -246,7 +286,7 @@ function renderShop() {
         document.body.classList.remove('lang-jp');
     }
 
-    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+    updateLanguageToggle();
     document.getElementById("promoTextStart").innerText = t.promo;
     document.getElementById("promoTextEnd").innerText = t.promoEnd;
 
@@ -294,6 +334,9 @@ function renderShop() {
     document.getElementById("menuCart").innerText = t.menuCart;
     document.getElementById("menuAbout").innerText = "🌸 " + t.fAbout;
     document.getElementById("menuContact").innerText = "☕ " + t.fContact;
+    document.getElementById("mobileMenuHint").innerText = lang === "jp" ? "メニュー" : "Menu";
+    document.getElementById("menuShopLabel").innerText = lang === "jp" ? "ショップ" : "Shop";
+    document.getElementById("menuHelpLabel").innerText = lang === "jp" ? "ヘルプ" : "Help";
 
     if (document.getElementById("utilTrack")) document.getElementById("utilTrack").title = t.utilTrack;
     if (document.getElementById("utilGuide")) document.getElementById("utilGuide").title = t.utilGuide;
@@ -317,6 +360,16 @@ function renderShop() {
         const badge = disc > 0 ? ` <span class="badge bg-success ms-1" style="font-size: 10px; vertical-align: middle;">${disc}% OFF</span>` : '';
         const originLabel = p.origin ? (lang === 'jp' ? (p.origin_jp || p.origin) : p.origin) : '';
         const originBadge = p.origin ? `<span class="origin-badge" data-origin="${p.origin}" onclick="event.stopPropagation(); QuickView.openOriginMap('${p.origin}')" title="${originLabel}">📍 ${originLabel}</span>` : '';
+        const roastLabel = p.roast === 'giftcard'
+            ? (lang === 'jp' ? 'ギフトカード' : 'Gift Card')
+            : p.roast === 'accessory'
+                ? (lang === 'jp' ? 'アクセサリー' : 'Accessory')
+                : `${p.roast.charAt(0).toUpperCase()}${p.roast.slice(1)} Roast`;
+        const cardNote = p.roast === 'giftcard'
+            ? (lang === 'jp' ? 'デジタル対応' : 'Digital option')
+            : p.roast === 'accessory'
+                ? (lang === 'jp' ? '小さなギフト' : 'Small gift')
+                : (lang === 'jp' ? '48時間以内に焙煎' : 'Roasted within 48h');
         const priceHtml = disc > 0
             ? `<div class="d-flex flex-column"><span class="text-decoration-line-through opacity-50 me-2" style="font-size: 0.75em; line-height: 1;">${formatPrice(p.price)}</span><span class="price" style="color: var(--sakura-pink-dark);">${formatPrice(parseFloat(p.price) * (1 - disc/100))}</span></div>`
             : `<span class="price">${formatPrice(p.price)}</span>`;
@@ -327,6 +380,10 @@ function renderShop() {
             <img src="${p.img}" alt="${p.title}">
             <h3>${lang === 'jp' ? (p.title_jp || p.title) : p.title}${badge}</h3>
             <p class="desc">${lang === 'jp' ? (p.tagline_jp || p.tagline) : p.tagline}${originBadge}</p>
+            <div class="product-card-meta">
+                <span>${roastLabel}</span>
+                <span>${cardNote}</span>
+            </div>
             <div class="mb-2">
                 <div class="product-rating-summary">
                     ${renderStars(avgRating)}
@@ -499,7 +556,7 @@ sortSelect.addEventListener("change", function() {
 document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "en" ? "jp" : "en";
     localStorage.setItem("language", currentLang);
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    updateLanguageToggle();
     renderShop();
 });
 

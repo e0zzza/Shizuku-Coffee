@@ -333,7 +333,10 @@ const QuickView = {
                     <div id="mikoTyping" class="typing-indicator">Miko is typing...</div>
                 </div>
                 <div class="chat-quick-actions px-3 mb-2 d-flex gap-2">
-                    <button id="surpriseMeBtn" class="helpful-btn" style="padding: 4px 10px; font-size: 11px;"></button>
+                    <button id="surpriseMeBtn" class="miko-prompt-chip is-primary" type="button"></button>
+                    <button class="miko-prompt-chip" type="button" data-prompt="something sweet" data-prompt-jp="甘めのおすすめ" data-label-en="Sweet" data-label-jp="甘め"></button>
+                    <button class="miko-prompt-chip" type="button" data-prompt="bold coffee" data-prompt-jp="濃いめのおすすめ" data-label-en="Bold" data-label-jp="濃いめ"></button>
+                    <button class="miko-prompt-chip" type="button" data-prompt="gift idea" data-prompt-jp="ギフトのおすすめ" data-label-en="Gift" data-label-jp="ギフト"></button>
                 </div>
 
 
@@ -1108,6 +1111,13 @@ const QuickView = {
             handleSend(currentLang === 'jp' ? 'おまかせ' : 'surprise me');
         });
 
+        document.querySelectorAll('.miko-prompt-chip[data-prompt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const currentLang = localStorage.getItem("language") || "en";
+                handleSend(currentLang === 'jp' ? btn.dataset.promptJp : btn.dataset.prompt);
+            });
+        });
+
         document.getElementById('clearChatBtn')?.addEventListener('click', () => { 
             this.chatHistory = [];
             localStorage.removeItem('miko_chat_history');
@@ -1874,6 +1884,9 @@ generateLocalResponse: async function(input, lang, context) {
         document.getElementById('newsletterPerkNotes').innerText = lang === 'jp' ? "抽出メモ" : "Brew notes";
         const surpriseBtn = document.getElementById('surpriseMeBtn');
         if (surpriseBtn) surpriseBtn.innerText = t.surpriseBtn;
+        document.querySelectorAll('.miko-prompt-chip[data-label-en]').forEach(btn => {
+            btn.innerText = lang === 'jp' ? btn.dataset.labelJp : btn.dataset.labelEn;
+        });
         const clearBtn = document.getElementById('clearChatBtn');
         if (clearBtn) clearBtn.innerText = t.clearBtn; 
 
