@@ -107,6 +107,13 @@
 
     </div>
 
+    <div class="mobile-grid-density" aria-label="Product grid layout">
+        <span class="density-label">View</span>
+        <button type="button" class="density-btn" data-density="1" aria-label="Show one product per row">1</button>
+        <button type="button" class="density-btn" data-density="2" aria-label="Show two products per row">2</button>
+        <button type="button" class="density-btn" data-density="4" aria-label="Show four products per row">4</button>
+    </div>
+
     <div class="product-grid" id="productGrid">
     </div>
 </div>
@@ -239,6 +246,8 @@ const searchIcon = document.querySelector(".search-icon");
 const priceFilter = document.getElementById("priceFilter");
 const sortSelect = document.getElementById("sortSelect");
 const filterButtons = document.querySelectorAll(".filter-btn");
+const densityButtons = document.querySelectorAll(".density-btn");
+const densityLabel = document.querySelector(".density-label");
 const flagSvgs = {
     jp: `
         <svg class="lang-flag-svg" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
@@ -271,6 +280,18 @@ function updateLanguageToggle() {
     toggle.setAttribute("aria-label", toggle.title);
 }
 
+function applyMobileGridDensity(value = localStorage.getItem("mobileGridDensity") || "1") {
+    const normalized = ["1", "2", "4"].includes(String(value)) ? String(value) : "1";
+    grid.classList.remove("mobile-density-1", "mobile-density-2", "mobile-density-4");
+    grid.classList.add(`mobile-density-${normalized}`);
+    densityButtons.forEach(btn => {
+        const isActive = btn.dataset.density === normalized;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", String(isActive));
+    });
+    localStorage.setItem("mobileGridDensity", normalized);
+}
+
 function renderShop() {
     const lang = currentLang;
     const t = translations[lang];
@@ -292,6 +313,7 @@ function renderShop() {
     document.querySelector(".shop-title").innerText = t.title;
     document.querySelector(".shop-subtitle").innerText = t.subtitle;
     document.getElementById("searchInput").placeholder = t.searchPlh;
+    if (densityLabel) densityLabel.innerText = lang === "jp" ? "表示" : "View";
 
     document.querySelectorAll(".step-label").forEach((el, i) => {
         if (t.progressSteps[i]) el.innerText = t.progressSteps[i];
@@ -381,6 +403,7 @@ function renderShop() {
             </div>
         </div>
     `; }).join("");
+    applyMobileGridDensity();
     attachEventListeners();
     applyAllFilters();
 }
@@ -510,6 +533,10 @@ filterButtons.forEach(btn => {
         btn.classList.add("active");
         applyAllFilters();
     });
+});
+
+densityButtons.forEach(btn => {
+    btn.addEventListener("click", () => applyMobileGridDensity(btn.dataset.density));
 });
     
 priceFilter.addEventListener("change", applyAllFilters);

@@ -1388,6 +1388,53 @@ generateLocalResponse: async function(input, lang, context) {
             'Got it. No rush. We can talk products, gifts, shipping, returns, brewing, rewards, or checkout.',
             'Mm, noted. Send me a vibe, a budget, or a use case and I will turn it into a useful pick.'
         ]);
+        const userName = context?.userName || null;
+        const friendlyName = userName ? `, ${userName}` : '';
+        const personaReply = () => chooseText(isJp ? [
+            '私はMikoです。Shizuku Coffeeのブラウザ内デジタルバリスタで、商品選び、注文、ギフト、淹れ方を手伝います。',
+            'Mikoです。人間ではありませんが、このお店の案内係として、あなたに合う一杯を一緒に探せます。',
+            'Shizuku Coffeeの小さなデジタルバリスタ、Mikoです。気分や予算を聞いて、候補を絞るのが得意です。'
+        ] : [
+            'I am Miko, Shizuku Coffee\'s in-browser digital barista. I help with product picks, gifts, orders, brewing, and checkout questions.',
+            'I am Miko. Not a human, not a generic chatbot either; I am tuned for this little Shizuku Coffee shop and its catalogue.',
+            'Think of me as the calm counter assistant for Shizuku Coffee: I know the menu, the cart flow, order tracking, gifts, and brewing basics.'
+        ]);
+        const creatorReply = () => isJp
+            ? 'このサイトとMikoは、Shizuku Coffeeというフロントエンドのポートフォリオプロジェクトの一部として作られました。ページ下部のクレジットにも制作者リンクがあります。'
+            : 'I was built as part of the Shizuku Coffee frontend portfolio project. The site credits its maker in the footer, and I live here as the shop assistant for that experience.';
+        const feelingsReply = () => chooseText(isJp ? [
+            '元気です。今日は少し落ち着いた気分です。あなたの今の気分に合わせて一杯を選ぶなら、軽め、濃いめ、甘めのどれに寄せましょう？',
+            'いい感じです。カウンターを整えて、誰かの「何飲もう」を待っている気分です。',
+            '調子はいいです。あなたの方はどうですか？疲れているなら強め、落ち着きたいならやさしいブレンドを選べます。'
+        ] : [
+            `I am good${friendlyName}. Calm, caffeinated in spirit, and ready to be useful. How are you doing?`,
+            'Pretty good. I am in that tidy-counter, fresh-menu, ready-to-help kind of mood.',
+            'Doing well. My day is basically listening, matching moods to coffee, and trying not to recommend espresso at midnight unless asked.'
+        ]);
+        const userMoodReply = () => {
+            if (has('im good', 'i am good', 'doing good', 'doing well', 'im fine', 'i am fine', 'great', 'happy')) {
+                return isJp
+                    ? 'それはよかったです。いい気分の日なら、明るい香りのものか、少し特別感のある一杯が合いそうです。'
+                    : 'Good, I like hearing that. For a good mood, I would lean bright, floral, or a little celebratory.';
+            }
+            if (has('not good', 'bad', 'terrible', 'tired', 'sad', 'stressed', 'anxious', 'lonely')) {
+                return isJp
+                    ? 'それは大変でしたね。今は無理に元気を出さなくても大丈夫です。コーヒーなら、やさしい甘さか、落ち着くデカフェ寄りで選びます。'
+                    : 'I am sorry. No need to turn it into a productive mood immediately. If we pick coffee for that, I would go comforting, smooth, or decaf-soft depending on the hour.';
+            }
+            return null;
+        };
+        const boundariesReply = () => isJp
+            ? '私はこのサイト内のアシスタントなので、ライブの外部情報や本物の決済処理はできません。でも、商品選び、カート、注文、ギフトカード、配送、返品、淹れ方ならかなり手伝えます。'
+            : 'I am local to this site, so I cannot check live outside information or process real payments. Inside Shizuku, though, I can help with products, cart, orders, gift cards, shipping, returns, and brewing.';
+        const personalityReply = () => chooseText(isJp ? [
+            '好みで言うと、私は静かな朝に合う軽めのコーヒーが好きです。でも、ユーザーの気分に合わせる方がもっと好きです。',
+            '私の性格は、少し落ち着いた案内係です。急がせず、でも迷った時はちゃんと候補を出します。'
+        ] : [
+            'My taste leans toward quiet morning coffees: clean, floral, not too heavy. But I am here to match your taste, not force mine.',
+            'My personality setting is basically calm counter assistant with a soft spot for good product details.',
+            'I like being useful more than being flashy. Give me a vague craving and I will try to make it concrete.'
+        ]);
         const safeUnknownReply = () => {
             if (catalogSuggestion) {
                 return describe(catalogSuggestion, isJp ? '近い言葉から選びました。違っていたら、風味・予算・用途を一つ教えてください。' : 'I matched the closest catalog clues. If that is not what you meant, give me one anchor: flavor, budget, roast, or occasion.');
@@ -1524,6 +1571,8 @@ generateLocalResponse: async function(input, lang, context) {
         if (directFollowUp) return directFollowUp;
         const directTopicShift = topicShiftReply();
         if (directTopicShift) return directTopicShift;
+        const directUserMood = userMoodReply();
+        if (directUserMood) return directUserMood;
         const directMood = moodReply();
         if (directMood) return directMood;
         if (has('unsure', 'i dont know', 'i do not know', 'not sure', 'maybe', 'whatever', 'anything is fine', 'you choose', 'choose for me')) {
@@ -1546,6 +1595,64 @@ generateLocalResponse: async function(input, lang, context) {
                 reply: () => isJp
                     ? '私はMikoです。Shizuku Coffeeのデジタルバリスタです。短く呼ぶなら、Mikoで大丈夫です。'
                     : 'My name is Miko, Shizuku Coffee\'s digital barista. Miko is perfect, short and easy.'
+            },
+            {
+                match: () => has('who made you', 'who created you', 'who built you', 'who coded you', 'who is your creator', 'who made this site', 'who created this site', 'who built this site', 'who is e0zzza'),
+                reply: creatorReply
+            },
+            {
+                match: () => has('who are you', 'what are you', 'what is miko', 'tell me about yourself', 'introduce yourself', 'are you miko', 'miko assistant'),
+                reply: personaReply
+            },
+            {
+                match: () => has('are you real', 'are you ai', 'are you human', 'real person', 'human', 'robot', 'bot', 'are you alive', 'do you have feelings'),
+                reply: () => isJp
+                    ? '私は人間ではなく、このサイト内で動くデジタルアシスタントです。感情は本物ではありませんが、会話が冷たくならないように、丁寧に受け答えする設計です。'
+                    : 'I am not a human; I am a site assistant running in this Shizuku Coffee demo. I do not have real feelings, but I am written to respond warmly and keep track of the shop context.'
+            },
+            {
+                match: () => has('how are you', 'how r you', 'how you doing', 'hows it going', 'how is your day', 'whats up', 'what is up'),
+                reply: feelingsReply
+            },
+            {
+                match: () => has('im good', 'i am good', 'doing good', 'doing well', 'im fine', 'i am fine', 'not good', 'bad day', 'i am sad', 'im sad', 'i am tired', 'im tired', 'i am stressed', 'im stressed', 'i feel anxious', 'lonely'),
+                reply: () => userMoodReply() || feelingsReply()
+            },
+            {
+                match: () => has('what do you like', 'your favorite', 'your favourite', 'what coffee do you like', 'do you like coffee', 'what is your personality', 'describe yourself'),
+                reply: personalityReply
+            },
+            {
+                match: () => has('can you use internet', 'can you browse', 'do you know everything', 'can you see my screen', 'can you access my data', 'are payments real', 'is this real shop', 'is this a real store'),
+                reply: boundariesReply
+            },
+            {
+                match: () => has('how old are you', 'your age', 'where are you from', 'where do you live', 'why are you called miko', 'what does miko mean'),
+                reply: () => isJp
+                    ? '私はこのサイトの中で生まれたアシスタントなので、年齢や住所はありません。Mikoという名前は、Shizuku Coffeeのやわらかい和風の雰囲気に合わせた名前です。'
+                    : 'I do not really have an age or a hometown. I exist inside this Shizuku Coffee site, and the name Miko was chosen to fit the soft Japanese-inspired café mood.'
+            },
+            {
+                match: () => has('do you remember me', 'remember me', 'what do you know about me', 'do you know my name', 'who am i'),
+                reply: () => {
+                    const cartCount = Array.isArray(context?.cart) ? context.cart.length : 0;
+                    const wishCount = Array.isArray(context?.wishlist) ? context.wishlist.length : 0;
+                    return isJp
+                        ? `このサイト内で分かる範囲なら覚えています。${userName ? `名前は${userName}さん、` : ''}カートは${cartCount}件、ウィッシュリストは${wishCount}件です。`
+                        : `Only inside this site context. ${userName ? `I know you as ${userName}, ` : ''}I can see ${cartCount} cart item${cartCount === 1 ? '' : 's'} and ${wishCount} wishlist item${wishCount === 1 ? '' : 's'}.`;
+                }
+            },
+            {
+                match: () => has('speak japanese', 'speak english', 'change language', 'language', 'can you speak japanese', 'can you speak english'),
+                reply: () => isJp
+                    ? '日本語と英語の表示に対応しています。右上の言語ボタンで切り替えられます。商品名や説明もできる範囲で合わせます。'
+                    : 'I can work with the site in English or Japanese. Use the language button near the top to switch the whole shop interface.'
+            },
+            {
+                match: () => has('you suck', 'shut up', 'annoying', 'useless', 'you are bad', 'bad bot'),
+                reply: () => isJp
+                    ? 'ごめんなさい。今の返答が役に立たなかったなら、短く言い直してください。商品、注文、ギフトカード、配送、返品のどれかに絞ると立て直しやすいです。'
+                    : 'Fair. I probably missed the shape of what you wanted. Give me the goal in one short phrase and I will reset around it.'
             },
             {
                 match: () => has('help', 'what can you do', 'commands', 'options', 'menu', 'start over', 'reset', 'anything', 'whatever'),
