@@ -605,7 +605,7 @@ const QuickView = {
 
             if (!document.getElementById('petalToggleContainer')) {
                 const petalToggleHtml = `
-                    <div id="petalToggleContainer" style="position: fixed; bottom: 80px; left: 20px; z-index: 1000; display: flex; gap: 8px; flex-direction: column;">
+                    <div id="petalToggleContainer" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 8px; flex-direction: column;">
                         <button id="treeToggle" class="sakura-btn" title="Toggle Sakura Tree" style="padding: 10px 15px; font-size: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; width: auto;">
                             ${treeEnabled ? '🌳' : '🚫'}
                         </button>

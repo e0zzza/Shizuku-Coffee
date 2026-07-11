@@ -57,7 +57,7 @@
             <label class="form-label">Password</label>
             <div class="password-toggle-wrapper">
                 <input type="password" class="form-control" id="password" minlength="8" required>
-                <span class="password-toggle-icon">👁️</span>
+                <span class="password-toggle-icon" role="button" tabindex="0" aria-label="Show password"></span>
             </div>
             <div class="strength-meter-container">
                 <div class="strength-bar"></div>
@@ -68,7 +68,7 @@
             <label class="form-label">Confirm Password</label>
             <div class="password-toggle-wrapper">
                 <input type="password" class="form-control" id="confirmPassword" minlength="8" required>
-                <span class="password-toggle-icon">👁️</span>
+                <span class="password-toggle-icon" role="button" tabindex="0" aria-label="Show password"></span>
             </div>
         </div>
 
@@ -120,14 +120,23 @@ function triggerSearch() {
 }
 
 document.querySelectorAll('.password-toggle-icon').forEach(icon => {
-    icon.addEventListener('click', function() {
+    const togglePassword = function() {
         const input = this.parentElement.querySelector('input');
         if (input.type === "password") {
             input.type = "text";
-            this.innerText = "🙈"; 
+            this.classList.add("is-visible");
+            this.setAttribute("aria-label", "Hide password");
         } else {
             input.type = "password";
-            this.innerText = "👁️";
+            this.classList.remove("is-visible");
+            this.setAttribute("aria-label", "Show password");
+        }
+    };
+    icon.addEventListener('click', togglePassword);
+    icon.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            togglePassword.call(this);
         }
     });
 });
@@ -180,7 +189,7 @@ function updateLanguage() {
     document.querySelector("button[type='submit']").innerText = t.btn;
     document.getElementById("loginLink").innerText = t.link;
     document.getElementById("searchInput").placeholder = t.searchPlh;
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
 }
 
 const searchIcon = document.querySelector(".search-icon");

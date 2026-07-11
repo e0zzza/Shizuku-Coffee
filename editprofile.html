@@ -83,7 +83,7 @@
                         <label for="password" class="form-label">New Password</label>
                         <div class="password-toggle-wrapper">
                             <input type="password" class="form-control payment-input" id="password" placeholder="Min 8 characters" style="margin-bottom: 0;">
-                            <span class="password-toggle-icon">👁️</span>
+                            <span class="password-toggle-icon" role="button" tabindex="0" aria-label="Show password"></span>
                         </div>
                         <div class="strength-meter-container">
                             <div class="strength-bar"></div>
@@ -95,7 +95,7 @@
                         <label for="confirmPassword" class="form-label">Confirm Password</label>
                         <div class="password-toggle-wrapper">
                             <input type="password" class="form-control payment-input" id="confirmPassword" placeholder="Re-type password" style="margin-bottom: 0;">
-                            <span class="password-toggle-icon">👁️</span>
+                            <span class="password-toggle-icon" role="button" tabindex="0" aria-label="Show password"></span>
                         </div>
                     </div>
                 </div>
@@ -248,7 +248,7 @@ function updateLanguage() {
     document.querySelector("button[type='submit']").innerText = t.save;
     document.getElementById("removePicBtn").innerText = t.remove;
     document.getElementById("searchInput").placeholder = t.searchPlh;
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
     if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
 }
 
@@ -351,14 +351,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     document.querySelectorAll('.password-toggle-icon').forEach(icon => {
-        icon.addEventListener('click', function() {
+        const togglePassword = function() {
             const input = this.parentElement.querySelector('input');
             if (input.type === "password") {
                 input.type = "text";
-                this.innerText = "🙈"; 
+                this.classList.add("is-visible");
+                this.setAttribute("aria-label", "Hide password");
             } else {
                 input.type = "password";
-                this.innerText = "👁️";
+                this.classList.remove("is-visible");
+                this.setAttribute("aria-label", "Show password");
+            }
+        };
+        icon.addEventListener('click', togglePassword);
+        icon.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                togglePassword.call(this);
             }
         });
     });

@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove('lang-jp');
         }
 
-        document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+        document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
         if (document.getElementById("useDefaultAddrBtn")) {
             document.getElementById("useDefaultAddrBtn").innerText = lang === 'jp' ? '📍 保存</minimax:tool_call>を使う' : '📍 Use Saved Address';
         }
@@ -729,38 +729,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("checkoutSubtotal").innerText = formatPrice(subtotal);
 
-        let total = subtotal - rankDiscount;
+        let total = subtotal;
         let hasPromo = false;
         const warningEl = document.getElementById("checkoutVoucherWarning");
-
-        let giftCardDiscount = 0;
-        if (appliedGiftCard && appliedGiftCard.value) {
-            const exchangeRate = 160;
-            const giftCardValueJpy = appliedGiftCard.value;
-            const giftCardValueEur = giftCardValueJpy / exchangeRate;
-            giftCardDiscount = Math.min(giftCardValueEur, total);
-            total -= giftCardDiscount;
-            document.getElementById("appliedGiftCardRow").style.display = "flex";
-            document.getElementById("appliedGiftCardCode").innerText = appliedGiftCard.code;
-            document.getElementById("appliedGiftCardValue").innerText = "−" + formatPrice(giftCardDiscount);
-        } else {
-            document.getElementById("appliedGiftCardRow").style.display = "none";
-        }
 
         if (localStorage.getItem("couponApplied") === "true") {
             const discount = subtotal * 0.20;
             total = subtotal - discount;
-            if (giftCardDiscount > 0 && appliedGiftCard?.value) {
-                const giftCardValueEur = appliedGiftCard.value / 160;
-                giftCardDiscount = Math.min(giftCardValueEur, total);
-                total -= giftCardDiscount;
-                document.getElementById("appliedGiftCardValue").innerText = "−" + formatPrice(giftCardDiscount);
-            }
             document.getElementById("checkoutDiscountRow").style.display = "flex";
             document.getElementById("checkoutDiscount").innerText = "−" + formatPrice(discount);
             hasPromo = true;
         } else {
             document.getElementById("checkoutDiscountRow").style.display = "none";
+            total -= rankDiscount;
         }
 
         document.getElementById("checkoutRankDiscountRow")?.remove();
@@ -798,7 +779,19 @@ document.addEventListener("DOMContentLoaded", () => {
             if (warningEl) warningEl.style.display = "none";
         }
 
-        document.getElementById("orderTotal").innerText = formatPrice(total);
+        let giftCardDiscount = 0;
+        if (appliedGiftCard && appliedGiftCard.value) {
+            const giftCardValueEur = Number(appliedGiftCard.value) / 160;
+            giftCardDiscount = Math.min(giftCardValueEur, Math.max(total, 0));
+            total -= giftCardDiscount;
+            document.getElementById("appliedGiftCardRow").style.display = "block";
+            document.getElementById("appliedGiftCardCode").innerText = appliedGiftCard.code;
+            document.getElementById("appliedGiftCardValue").innerText = "−" + formatPrice(giftCardDiscount);
+        } else {
+            document.getElementById("appliedGiftCardRow").style.display = "none";
+        }
+
+        document.getElementById("orderTotal").innerText = formatPrice(Math.max(total, 0));
     }
 
     function loadCheckoutVouchers(t) {
@@ -850,9 +843,9 @@ document.addEventListener("DOMContentLoaded", () => {
         cart.push({
             title: lang === 'jp' ? 'ギフトカード送信料' : 'Gift Card Send Fee',
             title_jp: 'ギフトカード送信料',
-            price: 900,
-            price_jp: 900,
+            price: 5.00,
             qty: 1,
+            img: 'fee.png',
             image: 'fee.png',
             desc: lang === 'jp' ? pendingSendFee.giftCardCode + ' 受取人: ' + pendingSendFee.recipientEmail : 'Code: ' + pendingSendFee.giftCardCode + ' To: ' + pendingSendFee.recipientEmail,
             desc_jp: pendingSendFee.giftCardCode + ' 受取人: ' + pendingSendFee.recipientEmail,
@@ -860,12 +853,12 @@ document.addEventListener("DOMContentLoaded", () => {
             sendFeeData: pendingSendFee
         });
         localStorage.setItem("cart", JSON.stringify(cart));
-        sessionStorage.setItem("pendingSendFee", null);
+        sessionStorage.removeItem("pendingSendFee");
 
         window.showSakuraToast(
             lang === 'jp' ?
-            "送信料¥900がカートに追加されました。" :
-            "Send fee ¥900 added to cart.",
+            "送信料€5.00（約¥800）がカートに追加されました。" :
+            "Send fee €5.00 added to cart.",
             '💳'
         );
     }

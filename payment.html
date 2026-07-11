@@ -38,7 +38,7 @@
         </div>
 
         <div style="display: flex; justify-content: center; min-height: 50vh; align-items: center; margin-bottom: 60px;">
-        <div class="glass-card" style="width: 100%; max-width: 480px; position: relative; padding: 40px;">
+        <div class="glass-card payment-card" style="width: 100%; max-width: 480px; position: relative; padding: 40px;">
             
             <div id="processingOverlay" class="processing-overlay">
                 <div class="spinner"></div>
@@ -284,6 +284,8 @@
 
             let appliedVoucher = JSON.parse(sessionStorage.getItem("appliedVoucher") || "null");
             let voucherDiscount = 0;
+            let appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
+            let giftCardDiscount = 0;
 
             function calculateVoucherDiscount() {
                 if (!appliedVoucher) return 0;
@@ -324,6 +326,21 @@
                     vRow.style.display = "none";
                 }
 
+                const gcRow = document.getElementById("paymentGiftCardRow") || createGiftCardRow();
+                giftCardDiscount = 0;
+                if (appliedGiftCard && appliedGiftCard.value) {
+                    const giftCardValueEur = Number(appliedGiftCard.value) / 160;
+                    giftCardDiscount = Math.min(giftCardValueEur, Math.max(runningTotal - voucherDiscount, 0));
+                    if (giftCardDiscount > 0) {
+                        gcRow.style.display = "flex";
+                        gcRow.querySelector('.gc-amount').innerText = "-" + formatPrice(giftCardDiscount);
+                    } else {
+                        gcRow.style.display = "none";
+                    }
+                } else {
+                    gcRow.style.display = "none";
+                }
+
                 let effectiveShipping = shippingCost;
                 if (tier.name === "Sakura" && effectiveShipping === 5.99) {
                     effectiveShipping = 0;
@@ -333,7 +350,7 @@
                 const shipExpPrice = document.querySelector(".shipping-option[data-cost='5.99'] strong");
                 if (shipExpPrice) shipExpPrice.innerText = formatPrice(5.99);
 
-                const total = runningTotal - voucherDiscount + effectiveShipping;
+                const total = runningTotal - voucherDiscount - giftCardDiscount + effectiveShipping;
                 document.getElementById("paymentTotal").innerText = formatPrice(total);
             };
 
@@ -358,6 +375,16 @@
                 return row;
             }
 
+            function createGiftCardRow() {
+                const row = document.createElement('p');
+                row.id = "paymentGiftCardRow";
+                row.style.cssText = "display: none; justify-content: space-between; margin-bottom: 4px; color: #8b6914;";
+                row.innerHTML = `<span class="label-gift-card">Gift Card:</span> <span class="gc-amount">-€0.00</span>`;
+                const parent = document.getElementById("paymentSummaryBreakdown");
+                parent.insertBefore(row, parent.querySelector('.label-ship').parentElement);
+                return row;
+            }
+
             function updateLanguage() {
                 const t = translations[currentLang];
 
@@ -367,7 +394,7 @@
                     document.body.classList.remove('lang-jp');
                 }
 
-                document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+                document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
                 document.getElementById("authTitle").innerText = t.authTitle;
                 document.getElementById("authText").innerText = t.authText;
                 document.getElementById("paymentTitle").innerText = t.payTitle;
@@ -386,6 +413,7 @@
                 document.querySelectorAll(".label-total").forEach(el => el.innerText = t.total);
                 if (document.querySelector(".label-voucher")) document.querySelector(".label-voucher").innerText = t.disc;
                 if (document.querySelector(".label-rank")) document.querySelector(".label-rank").innerText = t.rankDisc;
+                if (document.querySelector(".label-gift-card")) document.querySelector(".label-gift-card").innerText = currentLang === 'jp' ? 'ギフトカード:' : 'Gift Card:';
 
                 document.querySelector(".ship-std").innerText = t.std;
                 document.querySelector(".ship-exp").innerText = t.exp;
@@ -661,12 +689,11 @@
                 } catch (e) {}
 
                 const giftCardCodes = [];
-                const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
 
                 cart.forEach((item, idx) => {
                     if (item.isSendFee && item.sendFeeData) {
                         const sendData = item.sendFeeData;
-                        const existingOrder = allOrders.find(o => o.orderId === sendData.orderId);
+                        const existingOrder = orders.find(o => o.orderId === sendData.orderId);
 
                         if (existingOrder && existingOrder.giftCardCodes) {
                             const existingGc = existingOrder.giftCardCodes.find(gc => gc.code === sendData.giftCardCode);

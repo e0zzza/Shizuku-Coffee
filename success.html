@@ -47,7 +47,7 @@
 
     <div style="display: flex; justify-content: center; align-items: center;">
     <div class="success-card">
-        <img src="check.png" class="success-icon" alt="">
+        <div class="success-icon" aria-hidden="true"></div>
 
         <h1 class="success-title" id="succTitle">Order Placed Successfully</h1>
         <p class="success-text" id="succText">Thank you for your purchase. Your order is now being prepared.</p>
@@ -58,6 +58,15 @@
             </p>
             <p id="discountRow" style="display: none; justify-content: space-between; font-size: 14px; color: var(--sakura-pink-main);">
                 <span class="label-disc">Discount:</span> <span id="successDiscount">-€0.00</span>
+            </p>
+            <p id="rankDiscountRow" style="display: none; justify-content: space-between; font-size: 14px; color: var(--sakura-pink-main);">
+                <span class="label-rank-disc">Rank Discount:</span> <span id="successRankDiscount">-€0.00</span>
+            </p>
+            <p id="voucherDiscountRow" style="display: none; justify-content: space-between; font-size: 14px; color: var(--sakura-pink-main);">
+                <span class="label-voucher-disc">Voucher:</span> <span id="successVoucherDiscount">-€0.00</span>
+            </p>
+            <p id="giftCardDiscountRow" style="display: none; justify-content: space-between; font-size: 14px; color: #8b6914;">
+                <span class="label-gift-disc">Gift Card:</span> <span id="successGiftCardDiscount">-€0.00</span>
             </p>
             <p style="display: flex; justify-content: space-between; font-size: 14px; color: var(--sakura-brown-light);">
                 <span class="label-ship">Shipping:</span> <span id="successShipping">€0.00</span>
@@ -121,11 +130,14 @@ function updateLanguage() {
         document.body.classList.remove('lang-jp');
     }
 
-    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
     document.getElementById("succTitle").innerText = t.title;
     document.getElementById("succText").innerText = t.text;
     document.querySelector(".label-sub").innerText = t.sub;
     document.querySelector(".label-disc").innerText = t.disc;
+    document.querySelector(".label-rank-disc").innerText = lang === 'jp' ? 'ランク割引:' : 'Rank Discount:';
+    document.querySelector(".label-voucher-disc").innerText = lang === 'jp' ? 'クーポン:' : 'Voucher:';
+    document.querySelector(".label-gift-disc").innerText = lang === 'jp' ? 'ギフトカード:' : 'Gift Card:';
     document.querySelector(".label-ship").innerText = t.ship;
     document.querySelector(".label-total").innerText = t.total;
     document.querySelector(".btn-history").innerText = t.history;
@@ -165,6 +177,18 @@ function populateOrderSummary() {
     if (lastOrder.discount > 0) {
         document.getElementById("discountRow").style.display = "flex";
         document.getElementById("successDiscount").innerText = "-" + formatPrice(lastOrder.discount);
+    }
+    if (lastOrder.rankDiscount > 0) {
+        document.getElementById("rankDiscountRow").style.display = "flex";
+        document.getElementById("successRankDiscount").innerText = "-" + formatPrice(lastOrder.rankDiscount);
+    }
+    if (lastOrder.voucherDiscount > 0) {
+        document.getElementById("voucherDiscountRow").style.display = "flex";
+        document.getElementById("successVoucherDiscount").innerText = "-" + formatPrice(lastOrder.voucherDiscount);
+    }
+    if (lastOrder.giftCardDiscount > 0) {
+        document.getElementById("giftCardDiscountRow").style.display = "flex";
+        document.getElementById("successGiftCardDiscount").innerText = "-" + formatPrice(lastOrder.giftCardDiscount);
     }
 }
 

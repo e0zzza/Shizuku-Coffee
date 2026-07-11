@@ -218,7 +218,7 @@ const translations = {
         confirmEmail: "Confirm Email",
         messageOptional: "Message (optional)",
         char300: "0/300",
-        sendFee: "Send fee: ¥900 (5 EUR)",
+        sendFee: "Send fee: €5.00",
         sendConfirm: "Send",
         cancel: "Cancel",
         sendSuccess: "Gift card sent successfully!",
@@ -278,8 +278,8 @@ const translations = {
         confirmEmail: "確認メール",
         messageOptional: "メッセージ（任意）",
         char300: "0/300",
-        sendFee: "送信料: ¥900 (5 EUR)",
-        sendFeeJp: "送信料: ¥900 (5 EUR)",
+        sendFee: "送信料: €5.00（約¥800）",
+        sendFeeJp: "送信料: €5.00（約¥800）",
         sendConfirm: "送信する",
         cancel: "キャンセル",
         sendSuccess: "ギフトカードを送りました！",
@@ -460,19 +460,6 @@ if (document.getElementById('sendConfirmBtn')) {
 
         const orderId = currentGiftCardToSend.orderId;
         const code = currentGiftCardToSend.code;
-        const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        const order = allOrders.find(o => o.orderId === orderId);
-
-        if (order && order.giftCardCodes) {
-            const gc = order.giftCardCodes.find(g => g.code === code);
-            if (gc) {
-                gc.recipientEmail = email;
-                gc.message = message;
-                gc.sentAt = Date.now();
-                localStorage.setItem("orders", JSON.stringify(allOrders));
-            }
-        }
-
         bootstrap.Modal.getInstance(document.getElementById('sendGiftModal')).hide();
 
         sessionStorage.setItem("pendingSendFee", JSON.stringify({
@@ -949,7 +936,7 @@ function updateLanguage() {
         document.body.classList.remove('lang-jp');
     }
 
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇬🇧";
+    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
     document.querySelector(".label-since").innerText = t.since;
     document.querySelector(".btn-edit").innerText = t.edit;
     document.querySelector(".btn-signout").innerText = t.signout;
