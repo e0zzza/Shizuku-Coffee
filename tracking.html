@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Track Order – Shizuku Coffee</title>
+    <title>Track Order - Shizuku Coffee</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,38 +13,39 @@
 <body>
     <img src="tree.png" class="sakura-tree-top" alt="">
     <nav class="glass-nav">
-        <div class="nav-left"><a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a></div>
+        <div class="nav-left">
+            <a href="index.html"><img src="logo.png" class="nav-logo" alt=""></a>
+        </div>
         <div class="nav-center">
             <div class="nav-search">
-                <input type="text" id="searchInput" placeholder="Search coffee..." />
-                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search coffee...">
+                <span class="search-icon">Search</span>
             </div>
         </div>
         <div class="nav-right">
             <a href="basket.html"><img src="cart.png" alt=""><span id="cartBadge" class="cart-badge">0</span></a>
             <a href="wishlist.html" class="nav-hide-mobile"><img src="love.png" alt=""></a>
             <a href="profile.html" class="nav-hide-mobile"><img src="profile-icon.png" alt=""></a>
-            <button id="menuToggle" class="hamburger-btn">☰</button>
         </div>
     </nav>
 
     <div id="languageToggleContainer"><button id="langToggle" class="sakura-btn">🇯🇵</button></div>
 
-    <div class="page-wrapper" style="margin-top: 140px;">
-        <h1 class="page-title">
+    <main class="page-wrapper tracking-page">
+        <h1 class="page-title tracking-title">
             <span id="pageTitleText">Order Tracking</span>
-            <button id="refreshBtn" class="utility-icon-btn" style="display: inline-flex; width: 38px; height: 38px; font-size: 18px; margin-left: 15px; vertical-align: middle;" title="Refresh Status">
-                <svg xmlns="w3.org" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="refresh-icon">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                  <path d="M16 3h5v5" />
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                  <path d="M8 21H3v-5" />
+            <button id="refreshBtn" class="utility-icon-btn tracking-refresh-btn" title="Refresh Status" aria-label="Refresh tracking status">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                    <path d="M16 3h5v5"></path>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                    <path d="M8 21H3v-5"></path>
                 </svg>
             </button>
         </h1>
 
-        <div id="trackingContent">
-            <div class="checkout-progress" style="max-width: 600px;">
+        <section id="trackingContent">
+            <div class="checkout-progress tracking-progress">
                 <div class="progress-line"><div class="progress-line-fill" id="trackLineFill" style="width: 0%;"></div></div>
                 <div class="progress-step" id="step1"><div class="step-circle">1</div><div class="step-label">Ordered</div></div>
                 <div class="progress-step" id="step2"><div class="step-circle">2</div><div class="step-label">Preparing</div></div>
@@ -52,308 +53,375 @@
                 <div class="progress-step" id="step4"><div class="step-circle">4</div><div class="step-label">Delivered</div></div>
             </div>
 
-            <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
-                <div class="d-flex justify-content-between mb-4">
+            <div class="glass-card tracking-card">
+                <div class="tracking-card-header">
                     <div>
-                        <h5 id="orderIdLabel" style="font-size: 14px; margin: 0; opacity: 0.7;">ORDER ID</h5>
-                        <strong id="displayOrderId" style="color: var(--sakura-brown-dark);">#000000</strong>
+                        <h5 id="orderIdLabel">ORDER ID</h5>
+                        <strong id="displayOrderId">#000000</strong>
                     </div>
                     <div class="text-end">
-                        <h5 id="statusLabel" style="font-size: 14px; margin: 0; opacity: 0.7;">ESTIMATED ARRIVAL</h5>
-                        <strong id="displayArrival" style="color: var(--sakura-pink-main);">Calculating...</strong>
+                        <h5 id="statusLabel">ESTIMATED ARRIVAL</h5>
+                        <strong id="displayArrival">Calculating...</strong>
                     </div>
                 </div>
+
+                <div class="tracking-status-panel">
+                    <div>
+                        <span id="trackStatusBadge" class="tracking-status-badge">Preparing</span>
+                        <p id="trackTimelineNote" class="tracking-note mb-0">Your order is being prepared.</p>
+                    </div>
+                    <div id="trackingFacts" class="tracking-facts"></div>
+                </div>
+
+                <div id="trackingAddress" class="tracking-address"></div>
                 <div id="trackOrderItems"></div>
-                <hr style="border-top: 1px solid rgba(255, 182, 193, 0.3);">
+
+                <hr class="tracking-divider">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span id="totalLabel" style="font-weight: 600;">Order Total:</span>
-                    <span id="displayTotal" style="font-weight: 700; font-size: 20px; color: var(--sakura-brown-dark);">€0.00</span>
+                    <span id="totalLabel" class="tracking-total-label">Order Total:</span>
+                    <span id="displayTotal" class="tracking-total-price">€0.00</span>
                 </div>
 
                 <div class="text-center mt-4 pt-3 border-top" id="cancelArea" style="display: none;">
                     <button id="cancelOrderBtn" class="sakura-btn secondary w-100 mb-2">Cancel Order</button>
-                    <p class="small opacity-50 mb-0" style="font-size: 11px;">Orders can be cancelled within 1 hour of placement.</p>
+                    <p id="cancelHint" class="small opacity-50 mb-0" style="font-size: 11px;">Orders can be cancelled within 1 hour of placement.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title w-100" id="cancelModalTitle">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="cancelModalBody">Are you sure you want to cancel this order?</div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="sakura-btn secondary" data-bs-dismiss="modal" id="keepOrderBtn">Keep Order</button>
+                    <button type="button" class="sakura-btn" id="confirmCancelBtn">Cancel Order</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-center">
-          <div class="modal-header border-0">
-            <h5 class="modal-title w-100" id="cancelModalTitle"></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="cancelModalBody"></div>
-          <div class="modal-footer border-0 justify-content-center">
-            <button type="button" class="sakura-btn secondary" data-bs-dismiss="modal" id="keepOrderBtn"></button>
-            <button type="button" class="sakura-btn" id="confirmCancelBtn"></button>
-          </div>
-        </div>
-      </div>
-    </div>
-</body>
+
     <script>
-    const translations = {
+    const trackingText = {
         en: {
             pageTitle: "Order Tracking",
             idLabel: "ORDER ID",
-            statusLabel: "ESTIMATED ARRIVAL",
+            arrivalLabel: "ESTIMATED ARRIVAL",
+            statusLabel: "ORDER STATUS",
             totalLabel: "Order Total:",
             steps: ["Ordered", "Preparing", "Shipped", "Delivered"],
-            arrival: "2-3 Business Days",
-            noOrders: "No active orders found. Redirecting...",
-            cancelBtn: "Cancel Order",
-            delivered: "Delivered!",
-            estArrival: "ESTIMATED ARRIVAL",
+            digitalSteps: ["Ordered", "Issued", "Ready", "Complete"],
+            delivered: "Delivered",
+            complete: "Complete",
             estimatedDeliveryRange: "Estimated Delivery: {start} - {end}",
+            noOrders: "No active orders found. Redirecting...",
             cancelTitle: "Cancel Order",
+            cancelBtn: "Cancel Order",
             keepOrder: "Keep Order",
-            writeReview: "Write a Review",
-            orderCompleted: "Order Completed!",
-            statusCompleted: "ORDER STATUS",
-            cancelConfirm: "Are you sure you want to cancel this order? ",
+            cancelConfirm: "Are you sure you want to cancel this order?",
             cancelSuccess: "Order cancelled successfully.",
-            footerDesc: "Crafting the perfect cup of coffee inspired by the seasons of Japan. Every bean tells a story of tradition and quality.",
-            fLinks: "Quick Links", fVisit: "Visit Us", fAbout: "About Us", fContact: "Contact Support",
-            aboutT: "Our Story", aboutB:"Founded in the heart of Kyoto, Shizuku Coffee (雫コーヒー) was born from a passion for specialty beans and the transient beauty of cherry blossoms.",
-            contactT: "Get in Touch ☕", contactB: "Email: hello@shizuku.coffee<br>Phone: +81 03-1234-5678",
-            guideT: "Brewing the Perfect Sakura Cup ☕",
-            guideB: "Enjoy our specialty beans at home with this simple guide:<br><br><ul><li><b>Grind:</b> Medium-Coarse (like sea salt).</li><li><b>Water:</b> 92°C (approx. 200°F).</li><li><b>Ratio:</b> 15g coffee to 250ml water.</li><li><b>Technique:</b> Pour 30ml to 'bloom' for 30s, then pour slowly in circles.</li></ul><p><i>Tip: Serve in a clear glass to enjoy the light, tea-like color!</i></p>",
-            policyT: "Returns & Exchanges ",
-            policyB: "We want you to love your Shizuku Coffee! If you are not satisfied with your purchase, you can return unopened items within 30 days of delivery. For fresh roasted beans, please contact us within 7 days if there is a quality issue.",
-            fHoursWeek: "Mon - Fri: 8am - 7pm", fHoursEnd: "Sat - Sun: 9am - 6pm",
-            fNewsletter: "Join Our Newsletter", fNewsletterDesc: "Subscribe for updates!",
-            fNewsletterPlh: "Your email...", fNewsletterBtn: "Join"
+            writeReview: "Write a Review",
+            placedOn: "Placed",
+            shippingTo: "Shipping to",
+            currentStatus: "Current Status",
+            deliveryType: "Delivery",
+            digitalStatus: "Digital Delivery",
+            standardShipping: "Standard shipping",
+            expressShipping: "Express shipping",
+            digitalDelivery: "Digital delivery",
+            noAddress: "No shipping address saved for this order.",
+            refreshSuccess: "Tracking refreshed.",
+            cancelWindowOpen: "Orders can be cancelled while they are still within the first hour.",
+            cancelWindowClosed: "Cancellation is closed once the barista team starts preparing the order.",
+            notes: {
+                ordered: "Payment is confirmed and the order has entered the queue.",
+                preparing: "The barista team is packing your items and checking the order details.",
+                shipped: "Your order has left Shizuku Coffee and is on the way.",
+                delivered: "This order is marked complete. You can now review purchased items.",
+                digitalIssued: "Your digital gift card code has been issued and is ready to use.",
+                digitalComplete: "Digital delivery is complete. The gift card can be used at checkout."
+            },
+            searchPlh: "Search coffee..."
         },
         jp: {
             pageTitle: "注文追跡",
             idLabel: "注文番号",
-            statusLabel: "到着予定日",
+            arrivalLabel: "到着予定",
+            statusLabel: "注文状況",
             totalLabel: "合計金額:",
             steps: ["注文済み", "準備中", "発送済み", "配送完了"],
-            arrival: "2〜3営業日以内",
-            noOrders: "注文が見つかりません。移動します...",
-            cancelBtn: "注文をキャンセル",
-            delivered: "配達完了！",
-            estArrival: "到着予定時刻",
-            estimatedDeliveryRange: "配達予定日: {start} - {end}",
+            digitalSteps: ["注文済み", "発行済み", "利用可能", "完了"],
+            delivered: "配送完了",
+            complete: "完了",
+            estimatedDeliveryRange: "配送予定日: {start} - {end}",
+            noOrders: "有効な注文が見つかりません。移動します...",
             cancelTitle: "注文のキャンセル",
+            cancelBtn: "注文をキャンセル",
             keepOrder: "注文を維持する",
-            writeReview: "レビューを書く",
-            orderCompleted: "ご注文が完了しました！",
-            statusCompleted: "注文状況",
-            cancelConfirm: "この注文をキャンセルしてもよろしいですか？ ",
+            cancelConfirm: "この注文をキャンセルしてもよろしいですか？",
             cancelSuccess: "注文がキャンセルされました。",
-            footerDesc: "日本の四季にインスパイアされた、最高の一杯をお届けします。",
-            fLinks: "クイックリンク", fVisit: "店舗案内", fAbout: "私たちについて", fContact: "お問い合わせ",
-            aboutT: "私たちの物語", aboutB: "京都の中心で生まれた雫コーヒー...",
-            contactT: "お問い合わせ ☕",
-            contactB: "メール: hello@shizuku.coffee<br>電話: +81 03-1234-5678",
-            guideT: "究極の桜コーヒーの淹れ方 ☕",
-            guideB: "このシンプルなガイドで、特別な豆を自宅で楽しんでください:<br><br><ul><li><b>挽き方：</b>中粗挽き（海塩のように）</li><li><b>水：</b>92°C（約200°F）</li><li><b>比率：</b>15gのコーヒーに対して250mlの水</li><li><b>テクニック：</b>30mlを注いで30秒間「ブルーミング」させ、その後ゆっくりと円を描くように注ぎます。</li></ul><p><i>ヒント：透明なグラスで提供して、軽やかでお茶のような色合いを楽しんでください！</i></p>",
-            policyT: "返品・交換について",
-            policyB: "雫コーヒーをご愛用いただきありがとうございます。万が一商品にご満足いただけない場合、未開封の商品に限りお届けから30日以内であれば返品を承ります。焙煎豆などの生鮮品については、品質に問題がある場合、お届けから7日以内にご連絡ください。",
-            fHoursWeek: "月 - 金：8:00 - 19:00", fHoursEnd: "土 - 日：9:00 - 18:00",
-            fNewsletter: "ニュースレター登録", fNewsletterDesc: "最新情報をお届けします！",
-            fNewsletterPlh: "メールアドレス...", fNewsletterBtn: "登録"
+            writeReview: "レビューを書く",
+            placedOn: "注文日",
+            shippingTo: "配送先",
+            currentStatus: "現在の状況",
+            deliveryType: "配送",
+            digitalStatus: "デジタル配送",
+            standardShipping: "通常配送",
+            expressShipping: "速達配送",
+            digitalDelivery: "デジタル配送",
+            noAddress: "この注文には配送先が保存されていません。",
+            refreshSuccess: "配送状況を更新しました。",
+            cancelWindowOpen: "ご注文から1時間以内はキャンセルできます。",
+            cancelWindowClosed: "準備が始まるとキャンセル受付は終了します。",
+            notes: {
+                ordered: "お支払いが確認され、注文は受付済みです。",
+                preparing: "バリスタチームが商品を準備しています。",
+                shipped: "ご注文はShizuku Coffeeを出発し、配送中です。",
+                delivered: "この注文は完了しました。購入商品のレビューを書けます。",
+                digitalIssued: "デジタルギフトカードコードが発行され、利用可能です。",
+                digitalComplete: "デジタル配送が完了しました。ギフトカードはチェックアウトで使えます。"
+            },
+            searchPlh: "コーヒーを検索..."
         }
     };
 
-    function renderTracking() {
-        const lang = localStorage.getItem("language") || "en";
-        const t = translations[lang];
-        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    function getLanguage() {
+        return localStorage.getItem("language") || "en";
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char]));
+    }
+
+    function getUserOrders() {
+        const user = JSON.parse(localStorage.getItem("loggedInUser") || "null");
         const allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        const userOrders = user ? allOrders.filter(o => o.userEmail === user.email) : [];
+        return { user, allOrders, userOrders: user ? allOrders.filter(o => o.userEmail === user.email) : [] };
+    }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetOrderId = urlParams.get('id');
-        
-        const latestOrder = targetOrderId 
-            ? userOrders.find(o => o.orderId === targetOrderId)
-            : userOrders.sort((a, b) => b.timestamp - a.timestamp)[0];
-            
-        const cancelModalEl = document.getElementById('cancelConfirmModal');
-        const cancelModal = bootstrap.Modal.getOrCreateInstance(cancelModalEl);
+    function getSelectedOrder(userOrders) {
+        const targetOrderId = new URLSearchParams(window.location.search).get("id");
+        if (targetOrderId) return userOrders.find(o => o.orderId === targetOrderId) || null;
+        return [...userOrders].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0] || null;
+    }
 
-        if (!user || !latestOrder) {
-            window.showSakuraToast(t.noOrders, '📦');
-            setTimeout(() => window.location.href = "profile.html", 2000);
+    function buildTrackingState(order, t, isJp) {
+        const orderDate = new Date(order.timestamp || Date.now());
+        const elapsedMs = Math.max(0, Date.now() - orderDate.getTime());
+        const elapsedHours = elapsedMs / 3600000;
+        const isDigitalOnly = Array.isArray(order.items) &&
+            order.items.length > 0 &&
+            order.items.every(item =>
+                item.isDigital === true ||
+                (!Object.prototype.hasOwnProperty.call(item, "isDigital") && item.giftValue && Number(order.shippingCost) === 0)
+            );
+        const isExpress = Number(order.shippingCost) > 0;
+        const deliveryDays = isDigitalOnly ? { start: 0, end: 0 } : isExpress ? { start: 2, end: 3 } : { start: 5, end: 7 };
+        const shippedAfterHours = isExpress ? 12 : 48;
+        const deliveredAfterHours = deliveryDays.end * 24;
+
+        let stage = 1;
+        let statusText = t.steps[0];
+        let note = t.notes.ordered;
+
+        if (isDigitalOnly) {
+            stage = elapsedHours >= 1 ? 4 : 2;
+            statusText = stage === 4 ? t.complete : t.digitalSteps[1];
+            note = stage === 4 ? t.notes.digitalComplete : t.notes.digitalIssued;
+        } else if (elapsedHours >= deliveredAfterHours) {
+            stage = 4;
+            statusText = t.delivered;
+            note = t.notes.delivered;
+        } else if (elapsedHours >= shippedAfterHours) {
+            stage = 3;
+            statusText = t.steps[2];
+            note = t.notes.shipped;
+        } else if (elapsedHours >= 1) {
+            stage = 2;
+            statusText = t.steps[1];
+            note = t.notes.preparing;
+        }
+
+        const addDays = days => new Date(orderDate.getTime() + days * 86400000);
+        const formatDay = date => date.toLocaleDateString(isJp ? "ja-JP" : "en-US", { month: "short", day: "numeric" });
+        const formatFullDate = date => date.toLocaleDateString(isJp ? "ja-JP" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+        const deliveryText = isDigitalOnly
+            ? statusText
+            : stage === 4
+                ? t.delivered
+                : t.estimatedDeliveryRange.replace("{start}", formatDay(addDays(deliveryDays.start))).replace("{end}", formatDay(addDays(deliveryDays.end)));
+        const shippingLabel = isDigitalOnly ? t.digitalDelivery : isExpress ? t.expressShipping : t.standardShipping;
+
+        return {
+            stage,
+            statusText,
+            note,
+            orderDate,
+            deliveryText,
+            shippingLabel,
+            isDigitalOnly,
+            formatFullDate,
+            canCancel: elapsedMs < 3600000 && stage === 1
+        };
+    }
+
+    function renderTracking() {
+        const lang = getLanguage();
+        const isJp = lang === "jp";
+        const t = trackingText[lang];
+        const { user, allOrders, userOrders } = getUserOrders();
+        const order = getSelectedOrder(userOrders);
+
+        if (!user || !order) {
+            window.showSakuraToast(t.noOrders, "📦");
+            setTimeout(() => window.location.href = "profile.html", 1800);
             return;
         }
 
-        document.body.classList.toggle('lang-jp', lang === 'jp');
+        const state = buildTrackingState(order, t, isJp);
+        document.body.classList.toggle("lang-jp", isJp);
         document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
+        document.getElementById("searchInput").placeholder = t.searchPlh;
         document.getElementById("pageTitleText").innerText = t.pageTitle;
         document.getElementById("orderIdLabel").innerText = t.idLabel;
+        document.getElementById("statusLabel").innerText = state.stage === 4 ? t.statusLabel : state.isDigitalOnly ? t.digitalStatus : t.arrivalLabel;
         document.getElementById("totalLabel").innerText = t.totalLabel;
-        document.getElementById("displayOrderId").innerText = "#" + latestOrder.orderId;
-        document.getElementById("displayTotal").innerText = formatPrice(latestOrder.total);
-        
-        const currentStatus = getSimulatedStatus(latestOrder.timestamp);
-        const stageMap = { 
-            "Paid & Preparing": 1, 
-            "Payment Confirmed": 1, 
-            "Preparing": 2, 
-            "Shipped": 3, 
-            "Delivered": 4 
-        };
-        const stage = stageMap[currentStatus] || 1;
-    
-        const arrivalEl = document.getElementById("displayArrival");
-        const statusLabelEl = document.getElementById("statusLabel");
+        document.getElementById("displayOrderId").innerText = "#" + order.orderId;
+        document.getElementById("displayArrival").innerText = state.deliveryText;
+        document.getElementById("displayTotal").innerText = formatPrice(order.total);
+        document.getElementById("trackStatusBadge").innerText = state.statusText;
+        document.getElementById("trackTimelineNote").innerText = state.note;
 
-        if (stage === 4) {
-            statusLabelEl.innerText = t.statusCompleted;
-            arrivalEl.innerText = t.delivered;
-        } else {
-            statusLabelEl.innerText = t.estArrival;
-    
-            const orderDate = new Date(latestOrder.timestamp);
-            const estStart = new Date(orderDate.getTime() + (2 * 24 * 60 * 60 * 1000)); 
-            const estEnd = new Date(orderDate.getTime() + (4 * 24 * 60 * 60 * 1000));   
-    
-            const options = { month: 'short', day: 'numeric' };
-            const formattedStart = estStart.toLocaleDateString(lang === 'jp' ? 'ja-JP' : 'en-US', options);
-            const formattedEnd = estEnd.toLocaleDateString(lang === 'jp' ? 'ja-JP' : 'en-US', options);
+        document.getElementById("trackingFacts").innerHTML = `
+            <div><span>${t.placedOn}</span><strong>${state.formatFullDate(state.orderDate)}</strong></div>
+            <div><span>${t.currentStatus}</span><strong>${escapeHTML(state.statusText)}</strong></div>
+            <div><span>${t.deliveryType}</span><strong>${escapeHTML(state.shippingLabel)}</strong></div>
+        `;
 
-            arrivalEl.innerText = t.estimatedDeliveryRange
-                .replace('{start}', formattedStart)
-                .replace('{end}', formattedEnd);
-        }
+        const address = order.shippingDetails || {};
+        const hasAddress = !state.isDigitalOnly && address.address && address.address !== "N/A";
+        document.getElementById("trackingAddress").innerHTML = hasAddress
+            ? `<span>${t.shippingTo}</span><strong>${escapeHTML(address.name || "")}</strong><p>${escapeHTML(address.address)} ${escapeHTML(address.zip || "")}</p>`
+            : `<span>${t.shippingTo}</span><p>${state.isDigitalOnly ? t.digitalDelivery : t.noAddress}</p>`;
 
-        const fillWidth = stage === 1 ? '0%' : stage === 2 ? '33%' : stage === 3 ? '66%' : '100%';
-        document.getElementById("trackLineFill").style.width = fillWidth;
-
-        const timeElapsed = Date.now() - latestOrder.timestamp;
-        const isWithinOneHour = timeElapsed < 3600000; 
-
-        const cancelBtn = document.getElementById("cancelOrderBtn");
-        const cancelArea = document.getElementById("cancelArea");
-        if (cancelBtn && cancelArea) {
-            cancelBtn.innerText = t.cancelBtn;
-            cancelArea.style.display = isWithinOneHour ? "block" : "none";
-        }
-
-        t.steps.forEach((label, i) => {
+        document.getElementById("trackLineFill").style.width = state.stage === 1 ? "0%" : state.stage === 2 ? "33%" : state.stage === 3 ? "66%" : "100%";
+        const labels = state.isDigitalOnly ? t.digitalSteps : t.steps;
+        labels.forEach((label, i) => {
             const stepNum = i + 1;
             const el = document.getElementById("step" + stepNum);
+            el.classList.remove("completed", "active");
             el.querySelector(".step-label").innerText = label;
-            if (stepNum < stage) el.classList.add("completed");
-            if (stepNum === stage) el.classList.add("active");
+            if (stepNum < state.stage) el.classList.add("completed");
+            if (stepNum === state.stage) el.classList.add("active");
         });
-    
-        document.getElementById("trackOrderItems").innerHTML = latestOrder.items.map(item => {
-            const reviewBtnHtml = stage === 4 ? `
-                <button class="sakura-btn write-review-btn" data-title="${item.name}" style="padding: 4px 12px; font-size: 11px; margin-top: 8px; width: auto;">
-                    ${t.writeReview}
-                </button>` : '';
 
+        document.getElementById("trackOrderItems").innerHTML = (order.items || []).map(item => {
+            const qty = Number(item.qty || 1);
+            const price = Number(item.price || 0);
+            const reviewBtn = state.stage === 4 ? `
+                <button class="sakura-btn write-review-btn" data-title="${escapeHTML(item.name)}" style="padding: 4px 12px; font-size: 11px; margin-top: 8px; width: auto;">
+                    ${t.writeReview}
+                </button>` : "";
             return `
-                <div class="order-item" style="align-items: flex-start;">
-                    <img src="${item.image}" class="order-thumb">
+                <div class="order-item tracking-order-item">
+                    <img src="${escapeHTML(item.image || "logo.png")}" class="order-thumb" alt="">
                     <div class="order-details">
-                        <div class="order-name">${item.name}</div>
-                        <div class="order-meta">Qty: ${item.qty}</div>
-                        ${reviewBtnHtml}
+                        <div class="order-name">${escapeHTML(item.name)}</div>
+                        <div class="order-meta">Qty: ${qty}</div>
+                        ${reviewBtn}
                     </div>
-                    <div class="order-price">${formatPrice(item.price * item.qty)}</div>
+                    <div class="order-price">${formatPrice(price * qty)}</div>
                 </div>`;
         }).join("");
 
-        document.getElementById('cancelModalTitle').innerText = t.cancelTitle;
-        document.getElementById('cancelModalBody').innerText = t.cancelConfirm;
-        document.getElementById('keepOrderBtn').innerText = t.keepOrder;
-        document.getElementById('confirmCancelBtn').innerText = t.cancelBtn;
+        const cancelArea = document.getElementById("cancelArea");
+        const cancelBtn = document.getElementById("cancelOrderBtn");
+        const cancelHint = document.getElementById("cancelHint");
+        cancelArea.style.display = state.stage < 3 ? "block" : "none";
+        cancelBtn.innerText = t.cancelBtn;
+        cancelBtn.disabled = !state.canCancel;
+        cancelHint.innerText = state.canCancel ? t.cancelWindowOpen : t.cancelWindowClosed;
 
-        document.querySelectorAll('.write-review-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                QuickView.showByName(btn.dataset.title);
-            });
+        document.getElementById("cancelModalTitle").innerText = t.cancelTitle;
+        document.getElementById("cancelModalBody").innerText = t.cancelConfirm;
+        document.getElementById("keepOrderBtn").innerText = t.keepOrder;
+        document.getElementById("confirmCancelBtn").innerText = t.cancelBtn;
+
+        document.querySelectorAll(".write-review-btn").forEach(btn => {
+            btn.addEventListener("click", () => QuickView.showByName(btn.dataset.title));
         });
-    
-        document.getElementById("confirmCancelBtn").onclick = () => {
-            const user = JSON.parse(localStorage.getItem("loggedInUser"));
-            let allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-            
-            if (user && latestOrder) {
-                const pointsToSubtract = Math.max(0, Math.floor(latestOrder.total - (latestOrder.shippingCost || 0)));
-                let toastMsg = t.cancelSuccess;
 
-                if (pointsToSubtract > 0) {
-                    user.points = Math.max(0, (user.points || 0) - pointsToSubtract);
-                    
-                    const reversalTx = {
-                        date: new Date().toISOString(),
-                        amount: -pointsToSubtract,
-                        reason: `Cancelled Order #${latestOrder.orderId}`,
-                        reason_jp: `注文キャンセルによるポイント減算 (#${latestOrder.orderId})`
-                    };
-    
-                    toastMsg += lang === 'jp' ? 
-                        ` (${pointsToSubtract} ポイントが差し引かれました)` : 
-                        ` (${pointsToSubtract} points forfeited)`;
-
-                    user.pointsHistory = [...(Array.isArray(user.pointsHistory) ? user.pointsHistory : []), reversalTx];
-                    
-                    localStorage.setItem("loggedInUser", JSON.stringify(user));
-                    
-                    let users = JSON.parse(localStorage.getItem("users") || "[]");
-                    users = users.map(u => u.email === user.email ? user : u);
-                    localStorage.setItem("users", JSON.stringify(users));
-
-                    window.dispatchEvent(new CustomEvent('shizuku_points_updated', { detail: user }));
-                }
-
-                const updatedOrders = allOrders.filter(o => o.orderId !== latestOrder.orderId);
-                localStorage.setItem("orders", JSON.stringify(updatedOrders));
-                
-                cancelModal.hide();
-                window.showSakuraToast(toastMsg, '🗑️');
-                setTimeout(() => window.location.href = "profile.html", 1500);
-            }
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("cancelConfirmModal"));
+        cancelBtn.onclick = () => {
+            if (state.canCancel) modal.show();
         };
+        document.getElementById("confirmCancelBtn").onclick = () => cancelOrder(order, user, allOrders, t, isJp, modal);
 
-        cancelBtn?.replaceWith(cancelBtn.cloneNode(true)); 
-        const newCancelBtn = document.getElementById("cancelOrderBtn");
-        newCancelBtn?.addEventListener("click", () => cancelModal.show());
+        if (typeof updateCartBadge === "function") updateCartBadge();
+    }
 
-        if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
+    function cancelOrder(order, user, allOrders, t, isJp, modal) {
+        const pointsToSubtract = Math.max(0, Math.floor(Number(order.total || 0) - Number(order.shippingCost || 0)));
+        let toastMsg = t.cancelSuccess;
+        if (pointsToSubtract > 0) {
+            user.points = Math.max(0, (user.points || 0) - pointsToSubtract);
+            user.pointsHistory = [...(Array.isArray(user.pointsHistory) ? user.pointsHistory : []), {
+                date: new Date().toISOString(),
+                amount: -pointsToSubtract,
+                reason: `Cancelled Order #${order.orderId}`,
+                reason_jp: `注文キャンセルによるポイント減算 (#${order.orderId})`
+            }];
+            localStorage.setItem("loggedInUser", JSON.stringify(user));
+            let users = JSON.parse(localStorage.getItem("users") || "[]");
+            users = users.map(u => u.email === user.email ? user : u);
+            localStorage.setItem("users", JSON.stringify(users));
+            window.dispatchEvent(new CustomEvent("shizuku_points_updated", { detail: user }));
+            toastMsg += isJp ? ` (${pointsToSubtract} ポイントが差し引かれました)` : ` (${pointsToSubtract} points forfeited)`;
+        }
+
+        localStorage.setItem("orders", JSON.stringify(allOrders.filter(o => o.orderId !== order.orderId)));
+        modal.hide();
+        window.showSakuraToast(toastMsg, "↺");
+        setTimeout(() => window.location.href = "profile.html", 1500);
     }
 
     document.getElementById("langToggle").addEventListener("click", () => {
-        localStorage.setItem("language", localStorage.getItem("language") === "en" ? "jp" : "en");
+        localStorage.setItem("language", getLanguage() === "en" ? "jp" : "en");
         renderTracking();
     });
-    
-    document.addEventListener("DOMContentLoaded", renderTracking);
 
-    document.getElementById("refreshBtn")?.addEventListener("click", function() {
-        const btn = this;
-        btn.classList.add("spinning");
-        const lang = localStorage.getItem("language") || "en";
-
+    document.getElementById("refreshBtn").addEventListener("click", function() {
+        this.classList.add("spinning");
         setTimeout(() => {
-            const user = JSON.parse(localStorage.getItem("loggedInUser"));
-            let allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-            
-            if (user && allOrders.length > 0) {
-                const userOrders = allOrders.filter(o => o.userEmail === user.email);
-                const latest = userOrders.sort((a, b) => b.timestamp - a.timestamp)[0];
-                
-                if (latest) {
-                    const globalIdx = allOrders.findIndex(o => o.orderId === latest.orderId);
-                    allOrders[globalIdx].timestamp -= (24 * 60 * 60 * 1000); 
-                    localStorage.setItem("orders", JSON.stringify(allOrders));
-                }
-            }
-
             renderTracking();
-            btn.classList.remove("spinning");
-            const msg = lang === 'jp' ? "注文状況を更新しました！" : "Tracking status updated!";
-            window.showSakuraToast(msg, '↺');
-        }, 1500);
+            this.classList.remove("spinning");
+            window.showSakuraToast(trackingText[getLanguage()].refreshSuccess, "↻");
+        }, 500);
     });
+
+    document.getElementById("searchInput").addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+            window.location.href = "index.html?search=" + encodeURIComponent(e.target.value.trim());
+        }
+    });
+
+    document.querySelector(".search-icon").addEventListener("click", () => {
+        const searchInput = document.getElementById("searchInput");
+        window.location.href = "index.html?search=" + encodeURIComponent(searchInput.value.trim());
+    });
+
+    document.addEventListener("DOMContentLoaded", renderTracking);
     </script>
+</body>
 </html>

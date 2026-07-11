@@ -287,6 +287,28 @@
             let appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
             let giftCardDiscount = 0;
 
+            function validateAppliedGiftCard() {
+                if (!appliedGiftCard || !appliedGiftCard.code) return false;
+                const storedData = (typeof QuickView !== 'undefined' && QuickView.checkStoredGiftCard)
+                    ? QuickView.checkStoredGiftCard(appliedGiftCard.code)
+                    : { valid: true, value: appliedGiftCard.value };
+
+                if (!storedData.valid) {
+                    appliedGiftCard = null;
+                    sessionStorage.removeItem("appliedGiftCard");
+                    return false;
+                }
+
+                appliedGiftCard = {
+                    code: storedData.code || appliedGiftCard.code,
+                    value: Number(storedData.value) || Number(appliedGiftCard.value) || 0
+                };
+                sessionStorage.setItem("appliedGiftCard", JSON.stringify(appliedGiftCard));
+                return true;
+            }
+
+            validateAppliedGiftCard();
+
             function calculateVoucherDiscount() {
                 if (!appliedVoucher) return 0;
                 const result = QuickView.calculateDiscount(appliedVoucher, subtotal, shippingCost);
@@ -328,7 +350,7 @@
 
                 const gcRow = document.getElementById("paymentGiftCardRow") || createGiftCardRow();
                 giftCardDiscount = 0;
-                if (appliedGiftCard && appliedGiftCard.value) {
+                if (validateAppliedGiftCard() && appliedGiftCard && appliedGiftCard.value) {
                     const giftCardValueEur = Number(appliedGiftCard.value) / 160;
                     giftCardDiscount = Math.min(giftCardValueEur, Math.max(runningTotal - voucherDiscount, 0));
                     if (giftCardDiscount > 0) {
@@ -673,11 +695,11 @@
                 });
 
                 // Calculate gift card discount applied at checkout
-                const appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
+                const appliedGiftCardForOrder = validateAppliedGiftCard() ? appliedGiftCard : null;
                 let giftCardDiscount = 0;
-                if (appliedGiftCard && appliedGiftCard.value) {
+                if (appliedGiftCardForOrder && appliedGiftCardForOrder.value) {
                     const exchangeRate = 160;
-                    const giftCardValueEur = appliedGiftCard.value / exchangeRate;
+                    const giftCardValueEur = appliedGiftCardForOrder.value / exchangeRate;
                     const subtotalBeforeDiscount = currentSubtotal - orderDiscount - (orderDiscount > 0 ? 0 : rankDiscount) - finalVoucherDiscount;
                     giftCardDiscount = Math.min(giftCardValueEur, Math.max(subtotalBeforeDiscount, 0));
                 }
@@ -739,7 +761,8 @@
                         price: item.isDigital && item.priceDigital ? item.priceDigital : item.price,
                         image: item.img,
                         qty: item.qty || 1,
-                        giftValue: item.giftValue || null
+                        giftValue: item.giftValue || null,
+                        isDigital: !!item.isDigital
                     })),
                     giftCardCodes: giftCardCodes,
                     userEmail: loggedInUser.email,
@@ -818,18 +841,21 @@
                 sessionStorage.removeItem("pendingShipping");
 
                 (async () => {
-                    const appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
-                    if (appliedGiftCard && appliedGiftCard.code) {
+                    const cardToRedeem = appliedGiftCardForOrder;
+                    sessionStorage.removeItem("appliedGiftCard");
+                    appliedGiftCard = null;
+
+                    if (cardToRedeem && cardToRedeem.code) {
                         try {
                             const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
                             if (typeof QuickView !== 'undefined' && QuickView.redeemStoredGiftCard) {
-                                QuickView.redeemStoredGiftCard(appliedGiftCard.code, loggedInUser.email || '');
+                                QuickView.redeemStoredGiftCard(cardToRedeem.code, loggedInUser.email || '');
                             }
                             await fetch('/api/giftcard/redeem', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    code: appliedGiftCard.code,
+                                    code: cardToRedeem.code,
                                     email: loggedInUser.email || ''
                                 })
                             });
@@ -837,7 +863,6 @@
                             console.log('Gift card redemption skipped');
                         }
                     }
-                    sessionStorage.removeItem("appliedGiftCard");
                 })();
 
                 if (newTier.name !== oldTier.name) {

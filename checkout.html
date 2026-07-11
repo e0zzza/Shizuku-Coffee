@@ -336,6 +336,28 @@ document.addEventListener("DOMContentLoaded", () => {
     let appliedVoucher = JSON.parse(sessionStorage.getItem("appliedVoucher") || "null");
     let appliedGiftCard = JSON.parse(sessionStorage.getItem("appliedGiftCard") || "null");
 
+    function validateAppliedGiftCard() {
+        if (!appliedGiftCard || !appliedGiftCard.code) return false;
+        const storedData = (typeof QuickView !== 'undefined' && QuickView.checkStoredGiftCard)
+            ? QuickView.checkStoredGiftCard(appliedGiftCard.code)
+            : { valid: true, value: appliedGiftCard.value };
+
+        if (!storedData.valid) {
+            appliedGiftCard = null;
+            sessionStorage.removeItem("appliedGiftCard");
+            return false;
+        }
+
+        appliedGiftCard = {
+            code: storedData.code || appliedGiftCard.code,
+            value: Number(storedData.value) || Number(appliedGiftCard.value) || 0
+        };
+        sessionStorage.setItem("appliedGiftCard", JSON.stringify(appliedGiftCard));
+        return true;
+    }
+
+    validateAppliedGiftCard();
+
     async function applyGiftCardCode() {
         const input = document.getElementById("giftCardCodeInput");
         const messageEl = document.getElementById("giftCardMessage");
@@ -780,7 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let giftCardDiscount = 0;
-        if (appliedGiftCard && appliedGiftCard.value) {
+        if (validateAppliedGiftCard() && appliedGiftCard && appliedGiftCard.value) {
             const giftCardValueEur = Number(appliedGiftCard.value) / 160;
             giftCardDiscount = Math.min(giftCardValueEur, Math.max(total, 0));
             total -= giftCardDiscount;

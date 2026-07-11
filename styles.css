@@ -2578,6 +2578,176 @@ body.lang-jp {
     box-shadow: 0 8px 18px rgba(90, 70, 58, 0.1);
 }
 
+.tracking-page {
+    margin-top: 140px;
+}
+
+.tracking-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.tracking-refresh-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+}
+
+.tracking-refresh-btn.spinning svg {
+    animation: spinRefresh 0.7s linear infinite;
+}
+
+@keyframes spinRefresh {
+    to { transform: rotate(360deg); }
+}
+
+.tracking-progress {
+    max-width: 680px;
+}
+
+.tracking-card {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at top right, rgba(255, 213, 229, 0.3), transparent 34%),
+        linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,248,251,0.45));
+    border: 1px solid rgba(255, 182, 193, 0.38);
+    box-shadow: 0 22px 54px rgba(90, 70, 58, 0.11);
+}
+
+.tracking-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.tracking-card-header h5 {
+    font-size: 12px;
+    margin: 0 0 3px;
+    color: var(--sakura-brown-light);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.tracking-card-header strong,
+.tracking-total-price {
+    color: var(--sakura-pink-dark);
+    font-weight: 800;
+}
+
+.tracking-status-panel {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 18px;
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.46);
+    border: 1px solid rgba(255, 182, 193, 0.28);
+    margin-bottom: 16px;
+}
+
+.tracking-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 101, 163, 0.12);
+    color: var(--sakura-pink-dark);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.tracking-note {
+    color: var(--sakura-brown-light);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.tracking-facts {
+    display: grid;
+    gap: 8px;
+}
+
+.tracking-facts div,
+.tracking-address {
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255, 182, 193, 0.2);
+}
+
+.tracking-facts span,
+.tracking-address span {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--sakura-brown-light);
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.tracking-facts strong,
+.tracking-address strong {
+    display: block;
+    color: var(--sakura-brown-dark);
+    font-size: 13px;
+}
+
+.tracking-address {
+    margin-bottom: 16px;
+}
+
+.tracking-address p {
+    margin: 0;
+    color: var(--sakura-brown-light);
+    font-size: 13px;
+}
+
+.tracking-order-item {
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.44);
+    border: 1px solid rgba(255, 182, 193, 0.22);
+}
+
+.tracking-divider {
+    border-top: 1px solid rgba(255, 182, 193, 0.3);
+    margin: 18px 0;
+}
+
+.tracking-total-label {
+    font-weight: 700;
+    color: var(--sakura-brown-dark);
+}
+
+@media (max-width: 640px) {
+    .tracking-card {
+        width: 92%;
+        padding: 22px;
+    }
+
+    .tracking-card-header,
+    .tracking-status-panel {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .tracking-card-header .text-end {
+        text-align: left !important;
+    }
+}
+
 .order-details {
     flex: 1;
 }
@@ -3308,32 +3478,40 @@ body.lang-jp {
     height: 30px;
     border-radius: 999px;
     color: var(--sakura-brown-light);
-    opacity: 0.78;
+    opacity: 0.82;
     transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .password-toggle-icon::before {
     content: "";
     position: absolute;
-    width: 17px;
-    height: 11px;
+    width: 20px;
+    height: 13px;
     left: 50%;
     top: 50%;
     border: 2px solid currentColor;
-    border-radius: 999px / 70%;
+    border-radius: 72% 28% 72% 28%;
     transform: translate(-50%, -50%);
+    background:
+        radial-gradient(circle at center, currentColor 0 2.5px, transparent 3px),
+        radial-gradient(circle at center, rgba(255,255,255,0.9) 0 5px, transparent 5.5px);
+    box-shadow: none;
 }
 
 .password-toggle-icon::after {
     content: "";
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 20px;
+    height: 2px;
     left: 50%;
     top: 50%;
-    border-radius: 50%;
+    border-radius: 999px;
     background: currentColor;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) rotate(-42deg) scaleX(0);
+    transform-origin: center;
+    opacity: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.65);
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .password-toggle-icon:hover,
@@ -3345,12 +3523,8 @@ body.lang-jp {
 }
 
 .password-toggle-icon.is-visible::after {
-    width: 21px;
-    height: 2px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: translate(-50%, -50%) rotate(-38deg);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+    transform: translate(-50%, -50%) rotate(-42deg) scaleX(1);
+    opacity: 1;
 }
 
 .password-toggle-wrapper input {
