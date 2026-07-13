@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove('lang-jp');
         }
 
-        document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
+        window.setShizukuLanguageToggle(lang);
         if (document.getElementById("useDefaultAddrBtn")) {
             document.getElementById("useDefaultAddrBtn").innerText = lang === 'jp' ? '📍 保存</minimax:tool_call>を使う' : '📍 Use Saved Address';
         }

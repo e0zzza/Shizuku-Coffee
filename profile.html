@@ -935,7 +935,7 @@ function updateLanguage() {
         document.body.classList.remove('lang-jp');
     }
 
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(currentLang);
     document.querySelector(".label-since").innerText = t.since;
     document.querySelector(".btn-edit").innerText = t.edit;
     document.querySelector(".btn-signout").innerText = t.signout;

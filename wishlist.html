@@ -82,7 +82,7 @@ function updateLangToggleButton() {
     }
 
     if (langToggleBtn) {
-        langToggleBtn.innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+        window.setShizukuLanguageToggle(currentLang);
     }
     document.getElementById("wishTitle").innerText = t.title;
     document.getElementById("recommendTitle").innerText = t.recommend;

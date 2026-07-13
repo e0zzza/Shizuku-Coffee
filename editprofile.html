@@ -247,7 +247,7 @@ function updateLanguage() {
     document.querySelector("button[type='submit']").innerText = t.save;
     document.getElementById("removePicBtn").innerText = t.remove;
     document.getElementById("searchInput").placeholder = t.searchPlh;
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(currentLang);
     if (typeof QuickView !== 'undefined') QuickView.updateFooterUI();
 }
 

@@ -290,7 +290,7 @@
 
         const state = buildTrackingState(order, t, isJp);
         document.body.classList.toggle("lang-jp", isJp);
-        document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
+        window.setShizukuLanguageToggle(lang);
         document.getElementById("searchInput").placeholder = t.searchPlh;
         document.getElementById("pageTitleText").innerText = t.pageTitle;
         document.getElementById("orderIdLabel").innerText = t.idLabel;

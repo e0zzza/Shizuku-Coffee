@@ -129,7 +129,7 @@ function updateLanguage() {
         document.body.classList.remove('lang-jp');
     }
 
-    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(lang);
     document.getElementById("succTitle").innerText = t.title;
     document.getElementById("succText").innerText = t.text;
     document.querySelector(".label-sub").innerText = t.sub;

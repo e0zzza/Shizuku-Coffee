@@ -1,3 +1,40 @@
+const SHIZUKU_LANGUAGE_FLAG_SVGS = {
+    jp: `
+        <svg class="lang-flag-svg" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
+            <rect width="36" height="24" rx="3" fill="#fff"/>
+            <circle cx="18" cy="12" r="6.2" fill="#bc002d"/>
+        </svg>
+    `,
+    en: `
+        <svg class="lang-flag-svg" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
+            <rect width="36" height="24" rx="3" fill="#b22234"/>
+            <path d="M0 2.77h36M0 6.46h36M0 10.15h36M0 13.85h36M0 17.54h36M0 21.23h36" stroke="#fff" stroke-width="1.85"/>
+            <path d="M0 0h15.8v12.9H0z" fill="#3c3b6e"/>
+            <g fill="#fff">
+                <circle cx="2" cy="2" r=".45"/><circle cx="5" cy="2" r=".45"/><circle cx="8" cy="2" r=".45"/><circle cx="11" cy="2" r=".45"/><circle cx="14" cy="2" r=".45"/>
+                <circle cx="3.5" cy="4" r=".45"/><circle cx="6.5" cy="4" r=".45"/><circle cx="9.5" cy="4" r=".45"/><circle cx="12.5" cy="4" r=".45"/>
+                <circle cx="2" cy="6" r=".45"/><circle cx="5" cy="6" r=".45"/><circle cx="8" cy="6" r=".45"/><circle cx="11" cy="6" r=".45"/><circle cx="14" cy="6" r=".45"/>
+                <circle cx="3.5" cy="8" r=".45"/><circle cx="6.5" cy="8" r=".45"/><circle cx="9.5" cy="8" r=".45"/><circle cx="12.5" cy="8" r=".45"/>
+                <circle cx="2" cy="10" r=".45"/><circle cx="5" cy="10" r=".45"/><circle cx="8" cy="10" r=".45"/><circle cx="11" cy="10" r=".45"/><circle cx="14" cy="10" r=".45"/>
+            </g>
+        </svg>
+    `
+};
+
+window.setShizukuLanguageToggle = function(currentLang = localStorage.getItem("language") || "en") {
+    const toggle = document.getElementById("langToggle");
+    if (!toggle) return;
+
+    const targetLang = currentLang === "en" ? "jp" : "en";
+    toggle.innerHTML = SHIZUKU_LANGUAGE_FLAG_SVGS[targetLang];
+    toggle.title = targetLang === "jp" ? "Switch to Japanese" : "Switch to English";
+    toggle.setAttribute("aria-label", toggle.title);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    window.setShizukuLanguageToggle();
+});
+
 function getProductReviews() {
     return JSON.parse(localStorage.getItem('productReviews') || '{}');
 }

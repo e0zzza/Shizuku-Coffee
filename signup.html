@@ -189,7 +189,7 @@ function updateLanguage() {
     document.querySelector("button[type='submit']").innerText = t.btn;
     document.getElementById("loginLink").innerText = t.link;
     document.getElementById("searchInput").placeholder = t.searchPlh;
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(currentLang);
 }
 
 const searchIcon = document.querySelector(".search-icon");

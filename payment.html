@@ -441,7 +441,7 @@
                     document.body.classList.remove('lang-jp');
                 }
 
-                document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+                window.setShizukuLanguageToggle(currentLang);
                 document.getElementById("authTitle").innerHTML = `${t.authTitle}<span class="loading-dots"></span>`;
                 document.getElementById("authText").innerText = t.authText;
                 document.getElementById("paymentTitle").innerText = t.payTitle;

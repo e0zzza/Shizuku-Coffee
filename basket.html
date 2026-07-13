@@ -229,7 +229,7 @@ function renderCart() {
         return renderCart();
     }
     
-    document.getElementById("langToggle").innerText = lang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(lang);
     document.getElementById("cartMainTitle").innerText = t.cartTitle;
     document.getElementById("searchInput").placeholder = t.searchPlh;
     document.getElementById("applyCouponBtn").innerText = t.apply;
@@ -561,7 +561,7 @@ document.getElementById("clearCartBtn").addEventListener("click", () => {
 document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "en" ? "jp" : "en";
     localStorage.setItem("language", currentLang);
-    document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
+    window.setShizukuLanguageToggle(currentLang);
     renderCart();
 });
 renderCart();
