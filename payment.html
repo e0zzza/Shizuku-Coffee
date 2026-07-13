@@ -21,12 +21,11 @@
             <a href="basket.html"><img src="cart.png" alt=""></a>
             <a href="wishlist.html"><img src="love.png" alt=""></a>
             <a href="profile.html"><img src="profile-icon.png" alt=""></a>
+            <div id="languageToggleContainer">
+                <button id="langToggle" class="sakura-btn">🇯🇵</button>
+            </div>
         </div>
     </nav>
-
-    <div id="languageToggleContainer">
-        <button id="langToggle" class="sakura-btn">🇯🇵</button>
-    </div>
 
     <div class="page-wrapper" style="display: block;">
         <div class="checkout-progress">
@@ -115,9 +114,9 @@
                 <button type="submit" id="payBtn" class="sakura-btn" style="width: 100%; margin-top: 10px; padding: 15px;">Complete Purchase</button>
 
                 <div id="secureLabel" style="text-align: center; margin-top: 25px; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(255, 182, 193, 0.15), rgba(255, 105, 180, 0.08)); border: 1px dashed rgba(255, 101, 163, 0.3);">
-                    <div style="font-size: 22px; margin-bottom: 6px;">&#x1F512;</div>
-                    <div style="font-size: 13px; font-weight: 600; color: var(--sakura-brown-light); letter-spacing: 1px;">ENCRYPTED SECURE PAYMENT</div>
-                    <div style="font-size: 10px; color: var(--sakura-pink-main); margin-top: 4px; opacity: 0.8;">Your data is protected with bank-level security</div>
+                    <div class="secure-payment-icon" style="font-size: 22px; margin-bottom: 6px;">&#x1F512;</div>
+                    <div id="secureTitle" style="font-size: 13px; font-weight: 600; color: var(--sakura-brown-light); letter-spacing: 1px;">ENCRYPTED SECURE PAYMENT</div>
+                    <div id="secureText" style="font-size: 10px; color: var(--sakura-pink-main); margin-top: 4px; opacity: 0.8;">Your data is protected with bank-level security</div>
                 </div>
             </form>
         </div>
@@ -228,6 +227,32 @@
                 utilPolicy: "返品ポリシー"
             }
         };
+
+        Object.assign(translations.en, {
+            authTitle: "Authorizing",
+            authText: "Securely processing your payment.",
+            authFinalText: "Almost done.",
+            authMessages: [
+                "Securely processing your payment.",
+                "Confirming your order details.",
+                "Preparing your Shizuku receipt."
+            ],
+            secureTitle: "ENCRYPTED SECURE PAYMENT",
+            secureText: "Your data is protected with bank-level security"
+        });
+
+        Object.assign(translations.jp, {
+            authTitle: "認証中",
+            authText: "お支払いを安全に処理しています。",
+            authFinalText: "まもなく完了します。",
+            authMessages: [
+                "お支払いを安全に処理しています。",
+                "ご注文内容を確認しています。",
+                "雫コーヒーの領収書を準備しています。"
+            ],
+            secureTitle: "暗号化された安全な決済",
+            secureText: "お客様のデータは安全に保護されています"
+        });
 
         let currentLang = localStorage.getItem("language") || "en";
 
@@ -417,7 +442,7 @@
                 }
 
                 document.getElementById("langToggle").innerText = currentLang === "en" ? "🇯🇵" : "🇺🇸";
-                document.getElementById("authTitle").innerText = t.authTitle;
+                document.getElementById("authTitle").innerHTML = `${t.authTitle}<span class="loading-dots"></span>`;
                 document.getElementById("authText").innerText = t.authText;
                 document.getElementById("paymentTitle").innerText = t.payTitle;
                 document.querySelectorAll(".step-label").forEach((el, i) => el.innerText = t.progressSteps[i]);
@@ -448,7 +473,8 @@
                 }
 
                 document.getElementById("payBtn").innerText = t.complete;
-                document.getElementById("secureLabel").innerText = t.secure;
+                document.getElementById("secureTitle").innerText = t.secureTitle || t.secure;
+                document.getElementById("secureText").innerText = t.secureText || "";
                 updateDisplayTotal();
             }
 
@@ -643,19 +669,23 @@
 
                 const authText = document.getElementById("authText");
                 const lang = localStorage.getItem("language") || "en";
-                const finalMsg = lang === 'jp' ? 'Almost done!' : 'Almost done!';
+                const authMessages = translations[lang]?.authMessages || translations.en.authMessages;
+                authText.innerText = authMessages[0];
+                authText.style.opacity = 1;
 
-                setTimeout(() => {
-                    authText.style.opacity = 0;
+                authMessages.slice(1).forEach((message, index) => {
                     setTimeout(() => {
-                        authText.innerText = finalMsg;
-                        authText.style.opacity = 1;
-                    }, 200);
-                }, 1200);
+                        authText.style.opacity = 0;
+                        setTimeout(() => {
+                            authText.innerText = message;
+                            authText.style.opacity = 1;
+                        }, 180);
+                    }, 760 * (index + 1));
+                });
 
                 setTimeout(() => {
                     finalizeOrder();
-                }, 2200);
+                }, 2600);
             });
 
             function finalizeOrder() {
