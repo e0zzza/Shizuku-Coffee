@@ -1291,6 +1291,7 @@ generateLocalResponse: async function(input, lang, context) {
             sugget: 'suggest',
             expresso: 'espresso',
             esspresso: 'espresso',
+            espreso: 'espresso',
             coffe: 'coffee',
             caffee: 'coffee',
             caffine: 'caffeine',
@@ -1315,11 +1316,13 @@ generateLocalResponse: async function(input, lang, context) {
             thx: 'thanks',
             thanx: 'thanks',
             tysm: 'thanks',
+            ty: 'thanks',
             u: 'you',
             ur: 'your',
             r: 'are',
             wat: 'what',
             wut: 'what',
+            huh: 'unsure',
             dunno: 'unsure',
             idk: 'unsure',
             rn: 'now',
@@ -1449,7 +1452,7 @@ generateLocalResponse: async function(input, lang, context) {
             'Doing well. My day is basically listening, matching moods to coffee, and trying not to recommend espresso at midnight unless asked.'
         ]);
         const userMoodReply = () => {
-            if (has('im good', 'i am good', 'doing good', 'doing well', 'im fine', 'i am fine', 'great', 'happy')) {
+            if (has('im good', 'i am good', 'doing good', 'doing well', 'im fine', 'i am fine', 'great', 'happy', 'nice')) {
                 return isJp
                     ? 'それはよかったです。いい気分の日なら、明るい香りのものか、少し特別感のある一杯が合いそうです。'
                     : 'Good, I like hearing that. For a good mood, I would lean bright, floral, or a little celebratory.';
@@ -1599,7 +1602,7 @@ generateLocalResponse: async function(input, lang, context) {
             return backchannelReply();
         }
         if (isGibberish()) {
-            return isJp ? unclearReply() : 'That looks like a keyboard-smash kind of message, which is valid. I can reset: say sweet, bold, light, gift, budget, shipping, returns, or surprise me.';
+            return isJp ? unclearReply() : 'That looks like a keyboard-smash kind of message, which is valid :D I can reset: say sweet, bold, light, gift, budget, shipping, returns, or surprise me.';
         }
         if (namedProduct) {
             return describe(namedProduct, isJp ? 'その商品についてならこちらです。' : 'Here is the quick read on that one.');
@@ -1642,7 +1645,7 @@ generateLocalResponse: async function(input, lang, context) {
                 reply: personaReply
             },
             {
-                match: () => has('are you real', 'are you ai', 'are you human', 'real person', 'human', 'robot', 'bot', 'are you alive', 'do you have feelings'),
+                match: () => has('are you real', 'are you ai', 'are you human', 'real person', 'human', 'robot', 'bot', 'are you alive', 'do you have feelings' , 'are you chatgpt'),
                 reply: () => isJp
                     ? '私は人間ではなく、このサイト内で動くデジタルアシスタントです。感情は本物ではありませんが、会話が冷たくならないように、丁寧に受け答えする設計です。'
                     : 'I am not a human; I am a site assistant running in this Shizuku Coffee demo. I do not have real feelings, but I am written to respond warmly and keep track of the shop context.'
@@ -1664,7 +1667,7 @@ generateLocalResponse: async function(input, lang, context) {
                 reply: boundariesReply
             },
             {
-                match: () => has('how old are you', 'your age', 'where are you from', 'where do you live', 'why are you called miko', 'what does miko mean'),
+                match: () => has('how old are you', 'your age', 'where are you from', 'where do you live', 'why are you called miko', 'what does miko mean', 'who are you'),
                 reply: () => isJp
                     ? '私はこのサイトの中で生まれたアシスタントなので、年齢や住所はありません。Mikoという名前は、Shizuku Coffeeのやわらかい和風の雰囲気に合わせた名前です。'
                     : 'I do not really have an age or a hometown. I exist inside this Shizuku Coffee site, and the name Miko was chosen to fit the soft Japanese-inspired café mood.'
@@ -1680,13 +1683,13 @@ generateLocalResponse: async function(input, lang, context) {
                 }
             },
             {
-                match: () => has('speak japanese', 'speak english', 'change language', 'language', 'can you speak japanese', 'can you speak english'),
+                match: () => has('speak japanese', 'speak english', 'change language', 'language', 'can you speak japanese', 'can you speak english', 'bilingual', 'what languages do you speak'),
                 reply: () => isJp
                     ? '日本語と英語の表示に対応しています。右上の言語ボタンで切り替えられます。商品名や説明もできる範囲で合わせます。'
                     : 'I can work with the site in English or Japanese. Use the language button near the top to switch the whole shop interface.'
             },
             {
-                match: () => has('you suck', 'shut up', 'annoying', 'useless', 'you are bad', 'bad bot'),
+                match: () => has('you suck', 'shut up', 'annoying', 'useless', 'you are bad', 'bad bot' , 'stfu'),
                 reply: () => isJp
                     ? 'ごめんなさい。今の返答が役に立たなかったなら、短く言い直してください。商品、注文、ギフトカード、配送、返品のどれかに絞ると立て直しやすいです。'
                     : 'Fair. I probably missed the shape of what you wanted. Give me the goal in one short phrase and I will reset around it.'
